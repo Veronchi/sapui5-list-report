@@ -1,0 +1,7 @@
+<mvc:View controllerName="veronchi.leverx.project.controller.ProductsList"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m">
+    <Page id="products-list" title="{i18n>ProductsListTitle}">
+        <content />
+    </Page>
+</mvc:View>
