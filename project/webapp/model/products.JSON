@@ -3,10 +3,10 @@
         "id": "1",
         "name": "MacBook Air",
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        "raiting": "4",
+        "raiting": 4,
         "releaseDate": "Thu, Jan 29, 2017",
         "discountDate": "Thu, Mar 29, 2018",
-        "price": "1400",
+        "price": 1400,
         "categories": [
             {
                 "id": "1",
@@ -42,10 +42,10 @@
         "id": "2",
         "name": "MacBook Pro 14",
         "description": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Corporis, alias.",
-        "raiting": "5",
+        "raiting": 5,
         "releaseDate": "Fri, Dec 1, 2019",
         "discountDate": "Thu, Jan 29, 2019",
-        "price": "1600",
+        "price": 1600,
         "categories": [
             {
                 "id": "1",
@@ -85,10 +85,10 @@
         "id": "3",
         "name": "Dyson v15",
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard",
-        "raiting": "5",
+        "raiting": 5,
         "releaseDate": "Mon, Jan 1, 2021",
         "discountDate": "Fri, Apr 16, 2021",
-        "price": "900",
+        "price": 900,
         "categories": [
             {
                 "id": "3",
@@ -120,10 +120,10 @@
         "id": "4",
         "name": "MacBook Pro 16",
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting",
-        "raiting": "4",
+        "raiting": 4,
         "releaseDate": "Tue, June 1, 2021",
         "discountDate": "Thu, Mar 29, 2022",
-        "price": "2100",
+        "price": 2100,
         "categories": [
             {
                 "id": "1",
@@ -155,10 +155,10 @@
         "id": "5",
         "name": "MacBook Pro 14",
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
-        "raiting": "3",
+        "raiting": 3,
         "releaseDate": "Tue, June 1, 2021",
         "discountDate": "Fri, Apr 16, 2022",
-        "price": "1900",
+        "price": 1900,
         "categories": [
             {
                 "id": "1",
@@ -186,10 +186,10 @@
         "id": "6",
         "name": "Dyson v8",
         "description": "Lorem Ipsum is simply dummy text",
-        "raiting": "3",
+        "raiting": 3,
         "releaseDate": "Wed, June 6, 2018",
         "discountDate": "Thu, Oct 21, 2019",
-        "price": "400",
+        "price": 400,
         "categories": [
             {
                 "id": "3",
@@ -217,10 +217,10 @@
         "id": "7",
         "name": "Dyson v15s Detect Submarine",
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum",
-        "raiting": "5",
+        "raiting": 5,
         "releaseDate": "Mon, Sep 16, 2023",
         "discountDate": "Fri, Nov 21, 2023",
-        "price": "1500",
+        "price": 1500,
         "categories": [
             {
                 "id": "3",
@@ -265,10 +265,10 @@
         "id": "8",
         "name": "DeLonghi Dinamica ECAM 350",
         "description": "Lorem Ipsum is simply dummy text of the printing and",
-        "raiting": "2",
+        "raiting": 2,
         "releaseDate": "Sun, Aug 6, 2017",
         "discountDate": "Fri, Nov 21, 2019",
-        "price": "399",
+        "price": 399,
         "categories": [
             {
                 "id": "7",
@@ -308,10 +308,10 @@
         "id": "9",
         "name": "Melitta Caffeo Passione",
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum",
-        "raiting": "5",
+        "raiting": 5,
         "releaseDate": "Sat, Oct 6, 2022",
         "discountDate": "Fri, Jan 21, 2023",
-        "price": "899",
+        "price": 899,
         "categories": [
             {
                 "id": "7",
@@ -352,10 +352,10 @@
         "id": "10",
         "name": "MacBook Air 14",
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been",
-        "raiting": "1",
+        "raiting": 1,
         "releaseDate": "Sun, Nov 22, 2023",
         "discountDate": "Fri, Jan 21, 2023",
-        "price": "4",
+        "price": 455,
         "categories": [
             {
                 "id": "1",
