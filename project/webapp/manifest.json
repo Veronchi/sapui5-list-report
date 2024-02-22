@@ -33,7 +33,6 @@
     }
   },
   "sap.ui5": {
-    "flexEnabled": true,
     "dependencies": {
       "minUI5Version": "1.120.8",
       "libs": {
@@ -78,7 +77,7 @@
           ]
         },
         {
-          "name": "ProductPage",
+          "name": "ProductPage/{productId}",
           "pattern": "ProductPage",
           "target": [
             "ProductPage"

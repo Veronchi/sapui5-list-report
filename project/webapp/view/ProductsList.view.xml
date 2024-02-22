@@ -1,7 +1,116 @@
-<mvc:View controllerName="veronchi.leverx.project.controller.ProductsList"
-    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
-    xmlns="sap.m">
-    <Page id="products-list" title="{i18n>ProductsListTitle}">
-        <content />
-    </Page>
+<mvc:View
+    controllerName="veronchi.leverx.project.controller.ProductsList"
+    xmlns:mvc="sap.ui.core.mvc"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:layout="sap.ui.layout"
+>
+    <f:DynamicPage
+        id="products-list-page"
+        headerPinned="true"
+        toggleHeaderOnTitleClick="true"
+    >
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="{i18n>ProductsPageTitle}" />
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
+        <f:content>
+            <Table
+                id="product-list"
+                mode="MultiSelect"
+                items="{appModel>/products}"
+                sticky="HeaderToolbar,ColumnHeaders"
+                inset="false"
+                class="sapFDynamicPageAlignContent"
+                width="auto"
+                noDataText="No data found. Try adjusting the filter settings."
+                autoPopinMode="true"
+                selectionChange="onSelectProduct"
+            >
+                <headerToolbar>
+                    <Toolbar>
+                        <Title
+                            text="{i18n>ProductsListTitle}"
+                            level="H2"
+                        />
+                        <ToolbarSpacer />
+
+                        <Button text="Create" />
+                        <Button
+                            text="Delete"
+                            type="Transparent"
+                            enabled="{tableModel>/isActive}"
+                        />
+                    </Toolbar>
+                </headerToolbar>
+                <columns>
+                    <Column
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                    >
+                        <Text text="{i18n>ProductColumnName}" />
+                    </Column>
+                    <Column width="8em">
+                        <Text text="{i18n>ProductColumnPrice}" />
+                    </Column>
+                    <Column
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                    >
+                        <Text text="{i18n>ProductColumnDescription}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>ProductColumnRating}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>ProductColumnReleaseDate}" />
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem
+                        type="Navigation"
+                        highlight="{= ${appModel>discountDate} ? 'Success' : 'None' }"
+                    >
+                        <cells>
+                            <Text text="{appModel>name}" />
+                            <ObjectNumber
+                                state="{= ${appModel>discountDate} ? 'Success' : 'None' }"
+                                number="{parts: ['appModel>price', 'appModel>currencyCode'],
+                                type: 'sap.ui.model.type.Currency',
+                                formatOptions: {
+                                  currencyCode : false,
+                                  decimals: 0
+                                }
+                              
+                              }"
+                            />
+
+                            <Text text="{appModel>description}" />
+                            <RatingIndicator
+                                editable="false"
+                                maxValue="5"
+                                value="{appModel>rating}"
+                                iconSize="12px"
+                            />
+                            <Text
+                                text="{
+                                  path: 'appModel>releaseDate',
+                                  type: 'sap.ui.model.type.Date',
+                                  formatOptions: {
+                                    source: {
+                                      pattern: 'yyyy-MM-ddTHH:mm:ss'
+                                    }
+                                  }
+                                }"
+                            />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </f:content>
+    </f:DynamicPage>
 </mvc:View>

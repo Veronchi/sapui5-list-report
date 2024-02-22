@@ -1,15 +1,15 @@
 sap.ui.define([
-    "sap/ui/core/mvc/Controller"
+  "sap/ui/core/mvc/Controller"
 ],
-    /**
-     * @param {typeof sap.ui.core.mvc.Controller} Controller
-     */
-    function (Controller) {
-        "use strict";
+  /**
+   * @param {typeof sap.ui.core.mvc.Controller} Controller
+   */
+  function (Controller) {
+    "use strict";
 
-        return Controller.extend("veronchi.leverx.project.controller.ProductPage", {
-            onInit: function () {
+    return Controller.extend("veronchi.leverx.project.controller.ProductPage", {
+      onInit: function () {
 
-            }
-        });
+      }
     });
+  });
