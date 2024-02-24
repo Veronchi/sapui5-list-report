@@ -4,6 +4,8 @@
     displayBlock="true"
     xmlns="sap.m"
     xmlns:f="sap.f"
+    xmlns:core="sap.ui.core"
+    xmlns:fb="sap.ui.comp.filterbar"
     xmlns:layout="sap.ui.layout"
 >
     <f:DynamicPage
@@ -18,9 +20,99 @@
                 </f:heading>
             </f:DynamicPageTitle>
         </f:title>
+        <f:header>
+            <f:DynamicPageHeader>
+                <f:content>
+                    <fb:FilterBar
+                        id="filterbar"
+                        useToolbar="false"
+                        showFilterConfiguration="false"
+                        showGoOnFB="false"
+                        basicSearch="searchName"
+                    >
+                        <fb:filterGroupItems>
+                            <fb:FilterGroupItem
+                                name="Name"
+                                label="Product Name"
+                                groupName="Group1"
+                                visibleInFilterBar="true"
+                            >
+                                <fb:control>
+                                    <SearchField
+                                        id="searchName"
+                                        placeholder="Enter product name"
+                                        showSearchButton="false"
+                                        liveChange="onSearchProducts"
+                                    />
+                                </fb:control>
+                            </fb:FilterGroupItem>
+
+                            <fb:FilterGroupItem
+                                name="Category"
+                                label="Category"
+                                groupName="Group1"
+                                visibleInFilterBar="true"
+                            >
+                                <fb:control>
+                                    <MultiComboBox
+                                        id="categorySelect"
+                                        name="Category"
+                                        items="{
+                                          path: 'filterBarModel>/categories',
+                                          templateShareable: true
+                                        }"
+                                        selectionChange="onSearchProducts"
+                                    >
+                                        <core:Item
+                                            key="{filterBarModel>id}"
+                                            text="{filterBarModel>name}"
+                                        />
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                            <fb:FilterGroupItem
+                                id="releaseDate"
+                                name="Release date"
+                                label="Release date"
+                                groupName="Group1"
+                                visibleInFilterBar="true"
+                            >
+                                <fb:control>
+                                    <DateRangeSelection
+                                        displayFormat="yyyy-MM-dd"
+                                    />
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                            <fb:FilterGroupItem
+                                name="Supplier"
+                                label="Supplier"
+                                groupName="Group1"
+                                visibleInFilterBar="true"
+                            >
+                                <fb:control>
+                                    <Input
+                                        id="supplier"
+                                        placeholder="Enter supplier name"
+                                        showSuggestion="true"
+                                        suggestionItems="{filterBarModel>/suppliers}"
+                                    >
+                                        <suggestionItems>
+                                            <core:Item
+                                                key="{filterBarModel>id}"
+                                                text="{filterBarModel>name}"
+                                            />
+                                        </suggestionItems>
+                                    </Input>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                        </fb:filterGroupItems>
+                    </fb:FilterBar>
+                </f:content>
+            </f:DynamicPageHeader>
+        </f:header>
         <f:content>
             <Table
-                id="product-list"
+                id="productList"
                 mode="MultiSelect"
                 items="{appModel>/products}"
                 sticky="HeaderToolbar,ColumnHeaders"
