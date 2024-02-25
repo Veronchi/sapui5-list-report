@@ -5,14 +5,16 @@ sap.ui.define(
     "veronchi/leverx/project/model/productModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
+    "sap/m/MessageBox",
   ],
 
-  function (Controller, JSONModel, productModel, Filter, FilterOperator) {
+  function (Controller, JSONModel, productModel, Filter, FilterOperator, MessageBox) {
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
       onInit: function () {
         this.oComponent = this.getOwnerComponent();
+        this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
         const oModel = productModel.getModel();
 
         this.oTableModel = new JSONModel({
@@ -76,9 +78,7 @@ sap.ui.define(
       },
 
       onSelectProduct: function (oEvent) {
-        oEvent.getParameter("selected")
-          ? this.oTableModel.setProperty("/isActive", true)
-          : this.oTableModel.setProperty("/isActive", false);
+        this.oTableModel.setProperty("/isActive", oEvent.getParameter("selected"));
       },
 
       _getSearchNameFilter: function () {
@@ -185,6 +185,39 @@ sap.ui.define(
         this.byId("categorySelect").setSelectedKeys([]);
 
         oTableBinding.filter(null);
+      },
+
+      onDeleteProduct: function (oEvent) {
+        // add products delete functionality
+      },
+
+      onDeleteProductPress: function (oEvent) {
+        MessageBox.confirm(this._getConfirmationText(), {
+          title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
+          actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
+          onClose: (sAction) => {
+            switch (sAction) {
+              case MessageBox.Action.OK:
+                this.onDeleteProduct(oEvent);
+                break;
+
+              default:
+                break;
+            }
+          },
+        });
+      },
+
+      _getConfirmationText() {
+        const aSelectedItems = this.byId("productList").getSelectedItems();
+        const sPath = aSelectedItems[0].getBindingContext("appModel").getPath();
+        const sProductName = aSelectedItems[0].getBindingContext("appModel").getModel().getProperty(`${sPath}/name`);
+
+        if (aSelectedItems.length > 1) {
+          return this.oResourceBundle.getText("ConfirmDeleteProductsText", aSelectedItems.length);
+        }
+
+        return this.oResourceBundle.getText("ConfirmDeleteProductsText", sProductName);
       },
     });
   }
