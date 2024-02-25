@@ -34,14 +34,14 @@
             <fb:filterGroupItems>
               <fb:FilterGroupItem
                 name="Name"
-                label="Product Name"
+                label="{i18n>SearchNameFilterLabel}"
                 groupName="Group1"
                 visibleInFilterBar="true"
               >
                 <fb:control>
                   <SearchField
                     id="searchName"
-                    placeholder="Enter product name"
+                    placeholder="{i18n>SearchNameFilterPlaceholder}"
                     showSearchButton="false"
                     liveChange="onSearchProducts"
                   />
@@ -50,7 +50,7 @@
 
               <fb:FilterGroupItem
                 name="Category"
-                label="Category"
+                label="{i18n>CategoryFilterLabel}"
                 groupName="Group1"
                 visibleInFilterBar="true"
               >
@@ -73,7 +73,7 @@
               </fb:FilterGroupItem>
               <fb:FilterGroupItem
                 name="Release date"
-                label="Release date"
+                label="{i18n>ReleaseDateFilterLabel}"
                 groupName="Group1"
                 visibleInFilterBar="true"
               >
@@ -87,14 +87,14 @@
               </fb:FilterGroupItem>
               <fb:FilterGroupItem
                 name="Supplier"
-                label="Supplier"
+                label="{i18n>SupplierFilterLabel}"
                 groupName="Group1"
                 visibleInFilterBar="true"
               >
                 <fb:control>
                   <Input
                     id="supplier"
-                    placeholder="Enter supplier name"
+                    placeholder="{i18n>SupplierFilterPlaceholder}"
                     showSuggestion="true"
                     suggestionItems="{filterBarModel>/suppliers}"
                     suggestionItemSelected="onSearchProducts"
@@ -122,7 +122,7 @@
         inset="false"
         class="sapFDynamicPageAlignContent"
         width="auto"
-        noDataText="No data found. Try adjusting the filter settings."
+        noDataText="{i18n>TableEmptyStateText}"
         autoPopinMode="true"
         selectionChange="onSelectProduct"
       >
@@ -134,11 +134,12 @@
             />
             <ToolbarSpacer />
 
-            <Button text="Create" />
+            <Button text="{i18n>CreateButtonText}" />
             <Button
-              text="Delete"
+              text="{i18n>DeleteButtonText}"
               type="Transparent"
               enabled="{tableModel>/isActive}"
+              press="onDeleteProductPress"
             />
           </Toolbar>
         </headerToolbar>
