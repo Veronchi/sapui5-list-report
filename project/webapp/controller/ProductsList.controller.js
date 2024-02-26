@@ -93,7 +93,7 @@ sap.ui.define(
         const aSelectedCategories = this.byId("categorySelect").getProperty("selectedKeys");
         const aFilters = [];
 
-        if (aSelectedCategories.length > 0) {
+        if (!!aSelectedCategories.length) {
           aSelectedCategories.forEach((sSelectedKey) => {
             aFilters.push(
               new Filter({
@@ -130,32 +130,57 @@ sap.ui.define(
         });
       },
 
-      onSuggestSupplier(sSuggestedValue) {
-        const oSupplierFilter = this.byId("supplier");
-        const aFilters = [];
+      // onSuggestSupplier(sSuggestedValue) {
+      //   const oSupplierFilter = this.byId("supplier");
+      //   const aFilters = [];
 
-        if (sSuggestedValue) {
-          aFilters.push(new Filter("name", FilterOperator.Contains, sSuggestedValue));
-        }
+      //   if (sSuggestedValue) {
+      //     aFilters.push(new Filter("name", FilterOperator.Contains, sSuggestedValue));
+      //   }
 
-        oSupplierFilter.getBinding("suggestionItems").filter(aFilters);
-        oSupplierFilter.suggest();
+      //   oSupplierFilter.getBinding("suggestionItems").filter(aFilters);
+      //   oSupplierFilter.suggest();
+      // },
+
+      onSupplierChanege(oEvent) {
+        console.log(oEvent);
       },
 
       _getSupplierFilter() {
-        const sSupplier = this.byId("supplier").getValue();
-        const supplierFilter = new Filter({
-          path: "suppliers",
-          operator: FilterOperator.EQ,
-          value1: sSupplier,
-          test: (supplier) => {
-            const aResult = supplier.filter((item) => item.name === sSupplier);
+        const aSuppliersTokens = this.byId("supplier").getTokens();
+        const aFilters = [];
+   
+        if(!!aSuppliersTokens.length) {
+          aSuppliersTokens.forEach((sSelectedToken) => {
+            aFilters.push(
+              new Filter({
+                path: "suppliers",
+                operator: FilterOperator.EQ,
+                value1: sSelectedToken,
+                test: (suppliers) => {
+                  const aResult = suppliers.filter((item) => item.id === sSelectedToken.getProperty('key'));
 
-            return !!aResult.length;
-          },
-        });
+                  return !!aResult.length;
+                },
+              })
+            );
+          });
+        }
 
-        return sSupplier ? supplierFilter : null;
+        return aFilters.length ? aFilters : null;
+
+        // const supplierFilter = new Filter({
+        //   path: "suppliers",
+        //   operator: FilterOperator.EQ,
+        //   value1: sSupplier,
+        //   test: (supplier) => {
+        //     const aResult = supplier.filter((item) => item.name === sSupplier);
+
+        //     return !!aResult.length;
+        //   },
+        // });
+
+        // return sSupplier ? supplierFilter : null;
       },
 
       _getAllFilters() {
@@ -173,7 +198,17 @@ sap.ui.define(
         }
 
         aFilters.push(this._getDateFilter());
-        aFilters.push(this._getSupplierFilter());
+        // aFilters.push(this._getSupplierFilter());
+
+        if (this._getSupplierFilter()) {
+          aFilters.push(
+            new Filter({
+              filters: this._getSupplierFilter(),
+              and: false,
+            })
+          );
+        }
+
 
         aFilters = aFilters.filter((item) => {
           return item !== null;
@@ -185,7 +220,7 @@ sap.ui.define(
       onSearchProducts() {
         const oTableBinding = this.byId("productList").getBinding("items");
         const aFilters = this._getAllFilters();
-
+      
         oTableBinding.filter(aFilters);
       },
 
