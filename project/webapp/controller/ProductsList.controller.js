@@ -13,6 +13,7 @@ sap.ui.define(
     return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
       APP_MODEL_NAME: "appModel",
       TABLE_MODEL_NAME: "tableModel",
+      FILTERBAR_MODEL_NAME: "filterBarModel",
 
       onInit() {
         this.oComponent = this.getOwnerComponent();
@@ -75,20 +76,20 @@ sap.ui.define(
 
         this.getView().setModel(oModel, this.APP_MODEL_NAME);
         this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
-        this.getView().setModel(this.oFilterBar, "filterBarModel");
+        this.getView().setModel(this.oFilterBar, this.FILTERBAR_MODEL_NAME);
       },
 
       onSelectProduct(bProductSelected) {
         this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
       },
 
-      _getSearchNameFilter: function () {
+      _getSearchNameFilter() {
         const sSearchQuery = this.byId("searchName").getProperty("value");
 
         return sSearchQuery.length ? new Filter("name", FilterOperator.Contains, sSearchQuery) : null;
       },
 
-      _getCategoriesFilter: function () {
+      _getCategoriesFilter() {
         const aSelectedCategories = this.byId("categorySelect").getProperty("selectedKeys");
         const aFilters = [];
 
@@ -112,8 +113,8 @@ sap.ui.define(
         return aFilters.length ? aFilters : null;
       },
 
-      _getDateFilter: function () {
-        let sDate = this.byId("releaseDate");
+      _getDateFilter() {
+        const sDate = this.byId("releaseDate");
         const sDateStart = sDate.getDateValue();
         const sDateEnd = sDate.getSecondDateValue();
 
@@ -129,24 +130,35 @@ sap.ui.define(
         });
       },
 
-      _getSupplierFilter: function () {
-        const sSupplier = this.byId("supplier").getSelectedKey();
+      onSuggest(sSuggestedValue) {
+        const oSupplierFilter = this.byId("supplier");
+        const aFilters = [];
 
+        if (sSuggestedValue) {
+          aFilters.push(new Filter("name", FilterOperator.Contains, sSuggestedValue));
+        }
+
+        oSupplierFilter.getBinding("suggestionItems").filter(aFilters);
+        oSupplierFilter.suggest();
+      },
+
+      _getSupplierFilter() {
+        const sSupplier = this.byId("supplier").getValue();
         const supplierFilter = new Filter({
           path: "suppliers",
           operator: FilterOperator.EQ,
           value1: sSupplier,
           test: (supplier) => {
-            const res = supplier.filter((item) => item.id === sSupplier);
+            const res = supplier.filter((item) => item.name === sSupplier);
 
-            return res.length > 0;
+            return !!res.length;
           },
         });
 
         return sSupplier ? supplierFilter : null;
       },
 
-      _getAllFilters: function () {
+      _getAllFilters() {
         let aFilters = [];
 
         aFilters.push(this._getSearchNameFilter());
@@ -170,14 +182,14 @@ sap.ui.define(
         return aFilters;
       },
 
-      onSearchProducts: function () {
+      onSearchProducts() {
         const oTableBinding = this.byId("productList").getBinding("items");
         const aFilters = this._getAllFilters();
 
         oTableBinding.filter(aFilters);
       },
 
-      onClearFilters: function () {
+      onClearFilters() {
         const oTableBinding = this.byId("productList").getBinding("items");
 
         this.byId("releaseDate").setValue(null);
