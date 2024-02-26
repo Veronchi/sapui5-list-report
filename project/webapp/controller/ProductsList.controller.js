@@ -123,7 +123,7 @@ sap.ui.define(
         }
 
         return new Filter({
-          path: "discountDate",
+          path: "releaseDate",
           operator: FilterOperator.BT,
           value1: sDateStart.toISOString(),
           value2: sDateEnd.toISOString(),
