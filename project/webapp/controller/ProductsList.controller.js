@@ -103,7 +103,7 @@ sap.ui.define(
                 test: (categories) => {
                   const aResult = categories.filter((item) => item.id === sSelectedKey);
 
-                  return aResult.length > 0;
+                  return !!aResult.length;
                 },
               })
             );
@@ -149,9 +149,9 @@ sap.ui.define(
           operator: FilterOperator.EQ,
           value1: sSupplier,
           test: (supplier) => {
-            const res = supplier.filter((item) => item.name === sSupplier);
+            const aResult = supplier.filter((item) => item.name === sSupplier);
 
-            return !!res.length;
+            return !!aResult.length;
           },
         });
 
