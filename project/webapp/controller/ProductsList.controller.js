@@ -14,6 +14,7 @@ sap.ui.define(
       APP_MODEL_NAME: "appModel",
       TABLE_MODEL_NAME: "tableModel",
       FILTERBAR_MODEL_NAME: "filterBarModel",
+      TOKEN_REMOVED_TYPE: "removed",
 
       onInit() {
         this.oComponent = this.getOwnerComponent();
@@ -100,8 +101,8 @@ sap.ui.define(
                 path: "categories",
                 operator: FilterOperator.EQ,
                 value1: sSelectedKey,
-                test: (categories) => {
-                  const aResult = categories.filter((item) => item.id === sSelectedKey);
+                test: (aCategories) => {
+                  const aResult = aCategories.filter((item) => item.id === sSelectedKey);
 
                   return !!aResult.length;
                 },
@@ -130,85 +131,88 @@ sap.ui.define(
         });
       },
 
-      // onSuggestSupplier(sSuggestedValue) {
-      //   const oSupplierFilter = this.byId("supplier");
-      //   const aFilters = [];
+      _getCurrTokens(oEvent) {
+        let aSuppliersTokens = this.byId("supplier").getTokens();
+        const oMultiInput = oEvent.getParameters();
+        const sTokenType = oMultiInput.type;
 
-      //   if (sSuggestedValue) {
-      //     aFilters.push(new Filter("name", FilterOperator.Contains, sSuggestedValue));
-      //   }
-
-      //   oSupplierFilter.getBinding("suggestionItems").filter(aFilters);
-      //   oSupplierFilter.suggest();
-      // },
-
-      onSupplierChanege(oEvent) {
-        console.log(oEvent);
-      },
-
-      _getSupplierFilter() {
-        const aSuppliersTokens = this.byId("supplier").getTokens();
-        const aFilters = [];
-   
-        if(!!aSuppliersTokens.length) {
-          aSuppliersTokens.forEach((sSelectedToken) => {
-            aFilters.push(
-              new Filter({
-                path: "suppliers",
-                operator: FilterOperator.EQ,
-                value1: sSelectedToken,
-                test: (suppliers) => {
-                  const aResult = suppliers.filter((item) => item.id === sSelectedToken.getProperty('key'));
-
-                  return !!aResult.length;
-                },
-              })
-            );
-          });
+        if (sTokenType === this.TOKEN_REMOVED_TYPE) {
+          aSuppliersTokens = aSuppliersTokens.filter((item) => item !== oMultiInput.removedTokens[0]);
         }
 
-        return aFilters.length ? aFilters : null;
-
-        // const supplierFilter = new Filter({
-        //   path: "suppliers",
-        //   operator: FilterOperator.EQ,
-        //   value1: sSupplier,
-        //   test: (supplier) => {
-        //     const aResult = supplier.filter((item) => item.name === sSupplier);
-
-        //     return !!aResult.length;
-        //   },
-        // });
-
-        // return sSupplier ? supplierFilter : null;
+        return aSuppliersTokens;
       },
 
-      _getAllFilters() {
+      _getSupplierFilterWithoutToken() {
+        const sSupplierValue = this.byId("supplier").getValue();
+
+        return [
+          new Filter({
+            path: "suppliers",
+            operator: FilterOperator.EQ,
+            value1: sSupplierValue,
+            test: () => sSupplierValue === "",
+          }),
+        ];
+      },
+
+      _getSupplierFilterWithTokens(aSuppliersTokens) {
+        const aFilters = [];
+
+        aSuppliersTokens.forEach((sToken) => {
+          aFilters.push(
+            new Filter({
+              path: "suppliers",
+              operator: FilterOperator.EQ,
+              value1: sToken,
+              test: (aSuppliers) => {
+                const aResult = aSuppliers.filter((item) => item.id === sToken.getProperty("key"));
+
+                return !!aResult.length;
+              },
+            })
+          );
+        });
+
+        return aFilters;
+      },
+
+      _getSupplierFilter(oEvent) {
+        const aSuppliersTokens = this._getCurrTokens(oEvent);
+
+        if (!aSuppliersTokens.length) {
+          return this._getSupplierFilterWithoutToken(oEvent);
+        } else {
+          const aFilters = this._getSupplierFilterWithTokens(aSuppliersTokens);
+
+          return aFilters;
+        }
+      },
+
+      _getAllFilters(oEvent) {
         let aFilters = [];
+        const categoriesFilter = this._getCategoriesFilter();
+        const suppliersFilter = this._getSupplierFilter(oEvent);
 
         aFilters.push(this._getSearchNameFilter());
-
-        if (this._getCategoriesFilter()) {
-          aFilters.push(
-            new Filter({
-              filters: this._getCategoriesFilter(),
-              and: false,
-            })
-          );
-        }
-
         aFilters.push(this._getDateFilter());
-        // aFilters.push(this._getSupplierFilter());
 
-        if (this._getSupplierFilter()) {
+        if (categoriesFilter) {
           aFilters.push(
             new Filter({
-              filters: this._getSupplierFilter(),
+              filters: categoriesFilter,
               and: false,
             })
           );
         }
-
+        if (suppliersFilter) {
+          aFilters.push(
+            new Filter({
+              filters: suppliersFilter,
+              and: true,
+            })
+          );
+        }
 
         aFilters = aFilters.filter((item) => {
           return item !== null;
@@ -217,10 +221,10 @@ sap.ui.define(
         return aFilters;
       },
 
-      onSearchProducts() {
+      onSearchProducts(oEvent) {
         const oTableBinding = this.byId("productList").getBinding("items");
-        const aFilters = this._getAllFilters();
-      
+        const aFilters = this._getAllFilters(oEvent);
+
         oTableBinding.filter(aFilters);
       },
 
@@ -228,7 +232,7 @@ sap.ui.define(
         const oTableBinding = this.byId("productList").getBinding("items");
 
         this.byId("releaseDate").setValue(null);
-        this.byId("supplier").setValue(null);
+        this.byId("supplier").setTokens([]);
         this.byId("searchName").setValue(null);
         this.byId("categorySelect").setSelectedKeys([]);
 

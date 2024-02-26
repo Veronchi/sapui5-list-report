@@ -1,190 +1,177 @@
 <mvc:View
-    controllerName="veronchi.leverx.project.controller.ProductsList"
-    xmlns:mvc="sap.ui.core.mvc"
-    displayBlock="true"
-    xmlns="sap.m"
-    xmlns:f="sap.f"
-    xmlns:core="sap.ui.core"
-    xmlns:fb="sap.ui.comp.filterbar"
+  controllerName="veronchi.leverx.project.controller.ProductsList"
+  xmlns:mvc="sap.ui.core.mvc"
+  displayBlock="true"
+  xmlns="sap.m"
+  xmlns:f="sap.f"
+  xmlns:core="sap.ui.core"
+  xmlns:fb="sap.ui.comp.filterbar"
 >
-    <f:DynamicPage
-        id="productsListPage"
-        headerPinned="true"
-        toggleHeaderOnTitleClick="true"
-    >
-        <f:title>
-            <f:DynamicPageTitle>
-                <f:heading>
-                    <Title text="{i18n>ProductsPageTitle}" />
-                </f:heading>
-            </f:DynamicPageTitle>
-        </f:title>
-        <f:header>
-            <f:DynamicPageHeader>
-                <f:content>
-                    <fb:FilterBar
-                        id="filterbar"
-                        useToolbar="false"
-                        showFilterConfiguration="false"
-                        showGoOnFB="false"
-                        showClearOnFB="true"
-                        clear="onClearFilters"
-                    >
-                        <fb:filterGroupItems>
-                            <fb:FilterGroupItem
-                                name="Name"
-                                label="Product Name"
-                                groupName="Group1"
-                                visibleInFilterBar="true"
-                            >
-                                <fb:control>
-                                    <SearchField
-                                        id="searchName"
-                                        placeholder="Enter product name"
-                                        showSearchButton="false"
-                                        liveChange="onSearchProducts"
-                                    />
-                                </fb:control>
-                            </fb:FilterGroupItem>
+  <f:DynamicPage
+    id="productsListPage"
+    headerPinned="true"
+    toggleHeaderOnTitleClick="true"
+  >
+    <f:title>
+      <f:DynamicPageTitle>
+        <f:heading>
+          <Title text="{i18n>ProductsPageTitle}" />
+        </f:heading>
+      </f:DynamicPageTitle>
+    </f:title>
+    <f:header>
+      <f:DynamicPageHeader>
+        <f:content>
+          <fb:FilterBar
+            id="filterbar"
+            useToolbar="false"
+            showFilterConfiguration="false"
+            showGoOnFB="false"
+            showClearOnFB="true"
+            clear="onClearFilters"
+          >
+            <fb:filterGroupItems>
+              <fb:FilterGroupItem
+                name="Name"
+                label="Product Name"
+                groupName="Group1"
+                visibleInFilterBar="true"
+              >
+                <fb:control>
+                  <SearchField
+                    id="searchName"
+                    placeholder="Enter product name"
+                    showSearchButton="false"
+                    liveChange="onSearchProducts"
+                  />
+                </fb:control>
+              </fb:FilterGroupItem>
 
-                            <fb:FilterGroupItem
-                                name="Category"
-                                label="Category"
-                                groupName="Group1"
-                                visibleInFilterBar="true"
-                            >
-                                <fb:control>
-                                    <MultiComboBox
-                                        id="categorySelect"
-                                        name="Category"
-                                        items="{
+              <fb:FilterGroupItem
+                name="Category"
+                label="Category"
+                groupName="Group1"
+                visibleInFilterBar="true"
+              >
+                <fb:control>
+                  <MultiComboBox
+                    id="categorySelect"
+                    name="Category"
+                    items="{
                                         path: 'filterBarModel>/categories',
                                         templateShareable: true
                                       }"
-                                        selectionChange="onSearchProducts"
-                                    >
-                                        <core:Item
-                                            key="{filterBarModel>id}"
-                                            text="{filterBarModel>name}"
-                                        />
-                                    </MultiComboBox>
-                                </fb:control>
-                            </fb:FilterGroupItem>
-                            <fb:FilterGroupItem
-                                name="Release date"
-                                label="Release date"
-                                groupName="Group1"
-                                visibleInFilterBar="true"
-                            >
-                                <fb:control>
-                                    <DateRangeSelection
-                                        id="releaseDate"
-                                        displayFormat="dd-MM-yyyy"
-                                        change="onSearchProducts"
-                                    />
-                                </fb:control>
-                            </fb:FilterGroupItem>
-                            <fb:FilterGroupItem
-                                name="Supplier"
-                                label="Supplier"
-                                groupName="Group1"
-                                visibleInFilterBar="true"
-                            >
-                                <fb:control>
-                                    <!-- <SearchField
-                    id="supplier"
-                    placeholder="Enter supplier name"
-                    enableSuggestions="true"
-                    showSearchButton="true"
-                    search="onSearchProducts"
-                    suggest="onSuggestSupplier(${$parameters>/suggestValue})"
-                    suggestionItems="{filterBarModel>/suppliers}"
+                    selectionChange="onSearchProducts"
                   >
-                    <SuggestionItem
-                      text="{filterBarModel>name}"
+                    <core:Item
                       key="{filterBarModel>id}"
+                      text="{filterBarModel>name}"
                     />
-                  </SearchField> -->
+                  </MultiComboBox>
+                </fb:control>
+              </fb:FilterGroupItem>
+              <fb:FilterGroupItem
+                name="Release date"
+                label="Release date"
+                groupName="Group1"
+                visibleInFilterBar="true"
+              >
+                <fb:control>
+                  <DateRangeSelection
+                    id="releaseDate"
+                    displayFormat="dd-MM-yyyy"
+                    change="onSearchProducts"
+                  />
+                </fb:control>
+              </fb:FilterGroupItem>
+              <fb:FilterGroupItem
+                name="Supplier"
+                label="Supplier"
+                groupName="Group1"
+                visibleInFilterBar="true"
+              >
+                <fb:control>
+                  <MultiInput
+                    id="supplier"
+                    suggestionItems="{filterBarModel>/suppliers}"
+                    showValueHelp="false"
+                    tokenUpdate="onSearchProducts"
+                    showClearIcon="true"
+                    liveChange="onSearchProducts"
+                  >
+                    <core:Item
+                      key="{filterBarModel>id}"
+                      text="{filterBarModel>name}"
+                    />
+                  </MultiInput>
+                </fb:control>
+              </fb:FilterGroupItem>
+            </fb:filterGroupItems>
+          </fb:FilterBar>
+        </f:content>
+      </f:DynamicPageHeader>
+    </f:header>
+    <f:content>
+      <Table
+        id="productList"
+        mode="MultiSelect"
+        items="{appModel>/products}"
+        sticky="HeaderToolbar,ColumnHeaders"
+        inset="false"
+        class="sapFDynamicPageAlignContent"
+        noDataText="No data found. Try adjusting the filter settings."
+        autoPopinMode="true"
+        selectionChange="onSelectProduct(${$parameters>/selected})"
+      >
+        <headerToolbar>
+          <Toolbar>
+            <Title
+              text="{i18n>ProductsListTitle}"
+              level="H2"
+            />
+            <ToolbarSpacer />
 
-                                    <MultiInput
-                                        id="supplier"
-                                        suggestionItems="{filterBarModel>/suppliers}"
-                                        showValueHelp="false"
-                                        tokenUpdate="onSearchProducts"
-                                    >
-                                        <core:Item
-                                            key="{filterBarModel>id}"
-                                            text="{filterBarModel>name}"
-                                        />
-                                    </MultiInput>
-                                </fb:control>
-                            </fb:FilterGroupItem>
-                        </fb:filterGroupItems>
-                    </fb:FilterBar>
-                </f:content>
-            </f:DynamicPageHeader>
-        </f:header>
-        <f:content>
-            <Table
-                id="productList"
-                mode="MultiSelect"
-                items="{appModel>/products}"
-                sticky="HeaderToolbar,ColumnHeaders"
-                inset="false"
-                class="sapFDynamicPageAlignContent"
-                noDataText="No data found. Try adjusting the filter settings."
-                autoPopinMode="true"
-                selectionChange="onSelectProduct(${$parameters>/selected})"
-            >
-                <headerToolbar>
-                    <Toolbar>
-                        <Title
-                            text="{i18n>ProductsListTitle}"
-                            level="H2"
-                        />
-                        <ToolbarSpacer />
-
-                        <Button text="Create" />
-                        <Button
-                            text="Delete"
-                            type="Transparent"
-                            enabled="{tableModel>/isProductsSelected}"
-                        />
-                    </Toolbar>
-                </headerToolbar>
-                <columns>
-                    <Column
-                        minScreenWidth="Tablet"
-                        demandPopin="true"
-                    >
-                        <Text text="{i18n>ProductColumnName}" />
-                    </Column>
-                    <Column width="8em">
-                        <Text text="{i18n>ProductColumnPrice}" />
-                    </Column>
-                    <Column
-                        minScreenWidth="Tablet"
-                        demandPopin="true"
-                    >
-                        <Text text="{i18n>ProductColumnDescription}" />
-                    </Column>
-                    <Column>
-                        <Text text="{i18n>ProductColumnRating}" />
-                    </Column>
-                    <Column>
-                        <Text text="{i18n>ProductColumnReleaseDate}" />
-                    </Column>
-                </columns>
-                <items>
-                    <ColumnListItem
-                        type="Navigation"
-                        highlight="{= ${appModel>discountDate} ? 'Success' : 'None' }"
-                    >
-                        <cells>
-                            <Text text="{appModel>name}" />
-                            <ObjectNumber
-                                state="{= ${appModel>discountDate} ? 'Success' : 'None' }"
-                                number="{
+            <Button text="Create" />
+            <Button
+              text="Delete"
+              type="Transparent"
+              enabled="{tableModel>/isProductsSelected}"
+            />
+          </Toolbar>
+        </headerToolbar>
+        <columns>
+          <Column
+            minScreenWidth="Tablet"
+            demandPopin="true"
+          >
+            <Text text="{i18n>ProductColumnName}" />
+          </Column>
+          <Column width="8em">
+            <Text text="{i18n>ProductColumnPrice}" />
+          </Column>
+          <Column
+            minScreenWidth="Tablet"
+            demandPopin="true"
+          >
+            <Text text="{i18n>ProductColumnDescription}" />
+          </Column>
+          <Column>
+            <Text text="{i18n>ProductColumnRating}" />
+          </Column>
+          <Column>
+            <Text text="{i18n>ProductColumnReleaseDate}" />
+          </Column>
+        </columns>
+        <items>
+          <ColumnListItem
+            type="Navigation"
+            highlight="{= ${appModel>discountDate} ? 'Success' : 'None' }"
+          >
+            <cells>
+              <Text text="{appModel>name}" />
+              <ObjectNumber
+                state="{= ${appModel>discountDate} ? 'Success' : 'None' }"
+                number="{
                   parts: ['appModel>price', 'appModel>currencyCode'],
                   type: 'sap.ui.model.type.Currency',
                   formatOptions: {
@@ -193,17 +180,17 @@
                   }
                               
                 }"
-                            />
+              />
 
-                            <Text text="{appModel>description}" />
-                            <RatingIndicator
-                                editable="false"
-                                maxValue="5"
-                                value="{appModel>rating}"
-                                iconSize="0.75em"
-                            />
-                            <Text
-                                text="{
+              <Text text="{appModel>description}" />
+              <RatingIndicator
+                editable="false"
+                maxValue="5"
+                value="{appModel>rating}"
+                iconSize="0.75em"
+              />
+              <Text
+                text="{
                   path: 'appModel>releaseDate',
                   type: 'sap.ui.model.type.Date',
                   formatOptions: {
@@ -212,11 +199,11 @@
                     }
                   }
                 }"
-                            />
-                        </cells>
-                    </ColumnListItem>
-                </items>
-            </Table>
-        </f:content>
-    </f:DynamicPage>
+              />
+            </cells>
+          </ColumnListItem>
+        </items>
+      </Table>
+    </f:content>
+  </f:DynamicPage>
 </mvc:View>
