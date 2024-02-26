@@ -79,7 +79,7 @@
                 <fb:control>
                   <DateRangeSelection
                     id="releaseDate"
-                    displayFormat="yyyy-MM-dd"
+                    displayFormat="dd-MM-yyyy"
                     change="onSearchProducts"
                   />
                 </fb:control>
@@ -97,7 +97,7 @@
                     enableSuggestions="true"
                     showSearchButton="true"
                     search="onSearchProducts"
-                    suggest="onSuggest(${$parameters>/suggestValue})"
+                    suggest="onSuggestSupplier(${$parameters>/suggestValue})"
                     suggestionItems="{filterBarModel>/suppliers}"
                   >
                     <SuggestionItem

@@ -130,7 +130,7 @@ sap.ui.define(
         });
       },
 
-      onSuggest(sSuggestedValue) {
+      onSuggestSupplier(sSuggestedValue) {
         const oSupplierFilter = this.byId("supplier");
         const aFilters = [];
 
