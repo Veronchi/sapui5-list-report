@@ -11,12 +11,15 @@ sap.ui.define(
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
-      onInit: function () {
+      APP_MODEL_NAME: "appModel",
+      TABLE_MODEL_NAME: "tableModel",
+
+      onInit() {
         this.oComponent = this.getOwnerComponent();
         const oModel = productModel.getModel();
 
         this.oTableModel = new JSONModel({
-          isActive: false,
+          isProductsSelected: false,
         });
 
         this.oFilterBar = new JSONModel({
@@ -70,15 +73,13 @@ sap.ui.define(
           ],
         });
 
-        this.getView().setModel(oModel, "appModel");
-        this.getView().setModel(this.oTableModel, "tableModel");
+        this.getView().setModel(oModel, this.APP_MODEL_NAME);
+        this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
         this.getView().setModel(this.oFilterBar, "filterBarModel");
       },
 
-      onSelectProduct: function (oEvent) {
-        oEvent.getParameter("selected")
-          ? this.oTableModel.setProperty("/isActive", true)
-          : this.oTableModel.setProperty("/isActive", false);
+      onSelectProduct(bProductSelected) {
+        this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
       },
 
       _getSearchNameFilter: function () {
