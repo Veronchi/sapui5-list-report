@@ -1,31 +1,30 @@
 sap.ui.define([
   "sap/ui/core/mvc/Controller",
   "sap/ui/model/json/JSONModel",
-  "veronchi/leverx/project/model/productModel"
+  "veronchi/leverx/project/model/productModel",
 ],
-  /**
-   * @param {typeof sap.ui.core.mvc.Controller} Controller
-   * @param {typeof sap.ui.model.json.JSONModel} JSONModel
-   */
+
   function (Controller, JSONModel, productModel) {
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
-      onInit: function () {
+      APP_MODEL_NAME: "appModel",
+      TABLE_MODEL_NAME: "tableModel",
+
+      onInit() {
         this.oComponent = this.getOwnerComponent();
         const oModel = productModel.getModel();
 
         this.oTableModel = new JSONModel({
-          isActive: false
+          isProductsSelected: false,
         });
 
-        this.getView().setModel(oModel, "appModel");
-        this.getView().setModel(this.oTableModel, "tableModel");
+        this.getView().setModel(oModel, this.APP_MODEL_NAME);
+        this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
       },
 
-      onSelectProduct: function (oEvent) {
-        oEvent.getParameter('selected') ?
-          this.oTableModel.setProperty('/isActive', true) : this.oTableModel.setProperty('/isActive', false);
+      onSelectProduct(bProductSelected) {
+        this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
       }
     });
   });

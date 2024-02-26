@@ -4,10 +4,9 @@
     displayBlock="true"
     xmlns="sap.m"
     xmlns:f="sap.f"
-    xmlns:layout="sap.ui.layout"
 >
     <f:DynamicPage
-        id="products-list-page"
+        id="productsListPage"
         headerPinned="true"
         toggleHeaderOnTitleClick="true"
     >
@@ -20,16 +19,15 @@
         </f:title>
         <f:content>
             <Table
-                id="product-list"
+                id="productList"
                 mode="MultiSelect"
                 items="{appModel>/products}"
                 sticky="HeaderToolbar,ColumnHeaders"
                 inset="false"
                 class="sapFDynamicPageAlignContent"
-                width="auto"
                 noDataText="No data found. Try adjusting the filter settings."
                 autoPopinMode="true"
-                selectionChange="onSelectProduct"
+                selectionChange="onSelectProduct(${$parameters>/selected})"
             >
                 <headerToolbar>
                     <Toolbar>
@@ -43,7 +41,7 @@
                         <Button
                             text="Delete"
                             type="Transparent"
-                            enabled="{tableModel>/isActive}"
+                            enabled="{tableModel>/isProductsSelected}"
                         />
                     </Toolbar>
                 </headerToolbar>
@@ -94,7 +92,7 @@
                                 editable="false"
                                 maxValue="5"
                                 value="{appModel>rating}"
-                                iconSize="12px"
+                                iconSize="0.75em"
                             />
                             <Text
                                 text="{
