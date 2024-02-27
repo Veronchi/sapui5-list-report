@@ -210,7 +210,7 @@ sap.ui.define(
           aFilters.push(
             new Filter({
               filters: suppliersFilter,
-              and: true,
+              and: false,
             })
           );
         }
