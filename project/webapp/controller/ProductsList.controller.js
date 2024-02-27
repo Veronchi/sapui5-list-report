@@ -20,8 +20,8 @@ sap.ui.define(
       onInit() {
         this.oComponent = this.getOwnerComponent();
         productModel.initModel();
-        this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
         const oModel = productModel.getModel();
+        this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
 
         this.oTableModel = new JSONModel({
           isProductsSelected: false,
@@ -241,18 +241,34 @@ sap.ui.define(
         oTableBinding.filter(null);
       },
 
-      _deleteProduct: function (oEvent) {
-        // TODO: add products delete functionality
+      _removeProductsFromList(aProductsList) {
+        const aSelectedProducts = this.byId("productList").getSelectedItems();
+        
+        aSelectedProducts.map((item) => {
+          const sProductId = item.getBindingContext(this.APP_MODEL_NAME).getProperty("id");
+          aProductsList = aProductsList.filter(({id}) => id !== sProductId);
+        })
+
+        return aProductsList;
       },
 
-      onDeleteProductPress: function (oEvent) {
+      _deleteProducts() {
+        const aProductsList = this.getView().getModel(this.APP_MODEL_NAME).getProperty("/products");
+        const aUpdatedList = this._removeProductsFromList(aProductsList);
+        
+        this.getView().getModel(this.APP_MODEL_NAME).setProperty("/products", aUpdatedList);
+        this.oTableModel.setProperty("/isProductsSelected", false);
+        this.byId("productList").removeSelections(true);
+      },
+
+      onDeleteProductPress() {
         MessageBox.confirm(this._getConfirmationText(), {
           title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
           actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
           onClose: (sAction) => {
             switch (sAction) {
               case MessageBox.Action.OK:
-                this._deleteProduct(oEvent);
+                this._deleteProducts();
                 break;
 
               default:
