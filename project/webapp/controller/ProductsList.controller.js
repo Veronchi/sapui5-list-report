@@ -267,7 +267,7 @@ sap.ui.define(
         const sPath = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getPath();
         const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getModel().getProperty(`${sPath}/name`);
 
-        if (!aSelectedItems.length) {
+        if (aSelectedItems.length > 1) {
           return this.oResourceBundle.getText("ConfirmDeleteProductsText", aSelectedItems.length);
         }
 
