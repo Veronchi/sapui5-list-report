@@ -18,6 +18,7 @@ sap.ui.define(
 
       onInit() {
         this.oComponent = this.getOwnerComponent();
+        productModel.initModel();
         const oModel = productModel.getModel();
 
         this.oTableModel = new JSONModel({
