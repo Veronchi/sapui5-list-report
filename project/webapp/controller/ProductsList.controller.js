@@ -3,86 +3,55 @@ sap.ui.define(
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "veronchi/leverx/project/model/productModel",
+    "veronchi/leverx/project/model/filterBarModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
   ],
 
-  function (Controller, JSONModel, productModel, Filter, FilterOperator) {
+  function (Controller, JSONModel, productModel, filterBarModel, Filter, FilterOperator) {
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
       APP_MODEL_NAME: "appModel",
       TABLE_MODEL_NAME: "tableModel",
-      FILTERBAR_MODEL_NAME: "filterBarModel",
+      FILTER_BAR_MODEL_NAME: "filterBarModel",
       TOKEN_REMOVED_TYPE: "removed",
 
       onInit() {
-        this.oComponent = this.getOwnerComponent();
         productModel.initModel();
+        filterBarModel.initFilterBarModel();
         const oModel = productModel.getModel();
+        this.oFilterBarModel = filterBarModel.getFilterBarModel();
 
         this.oTableModel = new JSONModel({
           isProductsSelected: false,
         });
 
-        this.oFilterBar = new JSONModel({
-          categories: [
-            {
-              id: "1",
-              name: "laptop",
-            },
-            {
-              id: "2",
-              name: "M1",
-            },
-            {
-              id: "3",
-              name: "vacuum cleaner",
-            },
-            {
-              id: "4",
-              name: "2in1",
-            },
-            {
-              id: "5",
-              name: "M3",
-            },
-            {
-              id: "6",
-              name: "wet cleaning",
-            },
-            {
-              id: "7",
-              name: "coffee machines",
-            },
-          ],
-          suppliers: [
-            {
-              id: "1",
-              name: "AMD",
-            },
-            {
-              id: "2",
-              name: "Onliner",
-            },
-            {
-              id: "3",
-              name: "Newton",
-            },
-            {
-              id: "4",
-              name: "XStore",
-            },
-          ],
-        });
-
         this.getView().setModel(oModel, this.APP_MODEL_NAME);
         this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
-        this.getView().setModel(this.oFilterBar, this.FILTERBAR_MODEL_NAME);
+        this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
       },
 
       onSelectProduct(bProductSelected) {
         this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+      },
+
+      onSearchProducts(oEvent) {
+        const oTableBinding = this.byId("productList").getBinding("items");
+        const aFilters = this._getAllFilters(oEvent);
+
+        oTableBinding.filter(aFilters);
+      },
+
+      onClearFilters() {
+        const oTableBinding = this.byId("productList").getBinding("items");
+
+        this.byId("releaseDate").setValue(null);
+        this.byId("supplier").setTokens([]);
+        this.byId("searchName").setValue(null);
+        this.byId("categorySelect").setSelectedKeys([]);
+
+        oTableBinding.filter(null);
       },
 
       _getSearchNameFilter() {
@@ -96,14 +65,14 @@ sap.ui.define(
         const aFilters = [];
 
         if (!!aSelectedCategories.length) {
-          aSelectedCategories.forEach((sSelectedKey) => {
+          aSelectedCategories.map((sSelectedKey) => {
             aFilters.push(
               new Filter({
                 path: "categories",
                 operator: FilterOperator.EQ,
                 value1: sSelectedKey,
                 test: (aCategories) => {
-                  const aResult = aCategories.filter((item) => item.id === sSelectedKey);
+                  const aResult = aCategories.filter(({id}) => id === sSelectedKey);
 
                   return !!aResult.length;
                 },
@@ -167,7 +136,7 @@ sap.ui.define(
               operator: FilterOperator.EQ,
               value1: sToken,
               test: (aSuppliers) => {
-                const aResult = aSuppliers.filter((item) => item.id === sToken.getProperty("key"));
+                const aResult = aSuppliers.filter(({id}) => id === sToken.getProperty("key"));
 
                 return !!aResult.length;
               },
@@ -184,9 +153,7 @@ sap.ui.define(
         if (!aSuppliersTokens.length) {
           return this._getSupplierFilterWithoutToken(oEvent);
         } else {
-          const aFilters = this._getSupplierFilterWithTokens(aSuppliersTokens);
-
-          return aFilters;
+          return this._getSupplierFilterWithTokens(aSuppliersTokens);
         }
       },
 
@@ -220,24 +187,6 @@ sap.ui.define(
         });
 
         return aFilters;
-      },
-
-      onSearchProducts(oEvent) {
-        const oTableBinding = this.byId("productList").getBinding("items");
-        const aFilters = this._getAllFilters(oEvent);
-
-        oTableBinding.filter(aFilters);
-      },
-
-      onClearFilters() {
-        const oTableBinding = this.byId("productList").getBinding("items");
-
-        this.byId("releaseDate").setValue(null);
-        this.byId("supplier").setTokens([]);
-        this.byId("searchName").setValue(null);
-        this.byId("categorySelect").setSelectedKeys([]);
-
-        oTableBinding.filter(null);
       },
     });
   }
