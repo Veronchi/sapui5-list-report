@@ -6,15 +6,15 @@ sap.ui.define([
     "use strict";
 
     return {
-      _initModel() {
+      initModel() {
         const oModel = new JSONModel();
         oModel.loadData('../localData/products.json');
 
-        return oModel;
+        this.oModel = oModel;
       },
 
       getModel() {
-        return this._initModel();
+        return this.oModel;
       }
     };
   });
