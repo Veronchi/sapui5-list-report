@@ -19,6 +19,7 @@ sap.ui.define(
 
       onInit() {
         this.oComponent = this.getOwnerComponent();
+        productModel.initModel();
         this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
         const oModel = productModel.getModel();
 
@@ -211,7 +212,7 @@ sap.ui.define(
         aFilters.push(
           new Filter({
             filters: suppliersFilter,
-            and: true,
+            and: false,
           })
         );
 
