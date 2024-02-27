@@ -1,7 +1,13 @@
-<mvc:View controllerName="veronchi.leverx.project.controller.ProductPage"
-    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
-    xmlns="sap.m">
-    <Page id="product-page" title="{i18n>ProductPageTitle}">
+<mvc:View
+    controllerName="veronchi.leverx.project.controller.ProductPage"
+    xmlns:mvc="sap.ui.core.mvc"
+    displayBlock="true"
+    xmlns="sap.m"
+>
+    <Page
+        id="product-page"
+        title="{i18n>ProductPageTitle}"
+    >
         <content />
     </Page>
 </mvc:View>
