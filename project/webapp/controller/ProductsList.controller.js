@@ -207,14 +207,13 @@ sap.ui.define(
             })
           );
         }
-        if (suppliersFilter) {
-          aFilters.push(
-            new Filter({
-              filters: suppliersFilter,
-              and: true,
-            })
-          );
-        }
+
+        aFilters.push(
+          new Filter({
+            filters: suppliersFilter,
+            and: true,
+          })
+        );
 
         aFilters = aFilters.filter((item) => {
           return item !== null;
@@ -241,8 +240,8 @@ sap.ui.define(
         oTableBinding.filter(null);
       },
 
-      onDeleteProduct: function (oEvent) {
-        // add products delete functionality
+      _deleteProduct: function (oEvent) {
+        // TODO: add products delete functionality
       },
 
       onDeleteProductPress: function (oEvent) {
@@ -252,7 +251,7 @@ sap.ui.define(
           onClose: (sAction) => {
             switch (sAction) {
               case MessageBox.Action.OK:
-                this.onDeleteProduct(oEvent);
+                this._deleteProduct(oEvent);
                 break;
 
               default:
@@ -264,10 +263,10 @@ sap.ui.define(
 
       _getConfirmationText() {
         const aSelectedItems = this.byId("productList").getSelectedItems();
-        const sPath = aSelectedItems[0].getBindingContext("appModel").getPath();
-        const sProductName = aSelectedItems[0].getBindingContext("appModel").getModel().getProperty(`${sPath}/name`);
+        const sPath = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getPath();
+        const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getModel().getProperty(`${sPath}/name`);
 
-        if (aSelectedItems.length > 1) {
+        if (!aSelectedItems.length) {
           return this.oResourceBundle.getText("ConfirmDeleteProductsText", aSelectedItems.length);
         }
 
