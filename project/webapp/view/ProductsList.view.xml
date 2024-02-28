@@ -58,9 +58,9 @@
                     id="categorySelect"
                     name="Category"
                     items="{
-                                        path: 'filterBarModel>/categories',
-                                        templateShareable: true
-                                      }"
+                      path: 'filterBarModel>/categories',
+                      templateShareable: false
+                    }"
                     selectionChange="onSearchProducts"
                   >
                     <core:Item

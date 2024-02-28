@@ -8,186 +8,196 @@ sap.ui.define(
     "sap/ui/model/FilterOperator",
   ],
 
-  function (Controller, JSONModel, productModel, filterBarModel, Filter, FilterOperator) {
+  function (
+    Controller,
+    JSONModel,
+    productModel,
+    filterBarModel,
+    Filter,
+    FilterOperator
+  ) {
     "use strict";
 
-    return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
-      APP_MODEL_NAME: "appModel",
-      TABLE_MODEL_NAME: "tableModel",
-      FILTER_BAR_MODEL_NAME: "filterBarModel",
-      TOKEN_REMOVED_TYPE: "removed",
+    return Controller.extend(
+      "veronchi.leverx.project.controller.ProductsList",
+      {
+        APP_MODEL_NAME: "appModel",
+        TABLE_MODEL_NAME: "tableModel",
+        FILTER_BAR_MODEL_NAME: "filterBarModel",
+        TOKEN_REMOVED_TYPE: "removed",
 
-      onInit() {
-        productModel.initModel();
-        filterBarModel.initFilterBarModel();
-        const oModel = productModel.getModel();
-        this.oFilterBarModel = filterBarModel.getFilterBarModel();
+        onInit() {
+          productModel.initModel();
+          filterBarModel.initFilterBarModel();
+          const oModel = productModel.getModel();
+          this.oFilterBarModel = filterBarModel.getFilterBarModel();
 
-        this.oTableModel = new JSONModel({
-          isProductsSelected: false,
-        });
+          this.oTableModel = new JSONModel({
+            isProductsSelected: false
+          });
 
-        this.getView().setModel(oModel, this.APP_MODEL_NAME);
-        this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
-        this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
-      },
+          this.getView().setModel(oModel, this.APP_MODEL_NAME);
+          this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
+          this.getView().setModel(
+            this.oFilterBarModel,
+            this.FILTER_BAR_MODEL_NAME
+          );
+        },
 
-      onSelectProduct(bProductSelected) {
-        this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
-      },
+        onSelectProduct(bProductSelected) {
+          this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+        },
 
-      onSearchProducts(oEvent) {
-        const oTableBinding = this.byId("productList").getBinding("items");
-        const aFilters = this._getAllFilters(oEvent);
+        onSearchProducts(oEvent) {
+          const oTableBinding = this.byId("productList").getBinding("items");
+          const aFilters = this._getAllFilters(oEvent);
 
-        oTableBinding.filter(aFilters);
-      },
+          oTableBinding.filter(aFilters);
+        },
 
-      onClearFilters() {
-        const oTableBinding = this.byId("productList").getBinding("items");
+        onClearFilters() {
+          const oTableBinding = this.byId("productList").getBinding("items");
 
-        this.byId("releaseDate").setValue(null);
-        this.byId("supplier").setTokens([]);
-        this.byId("searchName").setValue(null);
-        this.byId("categorySelect").setSelectedKeys([]);
+          this.byId("releaseDate").setValue(null);
+          this.byId("supplier").setTokens([]);
+          this.byId("searchName").setValue(null);
+          this.byId("categorySelect").setSelectedKeys([]);
 
-        oTableBinding.filter(null);
-      },
+          oTableBinding.filter(null);
+        },
 
-      _getSearchNameFilter() {
-        const sSearchQuery = this.byId("searchName").getProperty("value");
+        _getSearchNameFilter() {
+          const sSearchQuery = this.byId("searchName").getProperty("value");
 
-        return sSearchQuery.length ? new Filter("name", FilterOperator.Contains, sSearchQuery) : null;
-      },
+          return sSearchQuery.length
+            ? new Filter("name", FilterOperator.Contains, sSearchQuery)
+            : null;
+        },
 
-      _getCategoriesFilter() {
-        const aSelectedCategories = this.byId("categorySelect").getProperty("selectedKeys");
-        const aFilters = [];
+        _getCategoriesFilter() {
+          const aSelectedCategories =
+            this.byId("categorySelect").getProperty("selectedKeys");
+          let aFilters = [];
 
-        if (!!aSelectedCategories.length) {
-          aSelectedCategories.map((sSelectedKey) => {
-            aFilters.push(
-              new Filter({
+          if (!!aSelectedCategories.length) {
+            aFilters = aSelectedCategories.map((sSelectedKey) => {
+              return new Filter({
                 path: "categories",
                 operator: FilterOperator.EQ,
                 value1: sSelectedKey,
                 test: (aCategories) => {
-                  const aResult = aCategories.filter(({id}) => id === sSelectedKey);
+                  return aCategories.some(({ id }) => id === sSelectedKey);
+                }
+              });
+            });
+          }
 
-                  return !!aResult.length;
-                },
-              })
-            );
+          return aFilters.length ? aFilters : null;
+        },
+
+        _getDateFilter() {
+          const sDate = this.byId("releaseDate");
+          const sDateStart = sDate.getDateValue();
+          const sDateEnd = sDate.getSecondDateValue();
+
+          if (!sDateStart || !sDateEnd) {
+            return null;
+          }
+
+          return new Filter({
+            path: "releaseDate",
+            operator: FilterOperator.BT,
+            value1: sDateStart.toISOString(),
+            value2: sDateEnd.toISOString()
           });
-        }
+        },
 
-        return aFilters.length ? aFilters : null;
-      },
+        _getCurrentTokens(oEvent) {
+          let aSuppliersTokens = this.byId("supplier").getTokens();
+          const oEventParameters = oEvent.getParameters();
+          const sTokenType = oEventParameters.type;
 
-      _getDateFilter() {
-        const sDate = this.byId("releaseDate");
-        const sDateStart = sDate.getDateValue();
-        const sDateEnd = sDate.getSecondDateValue();
+          if (sTokenType === this.TOKEN_REMOVED_TYPE) {
+            const sRemovedTokenKey = oEventParameters.removedTokens[0].getProperty("key");
 
-        if (!sDateStart || !sDateEnd) {
-          return null;
-        }
+            aSuppliersTokens = aSuppliersTokens.filter(
+              (item) => item.getProperty("key") !== sRemovedTokenKey
+            );
+          }
 
-        return new Filter({
-          path: "releaseDate",
-          operator: FilterOperator.BT,
-          value1: sDateStart.toISOString(),
-          value2: sDateEnd.toISOString(),
-        });
-      },
+          return aSuppliersTokens;
+        },
 
-      _getCurrTokens(oEvent) {
-        let aSuppliersTokens = this.byId("supplier").getTokens();
-        const oMultiInput = oEvent.getParameters();
-        const sTokenType = oMultiInput.type;
+        _getSupplierFilterWithoutToken() {
+          const sSupplierValue = this.byId("supplier").getValue();
 
-        if (sTokenType === this.TOKEN_REMOVED_TYPE) {
-          aSuppliersTokens = aSuppliersTokens.filter((item) => item !== oMultiInput.removedTokens[0]);
-        }
-
-        return aSuppliersTokens;
-      },
-
-      _getSupplierFilterWithoutToken() {
-        const sSupplierValue = this.byId("supplier").getValue();
-
-        return [
-          new Filter({
-            path: "suppliers",
-            operator: FilterOperator.EQ,
-            value1: sSupplierValue,
-            test: () => sSupplierValue === "",
-          }),
-        ];
-      },
-
-      _getSupplierFilterWithTokens(aSuppliersTokens) {
-        const aFilters = [];
-
-        aSuppliersTokens.forEach((sToken) => {
-          aFilters.push(
+          return [
             new Filter({
               path: "suppliers",
               operator: FilterOperator.EQ,
-              value1: sToken,
+              value1: sSupplierValue,
+              test: () => sSupplierValue === ""
+            })
+          ];
+        },
+
+        _getSupplierFilterWithTokens(aSuppliersTokens) {
+          const aFilters = aSuppliersTokens.map((oToken) => {
+            return new Filter({
+              path: "suppliers",
+              operator: FilterOperator.EQ,
+              value1: oToken,
               test: (aSuppliers) => {
-                const aResult = aSuppliers.filter(({id}) => id === sToken.getProperty("key"));
+                return aSuppliers.some(
+                  ({ id }) => id === oToken.getProperty("key")
+                );
+              }
+            });
+          });
 
-                return !!aResult.length;
-              },
-            })
-          );
-        });
+          return aFilters;
+        },
 
-        return aFilters;
-      },
+        _getSupplierFilter(oEvent) {
+          const aSuppliersTokens = this._getCurrentTokens(oEvent);
 
-      _getSupplierFilter(oEvent) {
-        const aSuppliersTokens = this._getCurrTokens(oEvent);
+          if (aSuppliersTokens.length) {
+            return this._getSupplierFilterWithTokens(aSuppliersTokens);
+          } else {
+            return this._getSupplierFilterWithoutToken();
+          }
+        },
 
-        if (!aSuppliersTokens.length) {
-          return this._getSupplierFilterWithoutToken(oEvent);
-        } else {
-          return this._getSupplierFilterWithTokens(aSuppliersTokens);
-        }
-      },
+        _getAllFilters(oEvent) {
+          let aFilters = [];
+          const categoriesFilter = this._getCategoriesFilter(),
+            suppliersFilter = this._getSupplierFilter(oEvent),
+            searchNameFilter = this._getSearchNameFilter(),
+            dateFilter = this._getDateFilter();
 
-      _getAllFilters(oEvent) {
-        let aFilters = [];
-        const categoriesFilter = this._getCategoriesFilter();
-        const suppliersFilter = this._getSupplierFilter(oEvent);
+          searchNameFilter && aFilters.push(searchNameFilter);
+          dateFilter && aFilters.push(dateFilter);
 
-        aFilters.push(this._getSearchNameFilter());
-        aFilters.push(this._getDateFilter());
+          if (categoriesFilter) {
+            aFilters.push(
+              new Filter({
+                filters: categoriesFilter,
+                and: false
+              })
+            );
+          }
+          if (suppliersFilter) {
+            aFilters.push(
+              new Filter({
+                filters: suppliersFilter,
+                and: false
+              })
+            );
+          }
 
-        if (categoriesFilter) {
-          aFilters.push(
-            new Filter({
-              filters: categoriesFilter,
-              and: false,
-            })
-          );
-        }
-        if (suppliersFilter) {
-          aFilters.push(
-            new Filter({
-              filters: suppliersFilter,
-              and: false,
-            })
-          );
-        }
-
-        aFilters = aFilters.filter((item) => {
-          return item !== null;
-        });
-
-        return aFilters;
-      },
-    });
+          return aFilters;
+        },
+      }
+    );
   }
 );
