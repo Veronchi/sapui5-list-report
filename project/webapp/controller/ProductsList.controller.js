@@ -26,6 +26,7 @@ sap.ui.define(
 
         this.oTableModel = new JSONModel({
           isProductsSelected: false,
+          isSortReset: false,
         });
 
         this.oFilterBar = new JSONModel({
@@ -100,13 +101,23 @@ sap.ui.define(
 
       handleSortingConfirm(oEvent) {
         const oTableBinding = this.byId("productList").getBinding("items");
+        const isSortReset = this.oTableModel.getProperty("/isSortReset");
 				const mParams = oEvent.getParameters();
-        const sPath = mParams.sortItem.getKey();
-        const bDescending = mParams.sortDescending;
         
-        const oSorter = new Sorter(sPath, bDescending);
+        if(mParams.sortItem) {
+          const sPath = mParams.sortItem.getKey();
+          const bDescending = mParams.sortDescending;
+          const oSorter = new Sorter(sPath, bDescending);
 
-        oTableBinding.sort(oSorter);
+          oTableBinding.sort(oSorter);
+        } else if(isSortReset) {
+          oTableBinding.sort();
+          this.oTableModel.setProperty("/isSortReset", false);
+        }
+      },
+
+      handleResetSorting() {
+        this.oTableModel.setProperty("/isSortReset", true);
       },
 
       _getSearchNameFilter() {
