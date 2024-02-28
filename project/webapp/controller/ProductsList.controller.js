@@ -26,6 +26,7 @@ sap.ui.define(
 
         this.oTableModel = new JSONModel({
           isProductsSelected: false,
+          isSortReset: false,
           isGroupReset: false,
         });
 
@@ -110,24 +111,34 @@ sap.ui.define(
       },
 
       async onSortButtonPress() {
-        if (!this.oDialog) {
-          this.oDialog = await this.loadFragment({
+        if (!this.oGroupingDialog) {
+          this.oGroupingDialog = await this.loadFragment({
             name: "veronchi.leverx.project.view.fragments.SortingDialog",
           });
         }
 
-        this.oDialog.open();
+        this.oGroupingDialog.open();
       },
 
       handleSortingConfirm(oEvent) {
         const oTableBinding = this.byId("productList").getBinding("items");
+        const isSortReset = this.oTableModel.getProperty("/isSortReset");
 				const mParams = oEvent.getParameters();
-        const sPath = mParams.sortItem.getKey();
-        const bDescending = mParams.sortDescending;
         
-        const oSorter = new Sorter(sPath, bDescending);
+        if(mParams.sortItem) {
+          const sPath = mParams.sortItem.getKey();
+          const bDescending = mParams.sortDescending;
+          const oSorter = new Sorter(sPath, bDescending);
 
-        oTableBinding.sort(oSorter);
+          oTableBinding.sort(oSorter);
+        } else if(isSortReset) {
+          oTableBinding.sort();
+          this.oTableModel.setProperty("/isSortReset", false);
+        }
+      },
+
+      handleResetSorting() {
+        this.oTableModel.setProperty("/isSortReset", true);
       },
 
       handleGroupingConfirm(oEvent) {
