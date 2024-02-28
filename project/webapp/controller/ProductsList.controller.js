@@ -6,9 +6,10 @@ sap.ui.define(
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/m/MessageBox",
+    "sap/ui/model/Sorter",
   ],
 
-  function (Controller, JSONModel, productModel, Filter, FilterOperator, MessageBox) {
+  function (Controller, JSONModel, productModel, Filter, FilterOperator, MessageBox, Sorter) {
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
@@ -85,6 +86,27 @@ sap.ui.define(
 
       onSelectProduct(bProductSelected) {
         this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+      },
+
+      async onSortButtonPress() {
+        if (!this.oDialog) {
+          this.oDialog = await this.loadFragment({
+            name: "veronchi.leverx.project.view.fragments.SortingDialog",
+          });
+        }
+
+        this.oDialog.open();
+      },
+
+      handleSortingConfirm(oEvent) {
+        const oTableBinding = this.byId("productList").getBinding("items");
+				const mParams = oEvent.getParameters();
+        const sPath = mParams.sortItem.getKey();
+        const bDescending = mParams.sortDescending;
+        
+        const oSorter = new Sorter(sPath, bDescending);
+
+        oTableBinding.sort(oSorter);
       },
 
       _getSearchNameFilter() {
@@ -290,5 +312,7 @@ sap.ui.define(
         return this.oResourceBundle.getText("ConfirmDeleteProductsText", [sProductName]);
       },
     });
+
+
   }
 );

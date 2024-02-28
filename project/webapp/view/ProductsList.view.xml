@@ -133,7 +133,11 @@
                             level="H2"
                         />
                         <ToolbarSpacer />
-
+                        <Button
+                            tooltip="Sort"
+                            icon="sap-icon://sort"
+                            press="onSortButtonPress"
+                        />
                         <Button text="{i18n>CreateButtonText}" />
                         <Button
                             text="{i18n>DeleteButtonText}"
@@ -172,10 +176,10 @@
                         highlight="{= ${appModel>discountDate} ? 'Success' : 'None' }"
                     >
                         <cells>
-                          <Text text="{appModel>name}" />
-                          <ObjectNumber
-                            state="{= ${appModel>discountDate} ? 'Success' : 'None' }"
-                            number="{
+                            <Text text="{appModel>name}" />
+                            <ObjectNumber
+                                state="{= ${appModel>discountDate} ? 'Success' : 'None' }"
+                                number="{
                               parts: ['appModel>price', 'appModel>currencyCode'],
                               type: 'sap.ui.model.type.Currency',
                               formatOptions: {
@@ -183,16 +187,16 @@
                                 decimals: 0
                               }
                             }"
-                          />
-                          <Text text="{appModel>description}" />
-                          <RatingIndicator
-                            editable="false"
-                            maxValue="5"
-                            value="{appModel>rating}"
-                            iconSize="0.75em"
-                          />
-                          <Text
-                            text="{
+                            />
+                            <Text text="{appModel>description}" />
+                            <RatingIndicator
+                                editable="false"
+                                maxValue="5"
+                                value="{appModel>rating}"
+                                iconSize="0.75em"
+                            />
+                            <Text
+                                text="{
                               path: 'appModel>releaseDate',
                               type: 'sap.ui.model.type.Date',
                               formatOptions: {
@@ -201,7 +205,7 @@
                                 }
                               }
                             }"
-                          />
+                            />
                         </cells>
                     </ColumnListItem>
                 </items>
