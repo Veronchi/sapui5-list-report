@@ -241,18 +241,18 @@ sap.ui.define(
         oTableBinding.filter(null);
       },
 
-      _deleteProduct: function (oEvent) {
+      _deleteProduct: function () {
         // TODO: add products delete functionality
       },
 
-      onDeleteProductPress: function (oEvent) {
+      onDeleteProductPress: function () {
         MessageBox.confirm(this._getConfirmationText(), {
           title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
           actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
           onClose: (sAction) => {
             switch (sAction) {
               case MessageBox.Action.OK:
-                this._deleteProduct(oEvent);
+                this._deleteProduct();
                 break;
 
               default:
@@ -268,10 +268,10 @@ sap.ui.define(
         const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getModel().getProperty(`${sPath}/name`);
 
         if (aSelectedItems.length > 1) {
-          return this.oResourceBundle.getText("ConfirmDeleteProductsText", aSelectedItems.length);
+          return this.oResourceBundle.getText("ConfirmDeleteProductsText", [aSelectedItems.length]);
         }
 
-        return this.oResourceBundle.getText("ConfirmDeleteProductsText", sProductName);
+        return this.oResourceBundle.getText("ConfirmDeleteProductsText", [sProductName]);
       },
     });
   }
