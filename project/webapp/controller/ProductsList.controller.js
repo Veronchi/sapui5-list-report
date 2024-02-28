@@ -101,19 +101,9 @@ sap.ui.define(
       },
 
       async onGroupButtonPress() {
-        if (!this.oDialog) {
-          this.oDialog = await this.loadFragment({
-            name: "veronchi.leverx.project.view.fragments.GroupingDialog",
-          });
-        }
-
-        this.oDialog.open();
-      },
-
-      async onSortButtonPress() {
         if (!this.oGroupingDialog) {
           this.oGroupingDialog = await this.loadFragment({
-            name: "veronchi.leverx.project.view.fragments.SortingDialog",
+            name: "veronchi.leverx.project.view.fragments.GroupingDialog",
           });
         }
 
