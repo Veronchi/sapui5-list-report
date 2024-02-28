@@ -3,276 +3,255 @@ sap.ui.define(
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "veronchi/leverx/project/model/productModel",
+    "veronchi/leverx/project/model/filterBarModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/m/MessageBox",
   ],
 
-  function (Controller, JSONModel, productModel, Filter, FilterOperator, MessageBox) {
+  function (
+    Controller,
+    JSONModel,
+    productModel,
+    filterBarModel,
+    Filter,
+    FilterOperator,
+    MessageBox
+  ) {
     "use strict";
 
-    return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
-      APP_MODEL_NAME: "appModel",
-      TABLE_MODEL_NAME: "tableModel",
-      FILTERBAR_MODEL_NAME: "filterBarModel",
-      TOKEN_REMOVED_TYPE: "removed",
+    return Controller.extend(
+      "veronchi.leverx.project.controller.ProductsList",
+      {
+        APP_MODEL_NAME: "appModel",
+        TABLE_MODEL_NAME: "tableModel",
+        FILTER_BAR_MODEL_NAME: "filterBarModel",
+        TOKEN_REMOVED_TYPE: "removed",
 
-      onInit() {
-        this.oComponent = this.getOwnerComponent();
-        productModel.initModel();
-        this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
-        const oModel = productModel.getModel();
+        onInit() {
+          productModel.initModel();
+          filterBarModel.initFilterBarModel();
+          const oModel = productModel.getModel();
+          this.oFilterBarModel = filterBarModel.getFilterBarModel();
+          this.oComponent = this.getOwnerComponent();
+          this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
 
-        this.oTableModel = new JSONModel({
-          isProductsSelected: false,
-        });
+          this.oTableModel = new JSONModel({
+            isProductsSelected: false
+          });
 
-        this.oFilterBar = new JSONModel({
-          categories: [
-            {
-              id: "1",
-              name: "laptop",
-            },
-            {
-              id: "2",
-              name: "M1",
-            },
-            {
-              id: "3",
-              name: "vacuum cleaner",
-            },
-            {
-              id: "4",
-              name: "2in1",
-            },
-            {
-              id: "5",
-              name: "M3",
-            },
-            {
-              id: "6",
-              name: "wet cleaning",
-            },
-            {
-              id: "7",
-              name: "coffee machines",
-            },
-          ],
-          suppliers: [
-            {
-              id: "1",
-              name: "AMD",
-            },
-            {
-              id: "2",
-              name: "Onliner",
-            },
-            {
-              id: "3",
-              name: "Newton",
-            },
-            {
-              id: "4",
-              name: "XStore",
-            },
-          ],
-        });
+          this.getView().setModel(oModel, this.APP_MODEL_NAME);
+          this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
+          this.getView().setModel(
+            this.oFilterBarModel,
+            this.FILTER_BAR_MODEL_NAME
+          );
+        },
 
-        this.getView().setModel(oModel, this.APP_MODEL_NAME);
-        this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
-        this.getView().setModel(this.oFilterBar, this.FILTERBAR_MODEL_NAME);
-      },
+        onSelectProduct(bProductSelected) {
+          this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+        },
 
-      onSelectProduct(bProductSelected) {
-        this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
-      },
+        onSearchProducts(oEvent) {
+          const oTableBinding = this.byId("productList").getBinding("items");
+          const aFilters = this._getAllFilters(oEvent);
 
-      _getSearchNameFilter() {
-        const sSearchQuery = this.byId("searchName").getProperty("value");
+          oTableBinding.filter(aFilters);
+        },
 
-        return sSearchQuery.length ? new Filter("name", FilterOperator.Contains, sSearchQuery) : null;
-      },
+        onClearFilters() {
+          const oTableBinding = this.byId("productList").getBinding("items");
 
-      _getCategoriesFilter() {
-        const aSelectedCategories = this.byId("categorySelect").getProperty("selectedKeys");
-        const aFilters = [];
+          this.byId("releaseDate").setValue(null);
+          this.byId("supplier").setTokens([]);
+          this.byId("searchName").setValue(null);
+          this.byId("categorySelect").setSelectedKeys([]);
 
-        if (!!aSelectedCategories.length) {
-          aSelectedCategories.forEach((sSelectedKey) => {
-            aFilters.push(
-              new Filter({
+          oTableBinding.filter(null);
+        },
+
+        _getSearchNameFilter() {
+          const sSearchQuery = this.byId("searchName").getProperty("value");
+
+          return sSearchQuery.length
+            ? new Filter("name", FilterOperator.Contains, sSearchQuery)
+            : null;
+        },
+
+        _getCategoriesFilter() {
+          const aSelectedCategories =
+            this.byId("categorySelect").getProperty("selectedKeys");
+          let aFilters = [];
+
+          if (!!aSelectedCategories.length) {
+            aFilters = aSelectedCategories.map((sSelectedKey) => {
+              return new Filter({
                 path: "categories",
                 operator: FilterOperator.EQ,
                 value1: sSelectedKey,
                 test: (aCategories) => {
-                  const aResult = aCategories.filter((item) => item.id === sSelectedKey);
+                  return aCategories.some(({ id }) => id === sSelectedKey);
+                }
+              });
+            });
+          }
 
-                  return !!aResult.length;
-                },
-              })
-            );
+          return aFilters.length ? aFilters : null;
+        },
+
+        _getDateFilter() {
+          const sDate = this.byId("releaseDate");
+          const sDateStart = sDate.getDateValue();
+          const sDateEnd = sDate.getSecondDateValue();
+
+          if (!sDateStart || !sDateEnd) {
+            return null;
+          }
+
+          return new Filter({
+            path: "releaseDate",
+            operator: FilterOperator.BT,
+            value1: sDateStart.toISOString(),
+            value2: sDateEnd.toISOString()
           });
-        }
+        },
 
-        return aFilters.length ? aFilters : null;
-      },
+        _getCurrentTokens(oEvent) {
+          let aSuppliersTokens = this.byId("supplier").getTokens();
+          const oEventParameters = oEvent.getParameters();
+          const sTokenType = oEventParameters.type;
 
-      _getDateFilter() {
-        const sDate = this.byId("releaseDate");
-        const sDateStart = sDate.getDateValue();
-        const sDateEnd = sDate.getSecondDateValue();
+          if (sTokenType === this.TOKEN_REMOVED_TYPE) {
+            const sRemovedTokenKey = oEventParameters.removedTokens[0].getProperty("key");
 
-        if (!sDateStart || !sDateEnd) {
-          return null;
-        }
+            aSuppliersTokens = aSuppliersTokens.filter(
+              (item) => item.getProperty("key") !== sRemovedTokenKey
+            );
+          }
 
-        return new Filter({
-          path: "releaseDate",
-          operator: FilterOperator.BT,
-          value1: sDateStart.toISOString(),
-          value2: sDateEnd.toISOString(),
-        });
-      },
+          return aSuppliersTokens;
+        },
 
-      _getCurrTokens(oEvent) {
-        let aSuppliersTokens = this.byId("supplier").getTokens();
-        const oMultiInput = oEvent.getParameters();
-        const sTokenType = oMultiInput.type;
+        _getSupplierFilterWithoutToken() {
+          const sSupplierValue = this.byId("supplier").getValue();
 
-        if (sTokenType === this.TOKEN_REMOVED_TYPE) {
-          aSuppliersTokens = aSuppliersTokens.filter((item) => item !== oMultiInput.removedTokens[0]);
-        }
-
-        return aSuppliersTokens;
-      },
-
-      _getSupplierFilterWithoutToken() {
-        const sSupplierValue = this.byId("supplier").getValue();
-
-        return [
-          new Filter({
-            path: "suppliers",
-            operator: FilterOperator.EQ,
-            value1: sSupplierValue,
-            test: () => sSupplierValue === "",
-          }),
-        ];
-      },
-
-      _getSupplierFilterWithTokens(aSuppliersTokens) {
-        const aFilters = [];
-
-        aSuppliersTokens.forEach((sToken) => {
-          aFilters.push(
+          return [
             new Filter({
               path: "suppliers",
               operator: FilterOperator.EQ,
-              value1: sToken,
-              test: (aSuppliers) => {
-                const aResult = aSuppliers.filter((item) => item.id === sToken.getProperty("key"));
-
-                return !!aResult.length;
-              },
+              value1: sSupplierValue,
+              test: () => sSupplierValue === ""
             })
-          );
-        });
+          ];
+        },
 
-        return aFilters;
-      },
-
-      _getSupplierFilter(oEvent) {
-        const aSuppliersTokens = this._getCurrTokens(oEvent);
-
-        if (!aSuppliersTokens.length) {
-          return this._getSupplierFilterWithoutToken(oEvent);
-        } else {
-          const aFilters = this._getSupplierFilterWithTokens(aSuppliersTokens);
+        _getSupplierFilterWithTokens(aSuppliersTokens) {
+          const aFilters = aSuppliersTokens.map((oToken) => {
+            return new Filter({
+              path: "suppliers",
+              operator: FilterOperator.EQ,
+              value1: oToken,
+              test: (aSuppliers) => {
+                return aSuppliers.some(
+                  ({ id }) => id === oToken.getProperty("key")
+                );
+              }
+            });
+          });
 
           return aFilters;
-        }
-      },
+        },
 
-      _getAllFilters(oEvent) {
-        let aFilters = [];
-        const categoriesFilter = this._getCategoriesFilter();
-        const suppliersFilter = this._getSupplierFilter(oEvent);
+        _getSupplierFilter(oEvent) {
+          const aSuppliersTokens = this._getCurrentTokens(oEvent);
 
-        aFilters.push(this._getSearchNameFilter());
-        aFilters.push(this._getDateFilter());
+          if (aSuppliersTokens.length) {
+            return this._getSupplierFilterWithTokens(aSuppliersTokens);
+          } else {
+            return this._getSupplierFilterWithoutToken();
+          }
+        },
 
-        if (categoriesFilter) {
-          aFilters.push(
-            new Filter({
-              filters: categoriesFilter,
-              and: false,
-            })
-          );
-        }
+        _getAllFilters(oEvent) {
+          let aFilters = [];
+          const categoriesFilter = this._getCategoriesFilter(),
+            suppliersFilter = this._getSupplierFilter(oEvent),
+            searchNameFilter = this._getSearchNameFilter(),
+            dateFilter = this._getDateFilter();
 
-        aFilters.push(
-          new Filter({
-            filters: suppliersFilter,
-            and: false,
-          })
-        );
+          searchNameFilter && aFilters.push(searchNameFilter);
+          dateFilter && aFilters.push(dateFilter);
 
-        aFilters = aFilters.filter((item) => {
-          return item !== null;
-        });
+          if (categoriesFilter) {
+            aFilters.push(
+              new Filter({
+                filters: categoriesFilter,
+                and: false
+              })
+            );
+          }
+          
+            aFilters.push(
+              new Filter({
+                filters: suppliersFilter,
+                and: false
+              })
+            );
+          
 
-        return aFilters;
-      },
+          return aFilters;
+        },
 
-      onSearchProducts(oEvent) {
-        const oTableBinding = this.byId("productList").getBinding("items");
-        const aFilters = this._getAllFilters(oEvent);
+        onSearchProducts(oEvent) {
+          const oTableBinding = this.byId("productList").getBinding("items");
+          const aFilters = this._getAllFilters(oEvent);
 
-        oTableBinding.filter(aFilters);
-      },
+          oTableBinding.filter(aFilters);
+        },
 
-      onClearFilters() {
-        const oTableBinding = this.byId("productList").getBinding("items");
+        onClearFilters() {
+          const oTableBinding = this.byId("productList").getBinding("items");
 
-        this.byId("releaseDate").setValue(null);
-        this.byId("supplier").setTokens([]);
-        this.byId("searchName").setValue(null);
-        this.byId("categorySelect").setSelectedKeys([]);
+          this.byId("releaseDate").setValue(null);
+          this.byId("supplier").setTokens([]);
+          this.byId("searchName").setValue(null);
+          this.byId("categorySelect").setSelectedKeys([]);
 
-        oTableBinding.filter(null);
-      },
+          oTableBinding.filter(null);
+        },
 
-      _deleteProduct: function () {
-        // TODO: add products delete functionality
-      },
+        _deleteProduct() {
+          // TODO: add products delete functionality
+        },
 
-      onDeleteProductPress: function () {
-        MessageBox.confirm(this._getConfirmationText(), {
-          title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
-          actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
-          onClose: (sAction) => {
-            switch (sAction) {
-              case MessageBox.Action.OK:
-                this._deleteProduct();
-                break;
+        onDeleteProductPress() {
+          MessageBox.confirm(this._getConfirmationText(), {
+            title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
+            actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
+            onClose: (sAction) => {
+              switch (sAction) {
+                case MessageBox.Action.OK:
+                  this._deleteProduct();
+                  break;
 
-              default:
-                break;
-            }
-          },
-        });
-      },
+                default:
+                  break;
+              }
+            },
+          });
+        },
 
-      _getConfirmationText() {
-        const aSelectedItems = this.byId("productList").getSelectedItems();
-        const sPath = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getPath();
-        const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getModel().getProperty(`${sPath}/name`);
+        _getConfirmationText() {
+          const aSelectedItems = this.byId("productList").getSelectedItems();
+          const sPath = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getPath();
+          const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getModel().getProperty(`${sPath}/name`);
 
-        if (aSelectedItems.length > 1) {
-          return this.oResourceBundle.getText("ConfirmDeleteProductsText", [aSelectedItems.length]);
-        }
+          if (aSelectedItems.length > 1) {
+            return this.oResourceBundle.getText("ConfirmDeleteProductsText", [aSelectedItems.length]);
+          }
 
-        return this.oResourceBundle.getText("ConfirmDeleteProductsText", [sProductName]);
-      },
+          return this.oResourceBundle.getText("ConfirmDeleteProductsText", [sProductName]);
+        },
     });
   }
 );
