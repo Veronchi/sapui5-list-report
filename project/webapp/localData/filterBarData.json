@@ -1,0 +1,50 @@
+{
+  "categories": [
+    {
+      "id": "1",
+      "name": "laptop"
+    },
+    {
+      "id": "2",
+      "name": "M1"
+    },
+    {
+      "id": "3",
+      "name": "vacuum cleaner"
+    },
+    {
+      "id": "4",
+      "name": "2in1"
+    },
+    {
+      "id": "5",
+      "name": "M3"
+    },
+    {
+      "id": "6",
+      "name": "wet cleaning"
+    },
+    {
+      "id": "7",
+      "name": "coffee machines"
+    }
+  ],
+  "suppliers": [
+    {
+      "id": "1",
+      "name": "AMD"
+    },
+    {
+      "id": "2",
+      "name": "Onliner"
+    },
+    {
+      "id": "3",
+      "name": "Newton"
+    },
+    {
+      "id": "4",
+      "name": "XStore"
+    }
+  ]
+}
