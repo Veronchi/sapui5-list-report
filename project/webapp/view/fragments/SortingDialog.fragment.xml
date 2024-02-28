@@ -4,9 +4,9 @@
 	<ViewSettingsDialog
 		confirm="handleSortingConfirm">
 		<sortItems>
-			<ViewSettingsItem text="Product Name" key="name" selected="false" />
-			<ViewSettingsItem text="Release Date" key="releaseDate" />
-			<ViewSettingsItem text="Price" key="price" />
+			<ViewSettingsItem text="{i18n>ProductColumnName}" key="name" selected="false" />
+			<ViewSettingsItem text="{i18n>ProductColumnReleaseDate}" key="releaseDate" />
+			<ViewSettingsItem text="{i18n>ProductColumnPrice}" key="price" />
 		</sortItems>
 	</ViewSettingsDialog>
 </core:FragmentDefinition>

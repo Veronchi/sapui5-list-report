@@ -134,7 +134,7 @@
                         />
                         <ToolbarSpacer />
                         <Button
-                            tooltip="Sort"
+                            tooltip="{i18n>SortingTooltipText}"
                             icon="sap-icon://sort"
                             press="onSortButtonPress"
                         />
