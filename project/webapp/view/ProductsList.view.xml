@@ -59,7 +59,7 @@
                                         name="Category"
                                         items="{
                                         path: 'filterBarModel>/categories',
-                                        templateShareable: true
+                                        templateShareable: false
                                       }"
                                         selectionChange="onSearchProducts"
                                     >
@@ -121,7 +121,6 @@
                 sticky="HeaderToolbar,ColumnHeaders"
                 inset="false"
                 class="sapFDynamicPageAlignContent"
-                width="auto"
                 noDataText="{i18n>TableEmptyStateText}"
                 autoPopinMode="true"
                 selectionChange="onSelectProduct(${$parameters>/selected})"
