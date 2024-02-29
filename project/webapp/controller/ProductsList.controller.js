@@ -137,7 +137,7 @@ sap.ui.define(
           if (mParams.groupItem) {
             const sPath = mParams.groupItem.getKey();
             const bDescending = mParams.groupDescending;
-            const oGroup = new Sorter(sPath, bDescending, true);
+            const oGroup = new Sorter(sPath, bDescending, this._getGroups.bind(this));
   
             oTableBinding.sort(oGroup);
           } else if (isGroupReset) {
@@ -291,6 +291,45 @@ sap.ui.define(
             bDeleteCondition ? "ConfirmDeleteProductsText" : "ConfirmDeleteProductText",
             [bDeleteCondition ? aSelectedItems.length : sProductName]
           );
+        },
+
+        _getGroups(oContext) {
+          const rating = oContext.getProperty("rating");
+
+          switch (rating) {
+            case 1:
+              return {
+                key: "rating1",
+                text: this.oResourceBundle.getText("GroupRatingText", [rating])
+              }
+          
+            case 2:
+              return {
+                key: "rating2",
+                text: this.oResourceBundle.getText("GroupRatingText", [rating])
+              }
+          
+            case 3:
+              return {
+                key: "rating3",
+                text: this.oResourceBundle.getText("GroupRatingText", [rating])
+              }
+
+            case 4:
+              return {
+                key: "rating4",
+                text: this.oResourceBundle.getText("GroupRatingText", [rating])
+              }
+          
+            case 5:
+              return {
+                key: "rating5",
+                text: this.oResourceBundle.getText("GroupRatingText", [rating])
+              }
+          
+            default:
+              break;
+          }
         },
       }
     );
