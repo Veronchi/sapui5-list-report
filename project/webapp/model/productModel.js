@@ -15,6 +15,29 @@ sap.ui.define([
 
       getModel() {
         return this.oModel;
-      }
+      },
+
+      removeProdactsFromModel(aSelectedProducts) {
+        const aUpdatedPrducts = this._getNewData(aSelectedProducts);
+
+        this._changeModel(aUpdatedPrducts);
+      },
+
+      _getNewData(aSelectedProducts) {
+        let aProductsList = this.oModel.getProperty("/products");
+
+        aSelectedProducts.map((item) => {
+          const sProductId = item.getBindingContext("appModel").getProperty("id");
+          
+          aProductsList = aProductsList.filter(({id}) => id !== sProductId);
+        })
+
+        return aProductsList;
+      },
+
+      _changeModel(aUpdatedPrducts) {
+        this.oModel.setProperty("/products", aUpdatedPrducts);
+      },
     };
-  });
+  }
+);
