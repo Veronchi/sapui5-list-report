@@ -1,31 +1,193 @@
-sap.ui.define([
-  "sap/ui/core/mvc/Controller",
-  "sap/ui/model/json/JSONModel",
-  "veronchi/leverx/project/model/productModel",
-],
+sap.ui.define(
+  [
+    "sap/ui/core/mvc/Controller",
+    "sap/ui/model/json/JSONModel",
+    "veronchi/leverx/project/model/productModel",
+    "veronchi/leverx/project/model/filterBarModel",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
+  ],
 
-  function (Controller, JSONModel, productModel) {
+  function (
+    Controller,
+    JSONModel,
+    productModel,
+    filterBarModel,
+    Filter,
+    FilterOperator
+  ) {
     "use strict";
 
-    return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
-      APP_MODEL_NAME: "appModel",
-      TABLE_MODEL_NAME: "tableModel",
+    return Controller.extend(
+      "veronchi.leverx.project.controller.ProductsList",
+      {
+        APP_MODEL_NAME: "appModel",
+        TABLE_MODEL_NAME: "tableModel",
+        FILTER_BAR_MODEL_NAME: "filterBarModel",
+        TOKEN_REMOVED_TYPE: "removed",
 
-      onInit() {
-        this.oComponent = this.getOwnerComponent();
-        productModel.initModel();
-        const oModel = productModel.getModel();
+        onInit() {
+          productModel.initModel();
+          filterBarModel.initFilterBarModel();
+          const oModel = productModel.getModel();
+          this.oFilterBarModel = filterBarModel.getFilterBarModel();
 
-        this.oTableModel = new JSONModel({
-          isProductsSelected: false,
-        });
+          this.oTableModel = new JSONModel({
+            isProductsSelected: false
+          });
 
-        this.getView().setModel(oModel, this.APP_MODEL_NAME);
-        this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
-      },
+          this.getView().setModel(oModel, this.APP_MODEL_NAME);
+          this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
+          this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
+        },
 
-      onSelectProduct(bProductSelected) {
-        this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+        onSelectProduct(bProductSelected) {
+          this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+        },
+
+        onSearchProducts(oEvent) {
+          const oTableBinding = this.byId("productList").getBinding("items");
+          const aFilters = this._getAllFilters(oEvent);
+
+          oTableBinding.filter(aFilters);
+        },
+
+        onClearFilters() {
+          const oTableBinding = this.byId("productList").getBinding("items");
+
+          this.byId("releaseDate").setValue(null);
+          this.byId("supplier").setTokens([]);
+          this.byId("searchName").setValue(null);
+          this.byId("categorySelect").setSelectedKeys([]);
+
+          oTableBinding.filter(null);
+        },
+
+        _getSearchNameFilter() {
+          const sSearchQuery = this.byId("searchName").getProperty("value");
+
+          return sSearchQuery.length
+            ? new Filter("name", FilterOperator.Contains, sSearchQuery)
+            : null;
+        },
+
+        _getCategoriesFilter() {
+          const aSelectedCategories = this.byId("categorySelect").getProperty("selectedKeys");
+          let aFilters = [];
+
+          if (!!aSelectedCategories.length) {
+            aFilters = aSelectedCategories.map((sSelectedKey) => {
+              return new Filter({
+                path: "categories",
+                operator: FilterOperator.EQ,
+                value1: sSelectedKey,
+                test: (aCategories) => {
+                  return aCategories.some(({ id }) => id === sSelectedKey);
+                }
+              });
+            });
+          }
+
+          return aFilters.length ? aFilters : null;
+        },
+
+        _getDateFilter() {
+          const sDate = this.byId("releaseDate");
+          const sDateStart = sDate.getDateValue();
+          const sDateEnd = sDate.getSecondDateValue();
+
+          if (!sDateStart || !sDateEnd) {
+            return null;
+          }
+
+          return new Filter({
+            path: "releaseDate",
+            operator: FilterOperator.BT,
+            value1: sDateStart.toISOString(),
+            value2: sDateEnd.toISOString()
+          });
+        },
+
+        _getCurrentTokens(oEvent) {
+          let aSuppliersTokens = this.byId("supplier").getTokens();
+          const oEventParameters = oEvent.getParameters();
+          const sTokenType = oEventParameters.type;
+
+          if (sTokenType === this.TOKEN_REMOVED_TYPE) {
+            const sRemovedTokenKey = oEventParameters.removedTokens[0].getProperty("key");
+
+            aSuppliersTokens = aSuppliersTokens.filter(
+              (item) => item.getProperty("key") !== sRemovedTokenKey
+            );
+          }
+
+          return aSuppliersTokens;
+        },
+
+        _getSupplierFilterWithoutToken() {
+          const sSupplierValue = this.byId("supplier").getValue();
+
+          return [
+            new Filter({
+              path: "suppliers",
+              operator: FilterOperator.EQ,
+              value1: sSupplierValue,
+              test: () => sSupplierValue === ""
+            })
+          ];
+        },
+
+        _getSupplierFilterWithTokens(aSuppliersTokens) {
+          return aSuppliersTokens.map((oToken) => {
+            return new Filter({
+              path: "suppliers",
+              operator: FilterOperator.EQ,
+              value1: oToken,
+              test:(aSuppliers) => aSuppliers.some(({ id }) => id === oToken.getProperty("key"))
+            });
+          });
+        },
+
+        _getSupplierFilter(oEvent) {
+          const aSuppliersTokens = this._getCurrentTokens(oEvent);
+
+          if (aSuppliersTokens.length) {
+            return this._getSupplierFilterWithTokens(aSuppliersTokens);
+          } else {
+            return this._getSupplierFilterWithoutToken();
+          }
+        },
+
+        _getAllFilters(oEvent) {
+          const aFilters = [];
+          const categoriesFilter = this._getCategoriesFilter(),
+            suppliersFilter = this._getSupplierFilter(oEvent),
+            searchNameFilter = this._getSearchNameFilter(),
+            dateFilter = this._getDateFilter();
+
+          searchNameFilter && aFilters.push(searchNameFilter);
+          dateFilter && aFilters.push(dateFilter);
+
+          if (categoriesFilter) {
+            aFilters.push(
+              new Filter({
+                filters: categoriesFilter,
+                and: false
+              })
+            );
+          }
+          if (suppliersFilter) {
+            aFilters.push(
+              new Filter({
+                filters: suppliersFilter,
+                and: false
+              })
+            );
+          }
+
+          return aFilters;
+        },
       }
-    });
-  });
+    );
+  }
+);
