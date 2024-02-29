@@ -38,10 +38,7 @@ sap.ui.define(
 
           this.getView().setModel(oModel, this.APP_MODEL_NAME);
           this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
-          this.getView().setModel(
-            this.oFilterBarModel,
-            this.FILTER_BAR_MODEL_NAME
-          );
+          this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
         },
 
         onSelectProduct(bProductSelected) {
@@ -75,8 +72,7 @@ sap.ui.define(
         },
 
         _getCategoriesFilter() {
-          const aSelectedCategories =
-            this.byId("categorySelect").getProperty("selectedKeys");
+          const aSelectedCategories = this.byId("categorySelect").getProperty("selectedKeys");
           let aFilters = [];
 
           if (!!aSelectedCategories.length) {
@@ -142,20 +138,14 @@ sap.ui.define(
         },
 
         _getSupplierFilterWithTokens(aSuppliersTokens) {
-          const aFilters = aSuppliersTokens.map((oToken) => {
+          return aSuppliersTokens.map((oToken) => {
             return new Filter({
               path: "suppliers",
               operator: FilterOperator.EQ,
               value1: oToken,
-              test: (aSuppliers) => {
-                return aSuppliers.some(
-                  ({ id }) => id === oToken.getProperty("key")
-                );
-              }
+              test:(aSuppliers) => aSuppliers.some(({ id }) => id === oToken.getProperty("key"))
             });
           });
-
-          return aFilters;
         },
 
         _getSupplierFilter(oEvent) {
@@ -169,7 +159,7 @@ sap.ui.define(
         },
 
         _getAllFilters(oEvent) {
-          let aFilters = [];
+          const aFilters = [];
           const categoriesFilter = this._getCategoriesFilter(),
             suppliersFilter = this._getSupplierFilter(oEvent),
             searchNameFilter = this._getSearchNameFilter(),
