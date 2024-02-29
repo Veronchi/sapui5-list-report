@@ -27,6 +27,7 @@ sap.ui.define(
         TABLE_MODEL_NAME: "tableModel",
         FILTER_BAR_MODEL_NAME: "filterBarModel",
         TOKEN_REMOVED_TYPE: "removed",
+        ACTION_OK: "OK",
 
         onInit() {
           productModel.initModel();
@@ -76,7 +77,7 @@ sap.ui.define(
             title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
             actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
             onClose: (sAction) => {
-              if(sAction) {
+              if(sAction.includes(this.ACTION_OK)) {
                 this._deleteProduct();
               }
             }
