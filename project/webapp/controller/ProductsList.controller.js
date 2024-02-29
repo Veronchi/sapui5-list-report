@@ -203,26 +203,14 @@ sap.ui.define(
               })
             );
           
-
           return aFilters;
         },
 
-        _removeProductsFromList(aProductsList) {
-          const aSelectedProducts = this.byId("productList").getSelectedItems();
-          
-          aSelectedProducts.map((item) => {
-            const sProductId = item.getBindingContext(this.APP_MODEL_NAME).getProperty("id");
-            aProductsList = aProductsList.filter(({id}) => id !== sProductId);
-          })
-
-          return aProductsList;
-        },
-
         _deleteProducts() {
-          const aProductsList = this.getView().getModel(this.APP_MODEL_NAME).getProperty("/products");
-          const aUpdatedList = this._removeProductsFromList(aProductsList);
-          
-          this.getView().getModel(this.APP_MODEL_NAME).setProperty("/products", aUpdatedList);
+          const aSelectedProducts = this.byId("productList").getSelectedItems();
+
+          productModel.removeProdactsFromModel(aSelectedProducts);
+
           this.oTableModel.setProperty("/isProductsSelected", false);
           this.byId("productList").removeSelections(true);
         },
