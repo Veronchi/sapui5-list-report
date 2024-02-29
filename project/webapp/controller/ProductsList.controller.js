@@ -46,7 +46,11 @@ sap.ui.define(
         },
 
         onSelectProduct(bProductSelected) {
-          this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+          const aSelectedItems = this.byId("productList").getSelectedItems();
+
+          if(bProductSelected || !aSelectedItems.length) {
+            this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+          }
         },
 
         onSearchProducts(oEvent) {
@@ -67,6 +71,18 @@ sap.ui.define(
           oTableBinding.filter(null);
         },
 
+        onDeleteProductPress() {
+          MessageBox.confirm(this._getConfirmationText(), {
+            title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
+            actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
+            onClose: (sAction) => {
+              if(sAction) {
+                this._deleteProduct();
+              }
+            }
+          });
+        },
+
         _getSearchNameFilter() {
           const sSearchQuery = this.byId("searchName").getProperty("value");
 
@@ -85,9 +101,7 @@ sap.ui.define(
                 path: "categories",
                 operator: FilterOperator.EQ,
                 value1: sSelectedKey,
-                test: (aCategories) => {
-                  return aCategories.some(({ id }) => id === sSelectedKey);
-                }
+                test: (aCategories) => aCategories.some(({ id }) => id === sSelectedKey)
               });
             });
           }
@@ -192,55 +206,19 @@ sap.ui.define(
           return aFilters;
         },
 
-        onSearchProducts(oEvent) {
-          const oTableBinding = this.byId("productList").getBinding("items");
-          const aFilters = this._getAllFilters(oEvent);
-
-          oTableBinding.filter(aFilters);
-        },
-
-        onClearFilters() {
-          const oTableBinding = this.byId("productList").getBinding("items");
-
-          this.byId("releaseDate").setValue(null);
-          this.byId("supplier").setTokens([]);
-          this.byId("searchName").setValue(null);
-          this.byId("categorySelect").setSelectedKeys([]);
-
-          oTableBinding.filter(null);
-        },
-
         _deleteProduct() {
           // TODO: add products delete functionality
         },
 
-        onDeleteProductPress() {
-          MessageBox.confirm(this._getConfirmationText(), {
-            title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
-            actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
-            onClose: (sAction) => {
-              switch (sAction) {
-                case MessageBox.Action.OK:
-                  this._deleteProduct();
-                  break;
-
-                default:
-                  break;
-              }
-            },
-          });
-        },
-
         _getConfirmationText() {
           const aSelectedItems = this.byId("productList").getSelectedItems();
-          const sPath = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getPath();
-          const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getModel().getProperty(`${sPath}/name`);
+          const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getProperty("name");
+          const bDeleteCondition = aSelectedItems.length > 1;
 
-          if (aSelectedItems.length > 1) {
-            return this.oResourceBundle.getText("ConfirmDeleteProductsText", [aSelectedItems.length]);
-          }
-
-          return this.oResourceBundle.getText("ConfirmDeleteProductsText", [sProductName]);
+          return this.oResourceBundle.getText(
+            bDeleteCondition ? "ConfirmDeleteProductsText" : "ConfirmDeleteProductText",
+            [bDeleteCondition ? aSelectedItems.length : sProductName]
+          );
         },
     });
   }
