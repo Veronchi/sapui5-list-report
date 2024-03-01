@@ -23,12 +23,10 @@ sap.ui.define([
         this._changeModel(aUpdatedProducts);
       },
 
-      _getNewData(aSelectedProducts) {
+      _getNewData(aSelectedProductsIds) {
         let aProductsList = this.oModel.getProperty("/products");
 
-        aSelectedProducts.map((item) => {
-          const sProductId = item.getBindingContext("appModel").getProperty("id");
-          
+        aSelectedProductsIds.map((sProductId) => {
           aProductsList = aProductsList.filter(({id}) => id !== sProductId);
         })
 
