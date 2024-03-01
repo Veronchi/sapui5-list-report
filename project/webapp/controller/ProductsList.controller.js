@@ -209,7 +209,7 @@ sap.ui.define(
         _deleteProducts() {
           const aSelectedProducts = this.byId("productList").getSelectedItems();
 
-          productModel.removeProdactsFromModel(aSelectedProducts);
+          productModel.removeProductsFromModel(aSelectedProducts);
 
           this.oTableModel.setProperty("/isProductsSelected", false);
           this.byId("productList").removeSelections(true);
