@@ -6,6 +6,7 @@ sap.ui.define(
     "veronchi/leverx/project/model/filterBarModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
+    "sap/m/MessageBox",
   ],
 
   function (
@@ -14,7 +15,8 @@ sap.ui.define(
     productModel,
     filterBarModel,
     Filter,
-    FilterOperator
+    FilterOperator,
+    MessageBox
   ) {
     "use strict";
 
@@ -25,12 +27,15 @@ sap.ui.define(
         TABLE_MODEL_NAME: "tableModel",
         FILTER_BAR_MODEL_NAME: "filterBarModel",
         TOKEN_REMOVED_TYPE: "removed",
+        ACTION_OK: "OK",
 
         onInit() {
           productModel.initModel();
           filterBarModel.initFilterBarModel();
           const oModel = productModel.getModel();
           this.oFilterBarModel = filterBarModel.getFilterBarModel();
+          this.oComponent = this.getOwnerComponent();
+          this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
 
           this.oTableModel = new JSONModel({
             isProductsSelected: false
@@ -42,7 +47,11 @@ sap.ui.define(
         },
 
         onSelectProduct(bProductSelected) {
-          this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+          const aSelectedItems = this.byId("productList").getSelectedItems();
+
+          if(bProductSelected || !aSelectedItems.length) {
+            this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+          }
         },
 
         onSearchProducts(oEvent) {
@@ -63,6 +72,18 @@ sap.ui.define(
           oTableBinding.filter(null);
         },
 
+        onDeleteProductPress() {
+          MessageBox.confirm(this._getConfirmationText(), {
+            title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
+            actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
+            onClose: (sAction) => {
+              if(sAction.includes(this.ACTION_OK)) {
+                this._deleteProduct();
+              }
+            }
+          });
+        },
+
         _getSearchNameFilter() {
           const sSearchQuery = this.byId("searchName").getProperty("value");
 
@@ -81,9 +102,7 @@ sap.ui.define(
                 path: "categories",
                 operator: FilterOperator.EQ,
                 value1: sSelectedKey,
-                test: (aCategories) => {
-                  return aCategories.some(({ id }) => id === sSelectedKey);
-                }
+                test: (aCategories) => aCategories.some(({ id }) => id === sSelectedKey)
               });
             });
           }
@@ -176,18 +195,32 @@ sap.ui.define(
               })
             );
           }
-          if (suppliersFilter) {
+          
             aFilters.push(
               new Filter({
                 filters: suppliersFilter,
                 and: false
               })
             );
-          }
+          
 
           return aFilters;
         },
-      }
-    );
+
+        _deleteProduct() {
+          // TODO: add products delete functionality
+        },
+
+        _getConfirmationText() {
+          const aSelectedItems = this.byId("productList").getSelectedItems();
+          const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getProperty("name");
+          const bGreaterThanOne = aSelectedItems.length > 1;
+
+          return this.oResourceBundle.getText(
+            bGreaterThanOne ? "ConfirmDeleteProductsText" : "ConfirmDeleteProductText",
+            [bGreaterThanOne ? aSelectedItems.length : sProductName]
+          );
+        },
+    });
   }
 );
