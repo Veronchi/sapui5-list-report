@@ -244,7 +244,11 @@ sap.ui.define(
         _deleteProducts() {
           const aSelectedProducts = this.byId("productList").getSelectedItems();
 
-          productModel.removeProdactsFromModel(aSelectedProducts);
+          const aSelectedProductsIds = aSelectedProducts.map((item) => {
+            return item.getBindingContext(this.APP_MODEL_NAME).getProperty("id");
+          }); 
+
+          productModel.removeProductsFromModel(aSelectedProductsIds);
 
           this.oTableModel.setProperty("/isProductsSelected", false);
           this.byId("productList").removeSelections(true);
@@ -253,11 +257,11 @@ sap.ui.define(
         _getConfirmationText() {
           const aSelectedItems = this.byId("productList").getSelectedItems();
           const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getProperty("name");
-          const bDeleteCondition = aSelectedItems.length > 1;
+          const bGreaterThanOne = aSelectedItems.length > 1;
 
           return this.oResourceBundle.getText(
-            bDeleteCondition ? "ConfirmDeleteProductsText" : "ConfirmDeleteProductText",
-            [bDeleteCondition ? aSelectedItems.length : sProductName]
+            bGreaterThanOne ? "ConfirmDeleteProductsText" : "ConfirmDeleteProductText",
+            [bGreaterThanOne ? aSelectedItems.length : sProductName]
           );
         },
       }
