@@ -143,10 +143,11 @@
                           press="onGroupButtonPress"/>
                         <Button text="{i18n>CreateButtonText}" />
                         <Button
-                            text="{i18n>DeleteButtonText}"
-                            type="Transparent"
-                            enabled="{tableModel>/isProductsSelected}"
-                            press="onDeleteProductPress"
+                          id="deleteProductsBtn"
+                          text="{i18n>DeleteButtonText}"
+                          type="Transparent"
+                          enabled="{tableModel>/isProductsSelected}"
+                          press="onDeleteProductPress"
                         />
                     </Toolbar>
                 </headerToolbar>

@@ -7,20 +7,38 @@ sap.ui.define([
 	Opa5.createPageObjects({
 		onTheViewPage: {
 
-			actions: {},
+			actions: {
+        iPressOnProductSelect() {
+          return this.waitFor({
+            controlType: "sap.m.ColumnListItem",
+            viewName: sViewName,
+            actions: new Press(),
+            errorMessage: "The table does not have a trigger."
+          });
+        }
+      },
 
 			assertions: {
-
-				iShouldSeeThePageView: function () {
+				iShouldSeeThePageView() {
 					return this.waitFor({
-						id: "page",
+						id: "productsListPage",
 						viewName: sViewName,
-						success: function () {
+						success() {
 							Opa5.assert.ok(true, "The " + sViewName + " view is displayed");
 						},
 						errorMessage: "Did not find the " + sViewName + " view"
 					});
-				}
+				},
+        theProductsShouldBeSelected() {
+          return this.waitFor({
+              controlType: "sap.m.ColumnListItem",
+              viewName: sViewName,
+              success: function () {
+                Opa5.assert.ok(true, "");
+              },
+              errorMessage: ""
+            });
+        }
 			}
 		}
 	});
