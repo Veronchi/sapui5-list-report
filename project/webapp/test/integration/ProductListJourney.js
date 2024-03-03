@@ -1,21 +1,22 @@
-sap.ui.define([
-	"sap/ui/test/opaQunit",
-	"./pages/ProductsList"
-], function (opaTest) {
-	"use strict";
+sap.ui.define(["sap/ui/test/opaQunit", "./pages/ProductsList"], function (opaTest) {
+  "use strict";
 
-	QUnit.module("ProductList");
+  QUnit.module("ProductList Journey");
 
+  opaTest("Should be able to delete product", function (Given, When, Then) {
+    Given.iStartMyApp();
 
-  opaTest("Should be able to select products", function (Given, When, Then) {
-		//Actions
-		When.onTheProductsList.iPressOnProductSelect();
+    Then.onTheProductsList.theTableShouldHaveProducts(10);
+    Then.onTheProductsList.theDeleteButtonShouldBeEnabled(false);
 
-		// Assertions
-		Then.onTheProductsList.theProductsShouldBeSelected();
+    When.onTheProductsList.iSelectListItem();
+    Then.onTheProductsList.theDeleteButtonShouldBeEnabled(true);
 
-		// Cleanup
-		Then.iTeardownMyApp();
-	});
+    When.onTheProductsList.iClickOnDeleteButton();
 
+    When.onTheProductsList.iClickOnConfirmDeleteButton();
+    Then.onTheProductsList.theTableShouldHaveProducts(9);
+
+    Then.iTeardownMyApp();
+  });
 });
