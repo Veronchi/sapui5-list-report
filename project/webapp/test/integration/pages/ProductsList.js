@@ -28,7 +28,7 @@ sap.ui.define(
               errorMessage: "The table does not have a trigger"
             });
           },
-          iClickOnDeleteButton() {
+          iPressOnDeleteButton() {
             return this.waitFor({
               id: "deleteProductsBtn",
               viewName: sViewName,
