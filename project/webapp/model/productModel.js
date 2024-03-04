@@ -17,23 +17,11 @@ sap.ui.define([
         return this.oModel;
       },
 
-      removeProductsFromModel(aSelectedProducts) {
-        const aUpdatedProducts = this._getNewData(aSelectedProducts);
+      removeProducts(aProductsId) {
+        const aProductsList = this.oModel.getProperty("/products");
 
-        this._changeModel(aUpdatedProducts);
-      },
+        const aUpdatedProducts = aProductsList.filter(({id}) => !aProductsId.includes(id));
 
-      _getNewData(aSelectedProductsIds) {
-        let aProductsList = this.oModel.getProperty("/products");
-
-        aSelectedProductsIds.map((sProductId) => {
-          aProductsList = aProductsList.filter(({id}) => id !== sProductId);
-        })
-
-        return aProductsList;
-      },
-
-      _changeModel(aUpdatedProducts) {
         this.oModel.setProperty("/products", aUpdatedProducts);
       },
     };
