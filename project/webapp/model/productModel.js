@@ -15,6 +15,15 @@ sap.ui.define([
 
       getModel() {
         return this.oModel;
-      }
+      },
+
+      removeProducts(aProductsId) {
+        const aProductsList = this.oModel.getProperty("/products");
+
+        const aUpdatedProducts = aProductsList.filter(({id}) => !aProductsId.includes(id));
+
+        this.oModel.setProperty("/products", aUpdatedProducts);
+      },
     };
-  });
+  }
+);

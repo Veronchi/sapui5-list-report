@@ -78,7 +78,7 @@ sap.ui.define(
             actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
             onClose: (sAction) => {
               if(sAction.includes(this.ACTION_OK)) {
-                this._deleteProduct();
+                this._deleteProducts();
               }
             }
           });
@@ -203,12 +203,20 @@ sap.ui.define(
               })
             );
           
-
           return aFilters;
         },
 
-        _deleteProduct() {
-          // TODO: add products delete functionality
+        _deleteProducts() {
+          const aSelectedProducts = this.byId("productList").getSelectedItems();
+
+          const aSelectedProductsIds = aSelectedProducts.map((item) => {
+            return item.getBindingContext(this.APP_MODEL_NAME).getProperty("id");
+          }); 
+
+          productModel.removeProducts(aSelectedProductsIds);
+
+          this.oTableModel.setProperty("/isProductsSelected", false);
+          this.byId("productList").removeSelections(true);
         },
 
         _getConfirmationText() {
@@ -221,6 +229,7 @@ sap.ui.define(
             [bGreaterThanOne ? aSelectedItems.length : sProductName]
           );
         },
-    });
+      }
+    );
   }
 );
