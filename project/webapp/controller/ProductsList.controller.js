@@ -89,13 +89,13 @@ sap.ui.define(
         },
 
         async onSortButtonPress() {
-          if (!this.oDialog) {
-            this.oDialog = await this.loadFragment({
+          if (!this.oSortingDialog) {
+            this.oSortingDialog = await this.loadFragment({
               name: "veronchi.leverx.project.view.fragments.SortingDialog",
             });
           }
   
-          this.oDialog.open();
+          this.oSortingDialog.open();
         },
 
         async onGroupButtonPress() {
@@ -300,39 +300,9 @@ sap.ui.define(
         _getGroups(oContext) {
           const rating = oContext.getProperty("rating");
 
-          switch (rating) {
-            case 1:
-              return {
-                key: "rating1",
-                text: this.oResourceBundle.getText("GroupRatingText", [rating])
-              }
-          
-            case 2:
-              return {
-                key: "rating2",
-                text: this.oResourceBundle.getText("GroupRatingText", [rating])
-              }
-          
-            case 3:
-              return {
-                key: "rating3",
-                text: this.oResourceBundle.getText("GroupRatingText", [rating])
-              }
-
-            case 4:
-              return {
-                key: "rating4",
-                text: this.oResourceBundle.getText("GroupRatingText", [rating])
-              }
-          
-            case 5:
-              return {
-                key: "rating5",
-                text: this.oResourceBundle.getText("GroupRatingText", [rating])
-              }
-          
-            default:
-              break;
+          return {
+            key: `rating${rating}`,
+            text: this.oResourceBundle.getText("GroupRatingText", [rating])
           }
         },
       }
