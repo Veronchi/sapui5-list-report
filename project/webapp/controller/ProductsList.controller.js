@@ -42,6 +42,7 @@ sap.ui.define(
           this.oTableModel = new JSONModel({
             isProductsSelected: false,
             isSortReset: false,
+            isGroupReset: false,
           });
 
           this.getView().setModel(oModel, this.APP_MODEL_NAME);
@@ -88,13 +89,23 @@ sap.ui.define(
         },
 
         async onSortButtonPress() {
-          if (!this.oDialog) {
-            this.oDialog = await this.loadFragment({
+          if (!this.oSortingDialog) {
+            this.oSortingDialog = await this.loadFragment({
               name: "veronchi.leverx.project.view.fragments.SortingDialog",
             });
           }
   
-          this.oDialog.open();
+          this.oSortingDialog.open();
+        },
+
+        async onGroupButtonPress() {
+          if (!this.oGroupingDialog) {
+            this.oGroupingDialog = await this.loadFragment({
+              name: "veronchi.leverx.project.view.fragments.GroupingDialog"
+            });
+          }
+  
+          this.oGroupingDialog.open();
         },
   
         handleSortingConfirm(oEvent) {
@@ -116,6 +127,27 @@ sap.ui.define(
   
         handleResetSorting() {
           this.oTableModel.setProperty("/isSortReset", true);
+        },
+
+        handleGroupingConfirm(oEvent) {
+          const oTableBinding = this.byId("productList").getBinding("items");
+          const isGroupReset = this.oTableModel.getProperty("/isGroupReset");
+          const mParams = oEvent.getParameters();
+  
+          if (mParams.groupItem) {
+            const sPath = mParams.groupItem.getKey();
+            const bDescending = mParams.groupDescending;
+            const oGroup = new Sorter(sPath, bDescending, this._getGroups.bind(this));
+  
+            oTableBinding.sort(oGroup);
+          } else if (isGroupReset) {
+            oTableBinding.sort();
+            this.oTableModel.setProperty("/isGroupReset", false);
+          }
+        },
+  
+        handleResetGrouping() {
+          this.oTableModel.setProperty("/isGroupReset", true);
         },
 
 
@@ -263,6 +295,15 @@ sap.ui.define(
             bGreaterThanOne ? "ConfirmDeleteProductsText" : "ConfirmDeleteProductText",
             [bGreaterThanOne ? aSelectedItems.length : sProductName]
           );
+        },
+
+        _getGroups(oContext) {
+          const rating = oContext.getProperty("rating");
+
+          return {
+            key: `rating${rating}`,
+            text: this.oResourceBundle.getText("GroupRatingText", [rating])
+          }
         },
       }
     );

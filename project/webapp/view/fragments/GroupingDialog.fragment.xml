@@ -1,0 +1,11 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<ViewSettingsDialog
+		confirm="handleGroupingConfirm"
+		reset="handleResetGrouping">
+		<groupItems>
+			<ViewSettingsItem text="{i18n>ProductColumnRating}" key="rating" />
+		</groupItems>
+	</ViewSettingsDialog>
+</core:FragmentDefinition>
