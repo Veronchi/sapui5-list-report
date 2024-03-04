@@ -213,7 +213,7 @@ sap.ui.define(
             return item.getBindingContext(this.APP_MODEL_NAME).getProperty("id");
           }); 
 
-          productModel.removeProductsFromModel(aSelectedProductsIds);
+          productModel.removeProducts(aSelectedProductsIds);
 
           this.oTableModel.setProperty("/isProductsSelected", false);
           this.byId("productList").removeSelections(true);
