@@ -7,6 +7,7 @@ sap.ui.define(
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/m/MessageBox",
+    "sap/ui/model/Sorter",
   ],
 
   function (
@@ -16,7 +17,8 @@ sap.ui.define(
     filterBarModel,
     Filter,
     FilterOperator,
-    MessageBox
+    MessageBox,
+    Sorter
   ) {
     "use strict";
 
@@ -38,7 +40,8 @@ sap.ui.define(
           this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
 
           this.oTableModel = new JSONModel({
-            isProductsSelected: false
+            isProductsSelected: false,
+            isSortReset: false,
           });
 
           this.getView().setModel(oModel, this.APP_MODEL_NAME);
@@ -83,6 +86,38 @@ sap.ui.define(
             }
           });
         },
+
+        async onSortButtonPress() {
+          if (!this.oDialog) {
+            this.oDialog = await this.loadFragment({
+              name: "veronchi.leverx.project.view.fragments.SortingDialog",
+            });
+          }
+  
+          this.oDialog.open();
+        },
+  
+        handleSortingConfirm(oEvent) {
+          const oTableBinding = this.byId("productList").getBinding("items");
+          const isSortReset = this.oTableModel.getProperty("/isSortReset");
+          const mParams = oEvent.getParameters();
+          
+          if(mParams.sortItem) {
+            const sPath = mParams.sortItem.getKey();
+            const bDescending = mParams.sortDescending;
+            const oSorter = new Sorter(sPath, bDescending);
+  
+            oTableBinding.sort(oSorter);
+          } else if(isSortReset) {
+            oTableBinding.sort();
+            this.oTableModel.setProperty("/isSortReset", false);
+          }
+        },
+  
+        handleResetSorting() {
+          this.oTableModel.setProperty("/isSortReset", true);
+        },
+
 
         _getSearchNameFilter() {
           const sSearchQuery = this.byId("searchName").getProperty("value");

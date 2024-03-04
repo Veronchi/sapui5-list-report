@@ -1,0 +1,13 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<ViewSettingsDialog
+		confirm="handleSortingConfirm"
+    reset="handleResetSorting">
+		<sortItems>
+			<ViewSettingsItem text="{i18n>ProductColumnName}" key="name" selected="false" />
+			<ViewSettingsItem text="{i18n>ProductColumnReleaseDate}" key="releaseDate" />
+			<ViewSettingsItem text="{i18n>ProductColumnPrice}" key="price" />
+		</sortItems>
+	</ViewSettingsDialog>
+</core:FragmentDefinition>
