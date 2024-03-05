@@ -3,7 +3,7 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
 
   function getResourceBundle() {
     return new ResourceModel({
-      bundleUrl: [sap.ui.require.toUrl("veronchi/leverx/project"), "i18n/i18n.properties"].join("/")
+      bundleUrl: sap.ui.require.toUrl("veronchi/leverx/projecti18n/i18n.properties")
     }).getResourceBundle();
   }
 
