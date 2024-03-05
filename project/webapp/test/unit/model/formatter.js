@@ -3,12 +3,12 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
 
   function getResourceBundle() {
     return new ResourceModel({
-      bundleUrl: sap.ui.require.toUrl("veronchi/leverx/projecti18n/i18n.properties")
+      bundleUrl: sap.ui.require.toUrl("veronchi/leverx/project/i18n/i18n.properties")
     }).getResourceBundle();
   }
 
   QUnit.module("Formatting functions", {
-    beforeEach() {
+    before() {
       this.oRresourceBundle = getResourceBundle();
       formatter.initResourceBundle(this.oRresourceBundle);
     }
@@ -17,17 +17,14 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
   QUnit.test("Should return text with the name of the product that will be deleted", function (assert) {
     const aOneProduct = ["MacBook Air"];
     const sResultForOneProduct = formatter.formatConfirmMessageText(aOneProduct);
-
+    const aMultipleProducts = ["MacBook Air", "MacBook Pro 14"];
+    const sResultForMultipleProducts = formatter.formatConfirmMessageText(aMultipleProducts);
+    
     assert.strictEqual(
       sResultForOneProduct,
       this.oRresourceBundle.getText("ConfirmDeleteProductText", [aOneProduct[0]]),
       sResultForOneProduct
     );
-  });
-
-  QUnit.test("Should return text with the number of products to be deleted", function (assert) {
-    const aMultipleProducts = ["MacBook Air", "MacBook Pro 14"];
-    const sResultForMultipleProducts = formatter.formatConfirmMessageText(aMultipleProducts);
 
     assert.strictEqual(
       sResultForMultipleProducts,
