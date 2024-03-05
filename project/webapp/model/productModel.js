@@ -8,7 +8,7 @@ sap.ui.define([
     return {
       initModel() {
         const oModel = new JSONModel();
-        oModel.loadData('../localData/products.json');
+        oModel.loadData("../localData/products.json");
 
         this.oModel = oModel;
       },
