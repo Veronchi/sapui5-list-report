@@ -142,6 +142,10 @@ sap.ui.define(
         this.oTableModel.setProperty("/isGroupReset", true);
       },
 
+      onOpenProductPage() {
+        this.oComponent.getRouter().navTo("ProductPage");
+      },
+
       _getSearchNameFilter() {
         const sSearchQuery = this.byId("searchName").getProperty("value");
 
