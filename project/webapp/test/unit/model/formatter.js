@@ -20,6 +20,10 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
     const aMultipleProducts = ["MacBook Air", "MacBook Pro 14"];
     const sResultForMultipleProducts = formatter.formatConfirmMessageText(aMultipleProducts);
     
+    const sResultWithoutRoducts = formatter.formatConfirmMessageText();
+    const sResultForEmptyArray = formatter.formatConfirmMessageText([]);
+    const sResultForEmptyString = formatter.formatConfirmMessageText('');
+    
     assert.strictEqual(
       sResultForOneProduct,
       this.oRresourceBundle.getText("ConfirmDeleteProductText", [aOneProduct[0]]),
@@ -30,6 +34,24 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
       sResultForMultipleProducts,
       this.oRresourceBundle.getText("ConfirmDeleteProductsText", [aMultipleProducts.length]),
       sResultForMultipleProducts
+    );
+
+    assert.strictEqual(
+      sResultWithoutRoducts,
+      "",
+      "Products names not provided"
+    );
+
+    assert.strictEqual(
+      sResultForEmptyArray,
+      "",
+      "Products names not provided"
+    );
+
+    assert.strictEqual(
+      sResultForEmptyString,
+      "",
+      "Products names not provided"
     );
   });
 });
