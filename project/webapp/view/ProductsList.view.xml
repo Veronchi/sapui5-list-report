@@ -58,9 +58,9 @@
                     id="categorySelect"
                     name="Category"
                     items="{
-                                        path: 'filterBarModel>/categories',
-                                        templateShareable: false
-                                      }"
+                      path: 'filterBarModel>/categories',
+                      templateShareable: false
+                    }"
                     selectionChange="onSearchProducts"
                   >
                     <core:Item
@@ -123,6 +123,7 @@
         class="sapFDynamicPageAlignContent"
         noDataText="{i18n>TableEmptyStateText}"
         autoPopinMode="true"
+        itemPress="onOpenProductPage"
         selectionChange="onSelectProduct(${$parameters>/selected})"
       >
         <headerToolbar>

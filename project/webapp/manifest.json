@@ -76,7 +76,7 @@
         },
         {
           "name": "ProductPage",
-          "pattern": "ProductPage",
+          "pattern": "ProductPage/:productId:",
           "target": ["ProductPage"]
         }
       ],
