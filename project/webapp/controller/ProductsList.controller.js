@@ -144,8 +144,8 @@ sap.ui.define(
 
       onOpenProductPage(oEvent) {
         const oListItem = oEvent.getParameter("listItem");
-        const oCtx = oListItem ? oListItem.getBindingContext(this.APP_MODEL_NAME) : null;
-        const sProductId = oCtx && oCtx.getObject("id");
+        const oContext = oListItem ? oListItem.getBindingContext(this.APP_MODEL_NAME) : null;
+        const sProductId = oContext && oContext.getObject("id");
 
         this.oComponent.getRouter().navTo("ProductPage", {
           productId: sProductId
