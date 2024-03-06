@@ -19,15 +19,17 @@ sap.ui.define(
       TABLE_MODEL_NAME: "tableModel",
       FILTER_BAR_MODEL_NAME: "filterBarModel",
       TOKEN_REMOVED_TYPE: "removed",
-      ACTION_OK: "OK",
 
       onInit() {
-        productModel.initModel();
-        filterBarModel.initFilterBarModel();
-        const oModel = productModel.getModel();
-        this.oFilterBarModel = filterBarModel.getFilterBarModel();
         this.oComponent = this.getOwnerComponent();
         this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
+        
+        productModel.initModel();
+        filterBarModel.initFilterBarModel();
+        formatter.initResourceBundle(this.oResourceBundle);
+        
+        const oModel = productModel.getModel();
+        this.oFilterBarModel = filterBarModel.getFilterBarModel();
 
         this.oTableModel = new JSONModel({
           isProductsSelected: false,
@@ -38,8 +40,6 @@ sap.ui.define(
         this.getView().setModel(oModel, this.APP_MODEL_NAME);
         this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
         this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
-
-        formatter.initResourceBundle(this.oResourceBundle);
       },
 
       onSelectProduct(bProductSelected) {
@@ -73,7 +73,7 @@ sap.ui.define(
           title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
           actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
           onClose: (sAction) => {
-            if (sAction.includes(this.ACTION_OK)) {
+            if (sAction.includes(MessageBox.Action.OK)) {
               this._deleteProducts();
             }
           }

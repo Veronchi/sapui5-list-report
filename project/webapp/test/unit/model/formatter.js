@@ -16,20 +16,36 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
 
   QUnit.test("Should return text with the name of the product that will be deleted", function (assert) {
     const aOneProduct = ["MacBook Air"];
-    const sResultForOneProduct = formatter.formatConfirmMessageText(aOneProduct);
     const aMultipleProducts = ["MacBook Air", "MacBook Pro 14"];
-    const sResultForMultipleProducts = formatter.formatConfirmMessageText(aMultipleProducts);
     
     assert.strictEqual(
-      sResultForOneProduct,
+      formatter.formatConfirmMessageText(aOneProduct),
       this.oRresourceBundle.getText("ConfirmDeleteProductText", [aOneProduct[0]]),
-      sResultForOneProduct
+      "Formatter works correct"
     );
 
     assert.strictEqual(
-      sResultForMultipleProducts,
+      formatter.formatConfirmMessageText(aMultipleProducts),
       this.oRresourceBundle.getText("ConfirmDeleteProductsText", [aMultipleProducts.length]),
-      sResultForMultipleProducts
+      "Formatter works correct"
+    );
+
+    assert.strictEqual(
+      formatter.formatConfirmMessageText(),
+      "",
+      "Formatter works correct"
+    );
+
+    assert.strictEqual(
+      formatter.formatConfirmMessageText([]),
+      "",
+      "Formatter works correct"
+    );
+
+    assert.strictEqual(
+      formatter.formatConfirmMessageText(''),
+      "",
+      "Formatter works correct"
     );
   });
 });
