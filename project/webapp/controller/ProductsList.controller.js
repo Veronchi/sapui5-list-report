@@ -142,6 +142,16 @@ sap.ui.define(
         this.oTableModel.setProperty("/isGroupReset", true);
       },
 
+      onOpenProductPage(oEvent) {
+        const oListItem = oEvent.getParameter("listItem");
+        const oContext = oListItem ? oListItem.getBindingContext(this.APP_MODEL_NAME) : null;
+        const sProductId = oContext && oContext.getObject("id");
+
+        this.oComponent.getRouter().navTo("ProductPage", {
+          productId: sProductId
+        });
+      },
+
       _getSearchNameFilter() {
         const sSearchQuery = this.byId("searchName").getProperty("value");
 

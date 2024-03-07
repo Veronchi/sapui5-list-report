@@ -72,16 +72,12 @@
         {
           "name": "ProductsList",
           "pattern": "",
-          "target": [
-            "ProductsList"
-          ]
+          "target": ["ProductsList"]
         },
         {
-          "name": "ProductPage/{productId}",
-          "pattern": "ProductPage",
-          "target": [
-            "ProductPage"
-          ]
+          "name": "ProductPage",
+          "pattern": "ProductPage/:productId:",
+          "target": ["ProductPage"]
         }
       ],
       "targets": {
