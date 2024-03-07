@@ -8,10 +8,11 @@ sap.ui.define(
     "sap/ui/model/FilterOperator",
     "sap/m/MessageBox",
     "sap/ui/model/Sorter",
-    "veronchi/leverx/project/model/formatter"
+    "veronchi/leverx/project/model/formatter",
+    "veronchi/leverx/project/utils/Constants"
   ],
 
-  function (Controller, JSONModel, productModel, filterBarModel, Filter, FilterOperator, MessageBox, Sorter, formatter) {
+  function (Controller, JSONModel, productModel, filterBarModel, Filter, FilterOperator, MessageBox, Sorter, formatter, Constants) {
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
@@ -23,12 +24,10 @@ sap.ui.define(
       onInit() {
         this.oComponent = this.getOwnerComponent();
         this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
-        
-        productModel.initModel();
+
         filterBarModel.initFilterBarModel();
         formatter.initResourceBundle(this.oResourceBundle);
-        
-        const oModel = productModel.getModel();
+
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
 
         this.oTableModel = new JSONModel({
@@ -37,7 +36,6 @@ sap.ui.define(
           isGroupReset: false
         });
 
-        this.getView().setModel(oModel, this.APP_MODEL_NAME);
         this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
         this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
       },
@@ -274,7 +272,7 @@ sap.ui.define(
         const aSelectedProducts = this.byId("productList").getSelectedItems();
 
         const aSelectedProductsIds = aSelectedProducts.map((item) => {
-          return item.getBindingContext(this.APP_MODEL_NAME).getProperty("id");
+          return item.getBindingContext(Constants.APP_MODEL_NAME).getProperty("id");
         });
 
         productModel.removeProducts(aSelectedProductsIds);
@@ -287,7 +285,7 @@ sap.ui.define(
         const aSelectedItems = this.byId("productList").getSelectedItems();
 
         const aSelectedProductsNames = aSelectedItems.map((item) => {
-          return item.getBindingContext(this.APP_MODEL_NAME).getProperty("name");
+          return item.getBindingContext(Constants.APP_MODEL_NAME).getProperty("name");
         });
 
         return formatter.formatConfirmMessageText(aSelectedProductsNames);

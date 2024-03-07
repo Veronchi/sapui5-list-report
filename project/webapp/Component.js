@@ -1,30 +1,21 @@
-/**
- * eslint-disable @sap/ui5-jsdocs/no-jsdoc
- */
+sap.ui.define(
+  ["sap/ui/core/UIComponent", "veronchi/leverx/project/model/productModel", "veronchi/leverx/project/utils/Constants"],
+  function (UIComponent, productModel, Constants) {
+    "use strict";
 
-sap.ui.define([
-        "sap/ui/core/UIComponent",
-    ],
-    function (UIComponent) {
-        "use strict";
+    return UIComponent.extend("veronchi.leverx.project.Component", {
+      metadata: {
+        manifest: "json"
+      },
 
-        return UIComponent.extend("veronchi.leverx.project.Component", {
-            metadata: {
-                manifest: "json"
-            },
+      init: function () {
+        UIComponent.prototype.init.apply(this, arguments);
 
-            /**
-             * The component is initialized by UI5 automatically during the startup of the app and calls the init method once.
-             * @public
-             * @override
-             */
-            init: function () {
-                // call the base component's init function
-                UIComponent.prototype.init.apply(this, arguments);
+        productModel.initModel();
+        this.setModel(productModel.getModel(), Constants.APP_MODEL_NAME);
 
-                // enable routing
-                this.getRouter().initialize();
-            }
-        });
-    }
+        this.getRouter().initialize();
+      }
+    });
+  }
 );
