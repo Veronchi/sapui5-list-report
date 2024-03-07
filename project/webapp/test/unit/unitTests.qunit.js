@@ -2,11 +2,9 @@
 QUnit.config.autostart = false;
 
 sap.ui.getCore().attachInit(function () {
-	"use strict";
+  "use strict";
 
-	sap.ui.require([
-		"veronchileverx/project/test/unit/AllTests"
-	], function () {
-		QUnit.start();
-	});
+  sap.ui.require(["veronchi/leverx/project/test/unit/AllTests"], function () {
+    QUnit.start();
+  });
 });

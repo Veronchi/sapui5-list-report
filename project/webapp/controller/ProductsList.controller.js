@@ -8,304 +8,289 @@ sap.ui.define(
     "sap/ui/model/FilterOperator",
     "sap/m/MessageBox",
     "sap/ui/model/Sorter",
+    "veronchi/leverx/project/model/formatter"
   ],
 
-  function (
-    Controller,
-    JSONModel,
-    productModel,
-    filterBarModel,
-    Filter,
-    FilterOperator,
-    MessageBox,
-    Sorter
-  ) {
+  function (Controller, JSONModel, productModel, filterBarModel, Filter, FilterOperator, MessageBox, Sorter, formatter) {
     "use strict";
 
-    return Controller.extend(
-      "veronchi.leverx.project.controller.ProductsList",
-      {
-        APP_MODEL_NAME: "appModel",
-        TABLE_MODEL_NAME: "tableModel",
-        FILTER_BAR_MODEL_NAME: "filterBarModel",
-        TOKEN_REMOVED_TYPE: "removed",
-        ACTION_OK: "OK",
+    return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
+      APP_MODEL_NAME: "appModel",
+      TABLE_MODEL_NAME: "tableModel",
+      FILTER_BAR_MODEL_NAME: "filterBarModel",
+      TOKEN_REMOVED_TYPE: "removed",
 
-        onInit() {
-          productModel.initModel();
-          filterBarModel.initFilterBarModel();
-          const oModel = productModel.getModel();
-          this.oFilterBarModel = filterBarModel.getFilterBarModel();
-          this.oComponent = this.getOwnerComponent();
-          this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
+      onInit() {
+        this.oComponent = this.getOwnerComponent();
+        this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
+        
+        productModel.initModel();
+        filterBarModel.initFilterBarModel();
+        formatter.initResourceBundle(this.oResourceBundle);
+        
+        const oModel = productModel.getModel();
+        this.oFilterBarModel = filterBarModel.getFilterBarModel();
 
-          this.oTableModel = new JSONModel({
-            isProductsSelected: false,
-            isSortReset: false,
-            isGroupReset: false,
-          });
+        this.oTableModel = new JSONModel({
+          isProductsSelected: false,
+          isSortReset: false,
+          isGroupReset: false
+        });
 
-          this.getView().setModel(oModel, this.APP_MODEL_NAME);
-          this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
-          this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
-        },
+        this.getView().setModel(oModel, this.APP_MODEL_NAME);
+        this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
+        this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
+      },
 
-        onSelectProduct(bProductSelected) {
-          const aSelectedItems = this.byId("productList").getSelectedItems();
+      onSelectProduct(bProductSelected) {
+        const aSelectedItems = this.byId("productList").getSelectedItems();
 
-          if(bProductSelected || !aSelectedItems.length) {
-            this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
-          }
-        },
+        if (bProductSelected || !aSelectedItems.length) {
+          this.oTableModel.setProperty("/isProductsSelected", bProductSelected);
+        }
+      },
 
-        onSearchProducts(oEvent) {
-          const oTableBinding = this.byId("productList").getBinding("items");
-          const aFilters = this._getAllFilters(oEvent);
+      onSearchProducts(oEvent) {
+        const oTableBinding = this.byId("productList").getBinding("items");
+        const aFilters = this._getAllFilters(oEvent);
 
-          oTableBinding.filter(aFilters);
-        },
+        oTableBinding.filter(aFilters);
+      },
 
-        onClearFilters() {
-          const oTableBinding = this.byId("productList").getBinding("items");
+      onClearFilters() {
+        const oTableBinding = this.byId("productList").getBinding("items");
 
-          this.byId("releaseDate").setValue(null);
-          this.byId("supplier").setTokens([]);
-          this.byId("searchName").setValue(null);
-          this.byId("categorySelect").setSelectedKeys([]);
+        this.byId("releaseDate").setValue(null);
+        this.byId("supplier").setTokens([]);
+        this.byId("searchName").setValue(null);
+        this.byId("categorySelect").setSelectedKeys([]);
 
-          oTableBinding.filter(null);
-        },
+        oTableBinding.filter(null);
+      },
 
-        onDeleteProductPress() {
-          MessageBox.confirm(this._getConfirmationText(), {
-            title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
-            actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
-            onClose: (sAction) => {
-              if(sAction.includes(this.ACTION_OK)) {
-                this._deleteProducts();
-              }
+      onDeleteProductPress() {
+        MessageBox.confirm(this._getConfirmationText(), {
+          title: this.oResourceBundle.getText("ConfirmDeleteProductTitle"),
+          actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
+          onClose: (sAction) => {
+            if (sAction.includes(MessageBox.Action.OK)) {
+              this._deleteProducts();
             }
+          }
+        });
+      },
+
+      async onSortButtonPress() {
+        if (!this.oSortingDialog) {
+          this.oSortingDialog = await this.loadFragment({
+            name: "veronchi.leverx.project.view.fragments.SortingDialog"
           });
-        },
+        }
 
-        async onSortButtonPress() {
-          if (!this.oSortingDialog) {
-            this.oSortingDialog = await this.loadFragment({
-              name: "veronchi.leverx.project.view.fragments.SortingDialog",
-            });
-          }
-  
-          this.oSortingDialog.open();
-        },
+        this.oSortingDialog.open();
+      },
 
-        async onGroupButtonPress() {
-          if (!this.oGroupingDialog) {
-            this.oGroupingDialog = await this.loadFragment({
-              name: "veronchi.leverx.project.view.fragments.GroupingDialog"
-            });
-          }
-  
-          this.oGroupingDialog.open();
-        },
-  
-        handleSortingConfirm(oEvent) {
-          const oTableBinding = this.byId("productList").getBinding("items");
-          const isSortReset = this.oTableModel.getProperty("/isSortReset");
-          const mParams = oEvent.getParameters();
-          
-          if(mParams.sortItem) {
-            const sPath = mParams.sortItem.getKey();
-            const bDescending = mParams.sortDescending;
-            const oSorter = new Sorter(sPath, bDescending);
-  
-            oTableBinding.sort(oSorter);
-          } else if(isSortReset) {
-            oTableBinding.sort();
-            this.oTableModel.setProperty("/isSortReset", false);
-          }
-        },
-  
-        handleResetSorting() {
-          this.oTableModel.setProperty("/isSortReset", true);
-        },
-
-        handleGroupingConfirm(oEvent) {
-          const oTableBinding = this.byId("productList").getBinding("items");
-          const isGroupReset = this.oTableModel.getProperty("/isGroupReset");
-          const mParams = oEvent.getParameters();
-  
-          if (mParams.groupItem) {
-            const sPath = mParams.groupItem.getKey();
-            const bDescending = mParams.groupDescending;
-            const oGroup = new Sorter(sPath, bDescending, this._getGroups.bind(this));
-  
-            oTableBinding.sort(oGroup);
-          } else if (isGroupReset) {
-            oTableBinding.sort();
-            this.oTableModel.setProperty("/isGroupReset", false);
-          }
-        },
-  
-        handleResetGrouping() {
-          this.oTableModel.setProperty("/isGroupReset", true);
-        },
-
-
-        _getSearchNameFilter() {
-          const sSearchQuery = this.byId("searchName").getProperty("value");
-
-          return sSearchQuery.length
-            ? new Filter("name", FilterOperator.Contains, sSearchQuery)
-            : null;
-        },
-
-        _getCategoriesFilter() {
-          const aSelectedCategories = this.byId("categorySelect").getProperty("selectedKeys");
-          let aFilters = [];
-
-          if (!!aSelectedCategories.length) {
-            aFilters = aSelectedCategories.map((sSelectedKey) => {
-              return new Filter({
-                path: "categories",
-                operator: FilterOperator.EQ,
-                value1: sSelectedKey,
-                test: (aCategories) => aCategories.some(({ id }) => id === sSelectedKey)
-              });
-            });
-          }
-
-          return aFilters.length ? aFilters : null;
-        },
-
-        _getDateFilter() {
-          const sDate = this.byId("releaseDate");
-          const sDateStart = sDate.getDateValue();
-          const sDateEnd = sDate.getSecondDateValue();
-
-          if (!sDateStart || !sDateEnd) {
-            return null;
-          }
-
-          return new Filter({
-            path: "releaseDate",
-            operator: FilterOperator.BT,
-            value1: sDateStart.toISOString(),
-            value2: sDateEnd.toISOString()
+      async onGroupButtonPress() {
+        if (!this.oGroupingDialog) {
+          this.oGroupingDialog = await this.loadFragment({
+            name: "veronchi.leverx.project.view.fragments.GroupingDialog"
           });
-        },
+        }
 
-        _getCurrentTokens(oEvent) {
-          let aSuppliersTokens = this.byId("supplier").getTokens();
-          const oEventParameters = oEvent.getParameters();
-          const sTokenType = oEventParameters.type;
+        this.oGroupingDialog.open();
+      },
 
-          if (sTokenType === this.TOKEN_REMOVED_TYPE) {
-            const sRemovedTokenKey = oEventParameters.removedTokens[0].getProperty("key");
+      handleSortingConfirm(oEvent) {
+        const oTableBinding = this.byId("productList").getBinding("items");
+        const isSortReset = this.oTableModel.getProperty("/isSortReset");
+        const mParams = oEvent.getParameters();
 
-            aSuppliersTokens = aSuppliersTokens.filter(
-              (item) => item.getProperty("key") !== sRemovedTokenKey
-            );
-          }
+        if (mParams.sortItem) {
+          const sPath = mParams.sortItem.getKey();
+          const bDescending = mParams.sortDescending;
+          const oSorter = new Sorter(sPath, bDescending);
 
-          return aSuppliersTokens;
-        },
+          oTableBinding.sort(oSorter);
+        } else if (isSortReset) {
+          oTableBinding.sort();
+          this.oTableModel.setProperty("/isSortReset", false);
+        }
+      },
 
-        _getSupplierFilterWithoutToken() {
-          const sSupplierValue = this.byId("supplier").getValue();
+      handleResetSorting() {
+        this.oTableModel.setProperty("/isSortReset", true);
+      },
 
-          return [
-            new Filter({
-              path: "suppliers",
-              operator: FilterOperator.EQ,
-              value1: sSupplierValue,
-              test: () => sSupplierValue === ""
-            })
-          ];
-        },
+      handleGroupingConfirm(oEvent) {
+        const oTableBinding = this.byId("productList").getBinding("items");
+        const isGroupReset = this.oTableModel.getProperty("/isGroupReset");
+        const mParams = oEvent.getParameters();
 
-        _getSupplierFilterWithTokens(aSuppliersTokens) {
-          return aSuppliersTokens.map((oToken) => {
+        if (mParams.groupItem) {
+          const sPath = mParams.groupItem.getKey();
+          const bDescending = mParams.groupDescending;
+          const oGroup = new Sorter(sPath, bDescending, this._getGroups.bind(this));
+
+          oTableBinding.sort(oGroup);
+        } else if (isGroupReset) {
+          oTableBinding.sort();
+          this.oTableModel.setProperty("/isGroupReset", false);
+        }
+      },
+
+      handleResetGrouping() {
+        this.oTableModel.setProperty("/isGroupReset", true);
+      },
+
+      _getSearchNameFilter() {
+        const sSearchQuery = this.byId("searchName").getProperty("value");
+
+        return sSearchQuery.length ? new Filter("name", FilterOperator.Contains, sSearchQuery) : null;
+      },
+
+      _getCategoriesFilter() {
+        const aSelectedCategories = this.byId("categorySelect").getProperty("selectedKeys");
+        let aFilters = [];
+
+        if (!!aSelectedCategories.length) {
+          aFilters = aSelectedCategories.map((sSelectedKey) => {
             return new Filter({
-              path: "suppliers",
+              path: "categories",
               operator: FilterOperator.EQ,
-              value1: oToken,
-              test:(aSuppliers) => aSuppliers.some(({ id }) => id === oToken.getProperty("key"))
+              value1: sSelectedKey,
+              test: (aCategories) => aCategories.some(({ id }) => id === sSelectedKey)
             });
           });
-        },
+        }
 
-        _getSupplierFilter(oEvent) {
-          const aSuppliersTokens = this._getCurrentTokens(oEvent);
+        return aFilters.length ? aFilters : null;
+      },
 
-          if (aSuppliersTokens.length) {
-            return this._getSupplierFilterWithTokens(aSuppliersTokens);
-          } else {
-            return this._getSupplierFilterWithoutToken();
-          }
-        },
+      _getDateFilter() {
+        const sDate = this.byId("releaseDate");
+        const sDateStart = sDate.getDateValue();
+        const sDateEnd = sDate.getSecondDateValue();
 
-        _getAllFilters(oEvent) {
-          const aFilters = [];
-          const categoriesFilter = this._getCategoriesFilter(),
-            suppliersFilter = this._getSupplierFilter(oEvent),
-            searchNameFilter = this._getSearchNameFilter(),
-            dateFilter = this._getDateFilter();
+        if (!sDateStart || !sDateEnd) {
+          return null;
+        }
 
-          searchNameFilter && aFilters.push(searchNameFilter);
-          dateFilter && aFilters.push(dateFilter);
+        return new Filter({
+          path: "releaseDate",
+          operator: FilterOperator.BT,
+          value1: sDateStart.toISOString(),
+          value2: sDateEnd.toISOString()
+        });
+      },
 
-          if (categoriesFilter) {
-            aFilters.push(
-              new Filter({
-                filters: categoriesFilter,
-                and: false
-              })
-            );
-          }
-          
-            aFilters.push(
-              new Filter({
-                filters: suppliersFilter,
-                and: false
-              })
-            );
-          
-          return aFilters;
-        },
+      _getCurrentTokens(oEvent) {
+        let aSuppliersTokens = this.byId("supplier").getTokens();
+        const oEventParameters = oEvent.getParameters();
+        const sTokenType = oEventParameters.type;
 
-        _deleteProducts() {
-          const aSelectedProducts = this.byId("productList").getSelectedItems();
+        if (sTokenType === this.TOKEN_REMOVED_TYPE) {
+          const sRemovedTokenKey = oEventParameters.removedTokens[0].getProperty("key");
 
-          const aSelectedProductsIds = aSelectedProducts.map((item) => {
-            return item.getBindingContext(this.APP_MODEL_NAME).getProperty("id");
-          }); 
+          aSuppliersTokens = aSuppliersTokens.filter((item) => item.getProperty("key") !== sRemovedTokenKey);
+        }
 
-          productModel.removeProducts(aSelectedProductsIds);
+        return aSuppliersTokens;
+      },
 
-          this.oTableModel.setProperty("/isProductsSelected", false);
-          this.byId("productList").removeSelections(true);
-        },
+      _getSupplierFilterWithoutToken() {
+        const sSupplierValue = this.byId("supplier").getValue();
 
-        _getConfirmationText() {
-          const aSelectedItems = this.byId("productList").getSelectedItems();
-          const sProductName = aSelectedItems[0].getBindingContext(this.APP_MODEL_NAME).getProperty("name");
-          const bGreaterThanOne = aSelectedItems.length > 1;
+        return [
+          new Filter({
+            path: "suppliers",
+            operator: FilterOperator.EQ,
+            value1: sSupplierValue,
+            test: () => sSupplierValue === ""
+          })
+        ];
+      },
 
-          return this.oResourceBundle.getText(
-            bGreaterThanOne ? "ConfirmDeleteProductsText" : "ConfirmDeleteProductText",
-            [bGreaterThanOne ? aSelectedItems.length : sProductName]
+      _getSupplierFilterWithTokens(aSuppliersTokens) {
+        return aSuppliersTokens.map((oToken) => {
+          return new Filter({
+            path: "suppliers",
+            operator: FilterOperator.EQ,
+            value1: oToken,
+            test: (aSuppliers) => aSuppliers.some(({ id }) => id === oToken.getProperty("key"))
+          });
+        });
+      },
+
+      _getSupplierFilter(oEvent) {
+        const aSuppliersTokens = this._getCurrentTokens(oEvent);
+
+        if (aSuppliersTokens.length) {
+          return this._getSupplierFilterWithTokens(aSuppliersTokens);
+        } else {
+          return this._getSupplierFilterWithoutToken();
+        }
+      },
+
+      _getAllFilters(oEvent) {
+        const aFilters = [];
+        const categoriesFilter = this._getCategoriesFilter(),
+          suppliersFilter = this._getSupplierFilter(oEvent),
+          searchNameFilter = this._getSearchNameFilter(),
+          dateFilter = this._getDateFilter();
+
+        searchNameFilter && aFilters.push(searchNameFilter);
+        dateFilter && aFilters.push(dateFilter);
+
+        if (categoriesFilter) {
+          aFilters.push(
+            new Filter({
+              filters: categoriesFilter,
+              and: false
+            })
           );
-        },
+        }
 
-        _getGroups(oContext) {
-          const rating = oContext.getProperty("rating");
+        aFilters.push(
+          new Filter({
+            filters: suppliersFilter,
+            and: false
+          })
+        );
 
-          return {
-            key: `rating${rating}`,
-            text: this.oResourceBundle.getText("GroupRatingText", [rating])
-          }
-        },
+        return aFilters;
+      },
+
+      _deleteProducts() {
+        const aSelectedProducts = this.byId("productList").getSelectedItems();
+
+        const aSelectedProductsIds = aSelectedProducts.map((item) => {
+          return item.getBindingContext(this.APP_MODEL_NAME).getProperty("id");
+        });
+
+        productModel.removeProducts(aSelectedProductsIds);
+
+        this.oTableModel.setProperty("/isProductsSelected", false);
+        this.byId("productList").removeSelections(true);
+      },
+
+      _getConfirmationText() {
+        const aSelectedItems = this.byId("productList").getSelectedItems();
+
+        const aSelectedProductsNames = aSelectedItems.map((item) => {
+          return item.getBindingContext(this.APP_MODEL_NAME).getProperty("name");
+        });
+
+        return formatter.formatConfirmMessageText(aSelectedProductsNames);
+      },
+
+      _getGroups(oContext) {
+        const rating = oContext.getProperty("rating");
+
+        return {
+          key: `rating${rating}`,
+          text: this.oResourceBundle.getText("GroupRatingText", [rating])
+        };
       }
-    );
+    });
   }
 );
