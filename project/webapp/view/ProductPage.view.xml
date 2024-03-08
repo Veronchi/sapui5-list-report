@@ -89,5 +89,35 @@
         </layout:VerticalLayout>
       </m:FlexBox>
     </headerContent>
+    <sections>
+			<ObjectPageSection titleUppercase="false"  title="{i18n>ProductDetails}">
+				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+							<m:Text text="" />
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+
+			<ObjectPageSection titleUppercase="false"  title="{i18n>Suppliers}">
+				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+							<m:Text text="" />
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+      <ObjectPageSection titleUppercase="false"  title="{i18n>Comments}">
+				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+							<m:Text text="" />
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+		</sections>
   </ObjectPageLayout>
 </mvc:View>
