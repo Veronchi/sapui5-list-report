@@ -36,6 +36,14 @@ sap.ui.define([], () => {
       return this.oResourceBundle.getText(aProductsNames.length > 1 ? "ConfirmDeleteProductsText" : "ConfirmDeleteProductText", [
         aProductsNames.length > 1 ? aProductsNames.length : aProductsNames[0]
       ]);
+    },
+
+    formatProdiuctCategories(aCategories) {
+      if (aCategories) {
+        const aCategoriesNames = aCategories.map((item) => item.name);
+
+        return aCategoriesNames.join(" | ");
+      }
     }
   };
 });

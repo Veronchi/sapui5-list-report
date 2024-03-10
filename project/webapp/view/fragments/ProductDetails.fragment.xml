@@ -1,0 +1,187 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:l="sap.ui.layout"
+  xmlns:f="sap.ui.layout.form"
+  xmlns:core="sap.ui.core">
+  <VBox visible="{= !${editMdel>/isEditMode}}">
+    <f:SimpleForm id="SimpleFormDisplay354wide"
+      editable="false"
+      layout="ResponsiveGridLayout"
+      labelSpanXL="4"
+      labelSpanL="1"
+      labelSpanM="2"
+      labelSpanS="12"
+      adjustLabelSpan="false"
+      emptySpanXL="0"
+      emptySpanL="5"
+      emptySpanM="0"
+      emptySpanS="0"
+      columnsXL="2"
+      columnsL="1"
+      columnsM="1"
+      singleContainerFullSize="false"
+    >
+      <f:content>
+        <Label text="{i18n>ProductColumnName}" labelFor="productName" />
+        <Text id="productName" text="{appModel>name}" />
+        <Label text="{i18n>ProductColumnDescription}" labelFor="=productDescription" />
+        <Text id="productDescription" text="{appModel>description}" />
+        <Label text="{i18n>ProductColumnRating}" labelFor="productRating" />
+        <Text id="productRating" text="{appModel>rating}" />
+        <Label text="{i18n>ProductColumnReleaseDate}" labelFor="releaseDate" />
+        <Text
+          id="releaseDate"
+          text="{
+            path: 'appModel>releaseDate',
+            type: 'sap.ui.model.type.Date',
+            formatOptions: {
+              source: {
+                pattern: 'yyyy-MM-ddTHH:mm:ss'
+              }
+            }
+          }"
+        />
+        <Label text="{i18n>DiscountDate}" labelFor="discountDate" />
+        <Text
+          id="discountDate"
+          text="{
+            path: 'appModel>discountDate',
+            type: 'sap.ui.model.type.Date',
+            formatOptions: {
+              source: {
+                pattern: 'yyyy-MM-ddTHH:mm:ss'
+              }
+            }
+          }"
+        />
+        <Label text="{i18n>ProductColumnPrice}" labelFor="productPrice" />
+        <Text
+          id="productPrice"
+          text="{
+            parts: ['appModel>price', 'appModel>currencyCode'],
+            type: 'sap.ui.model.type.Currency',
+            formatOptions: {
+              currencyCode : false,
+              decimals: 0
+            }
+          }"
+        />
+        <Label text="{i18n>Categories}" labelFor="productCategories" />
+        <Text
+          id="productCategories"
+          text="{
+            path: 'appModel>categories',
+            formatter: '.formatter.formatProdiuctCategories'
+          }" />
+      </f:content>
+    </f:SimpleForm>
+  </VBox>
+  <VBox visible="{= ${editMdel>/isEditMode}}">
+    <f:SimpleForm id="SimpleFormChange354"
+      editable="true"
+      layout="ResponsiveGridLayout"
+      labelSpanXL="3"
+      labelSpanL="1"
+      labelSpanM="2"
+      labelSpanS="12"
+      adjustLabelSpan="false"
+      emptySpanXL="4"
+      emptySpanL="5"
+      emptySpanM="0"
+      emptySpanS="0"
+      columnsXL="1"
+      columnsL="1"
+      columnsM="1"
+      singleContainerFullSize="false"
+    >
+      <f:content>
+        <Label text="{i18n>ProductColumnName}" labelFor="productNameEdit" />
+        <Input
+          required="true"
+          id="productNameEdit"
+          value="{path: 'appModel>name',
+          type: 'sap.ui.model.type.String',
+          constraints: {
+            minLength: 5
+          }}"
+        />
+        <Label text="{i18n>ProductColumnDescription}" labelFor="productDescEdit" />
+        <TextArea
+          id="productDescEdit"
+          value="{path: 'appModel>description',
+          type: 'sap.ui.model.type.String',
+          constraints: {
+            minLength: 3,
+            maxLength: 50
+          }}"
+          rows="3" />
+        <Label text="{i18n>ProductColumnRating}" labelFor="productRatingEdit" />
+        <Input
+          id="productRatingEdit"
+          value="{
+            path: 'appModel>rating',
+            type: 'sap.ui.model.type.Integer',
+            constraints: {
+              maxLength: 1,
+              search: '^[1-5]{1}$'
+            }
+          }"
+          type="Number"
+        />
+        <Label text="{i18n>ProductColumnReleaseDate}" labelFor="releaseDateEdit" />
+        <DatePicker
+          id="releaseDateEdit"
+          value="{
+            path: 'appModel>releaseDate',
+            type: 'sap.ui.model.type.Date',
+            formatOptions: {
+              style: 'medium',
+              source: {
+                pattern: 'yyyy-MM-dd'
+              }
+            }
+
+          }"
+        />
+        <Label text="{i18n>DiscountDate}" labelFor="discountDateEdit" />
+        <DatePicker
+          id="discountDateEdit"
+          value="{
+            path: 'appModel>discountDate',
+            type: 'sap.ui.model.type.Date',
+            formatOptions: {
+              style: 'medium',
+              source: {
+                pattern: 'yyyy-MM-dd'
+              }
+            }
+          }"
+        />
+        <Label text="{i18n>ProductColumnPrice}" labelFor="productPriceEdit" />
+        <Input
+          id="productPriceEdit"
+          required="true"
+          value="{path: 'appModel>price',
+          type: 'sap.ui.model.type.Integer',
+					constraints: {
+						minimum: 1,
+						maximum: 10000000
+					}}"
+          description="USD" fieldWidth="90%" type="Number" />
+        <Label text="{i18n>Categories}" labelFor="productCategoriesEdit" />
+        <MultiComboBox
+          id="productCategoriesEdit"
+          name="Category"
+          items="{
+          path: 'filterBarModel>/categories'
+        }"
+        >
+          <core:Item
+            key="{filterBarModel>id}"
+            text="{filterBarModel>name}"
+          />
+        </MultiComboBox>
+      </f:content>
+    </f:SimpleForm>
+  </VBox>
+</core:FragmentDefinition>

@@ -4,6 +4,8 @@
   xmlns:layout="sap.ui.layout"
   xmlns:tnt="sap.tnt"
   xmlns:m="sap.m"
+  xmlns:f="sap.ui.layout.form"
+  xmlns:core="sap.ui.core"
 >
   <ObjectPageLayout id="ObjectPageLayout"
     showTitleInHeaderContent="true"
@@ -90,34 +92,36 @@
       </m:FlexBox>
     </headerContent>
     <sections>
-			<ObjectPageSection titleUppercase="false"  title="{i18n>ProductDetails}">
-				<subSections>
-					<ObjectPageSubSection>
-						<blocks>
-							<m:Text text="" />
-						</blocks>
-					</ObjectPageSubSection>
-				</subSections>
-			</ObjectPageSection>
+      <ObjectPageSection titleUppercase="false" title="{i18n>ProductDetails}">
+        <subSections>
+          <ObjectPageSubSection>
+            <blocks>
+              <core:Fragment
+                fragmentName="veronchi.leverx.project.view.fragments.ProductDetails"
+                type="XML" />
+            </blocks>
+          </ObjectPageSubSection>
+        </subSections>
+      </ObjectPageSection>
 
-			<ObjectPageSection titleUppercase="false"  title="{i18n>Suppliers}">
-				<subSections>
-					<ObjectPageSubSection>
-						<blocks>
-							<m:Text text="" />
-						</blocks>
-					</ObjectPageSubSection>
-				</subSections>
-			</ObjectPageSection>
-      <ObjectPageSection titleUppercase="false"  title="{i18n>Comments}">
-				<subSections>
-					<ObjectPageSubSection>
-						<blocks>
-							<m:Text text="" />
-						</blocks>
-					</ObjectPageSubSection>
-				</subSections>
-			</ObjectPageSection>
-		</sections>
+      <ObjectPageSection titleUppercase="false" title="{i18n>Suppliers}">
+        <subSections>
+          <ObjectPageSubSection>
+            <blocks>
+              <m:Text text="" />
+            </blocks>
+          </ObjectPageSubSection>
+        </subSections>
+      </ObjectPageSection>
+      <ObjectPageSection titleUppercase="false" title="{i18n>Comments}">
+        <subSections>
+          <ObjectPageSubSection>
+            <blocks>
+
+            </blocks>
+          </ObjectPageSubSection>
+        </subSections>
+      </ObjectPageSection>
+    </sections>
   </ObjectPageLayout>
 </mvc:View>
