@@ -12,7 +12,7 @@ sap.ui.define(
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductPage", {
-      EDIT_MODEL_NAME: "editMdel",
+      EDIT_MODEL_NAME: "editModel",
       FILTER_BAR_MODEL_NAME: "filterBarModel",
 
       formatter: formatter,
@@ -28,7 +28,7 @@ sap.ui.define(
 
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
         this.oEditModel = new JSONModel({
-          isEditMode: true
+          isEditMode: false
         });
 
         this.getView().setModel(this.oEditModel, this.EDIT_MODEL_NAME);
@@ -43,12 +43,46 @@ sap.ui.define(
         const aProducts = this.oAppModel.getProperty(`/products`);
         aProducts.find((item, idx) => {
           if (item.id === sProductId) {
+            this.iCurrentProductIndex = idx;
             this.getView().bindObject({
               path: `/products/${idx}`,
               model: Constants.APP_MODEL_NAME
             });
           }
         });
+      },
+
+      onProductEdit() {
+        const oCurrentProduct = this.getView().getModel("appModel").getProperty(`/products/${this.iCurrentProductIndex}`);
+
+        this.oCurrentProductDuplicate = structuredClone(oCurrentProduct);
+        this.oEditModel.setProperty("/isEditMode", true);
+      },
+
+      onProductEditCancel() {
+        this.getView().getModel("appModel").setProperty(`/products/${this.iCurrentProductIndex}`, this.oCurrentProductDuplicate);
+
+        this.oCurrentProductDuplicate = null;
+        this.oEditModel.setProperty("/isEditMode", false);
+      },
+
+      onProductSave() {
+        this.oEditModel.setProperty("/isEditMode", false);
+      },
+
+      onProductCategoriesEdit(oEvent) {
+        const bSelectedCategory = oEvent.getParameter("selected");
+
+        if (bSelectedCategory) {
+          const aChangedItems = oEvent.getParameter("changedItems");
+          const oCategory = filterBarModel.getCategory(aChangedItems[0].getKey());
+
+          productModel.addProductCategory(this.iCurrentProductIndex, oCategory);
+        } else {
+          const sProductCategoryKey = oEvent.getParameter("changedItem").getProperty("key");
+
+          productModel.removeProductCategory(this.iCurrentProductIndex, sProductCategoryKey);
+        }
       }
     });
   }

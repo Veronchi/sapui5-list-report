@@ -44,6 +44,12 @@ sap.ui.define([], () => {
 
         return aCategoriesNames.join(" | ");
       }
+    },
+
+    getCategoriesId(aCategories) {
+      if (aCategories) {
+        return aCategories.map((item) => item.id);
+      }
     }
   };
 });

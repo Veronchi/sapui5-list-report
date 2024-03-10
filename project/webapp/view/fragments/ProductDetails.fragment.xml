@@ -3,8 +3,8 @@
   xmlns:l="sap.ui.layout"
   xmlns:f="sap.ui.layout.form"
   xmlns:core="sap.ui.core">
-  <VBox visible="{= !${editMdel>/isEditMode}}">
-    <f:SimpleForm id="SimpleFormDisplay354wide"
+  <VBox visible="{= !${editModel>/isEditMode}}">
+    <f:SimpleForm id="productDetails"
       editable="false"
       layout="ResponsiveGridLayout"
       labelSpanXL="4"
@@ -76,8 +76,8 @@
       </f:content>
     </f:SimpleForm>
   </VBox>
-  <VBox visible="{= ${editMdel>/isEditMode}}">
-    <f:SimpleForm id="SimpleFormChange354"
+  <VBox visible="{= ${editModel>/isEditMode}}">
+    <f:SimpleForm id="productDetailsEdit"
       editable="true"
       layout="ResponsiveGridLayout"
       labelSpanXL="3"
@@ -172,6 +172,8 @@
         <MultiComboBox
           id="productCategoriesEdit"
           name="Category"
+          selectedKeys="{path: 'appModel>categories', formatter: '.formatter.getCategoriesId'}"
+          selectionChange="onProductCategoriesEdit"
           items="{
           path: 'filterBarModel>/categories'
         }"

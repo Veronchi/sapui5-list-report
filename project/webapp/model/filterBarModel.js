@@ -15,6 +15,10 @@ sap.ui.define(
       getFilterBarModel() {
         return this.oModel;
       },
+
+      getCategory(sCategoryId) {
+        return this.oModel.getProperty(`/categories`).find((category) => category.id === sCategoryId);
+      }
     };
   }
 );
