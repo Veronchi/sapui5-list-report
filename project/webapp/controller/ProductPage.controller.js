@@ -60,7 +60,7 @@ sap.ui.define(
       },
 
       onProductEditCancel() {
-        this.getView().getModel(Constants.APP_MODEL_NAME).setProperty(`/products/${this.iCurrentProductIndex}`, this.oCurrentProductDuplicate);
+        productModel.resetProductChange(this.iCurrentProductIndex, this.oCurrentProductDuplicate);
 
         this.oCurrentProductDuplicate = null;
         this.oEditModel.setProperty("/isEditMode", false);

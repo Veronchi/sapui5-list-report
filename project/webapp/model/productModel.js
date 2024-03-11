@@ -24,6 +24,10 @@ sap.ui.define(
         this.oModel.setProperty("/products", aUpdatedProducts);
       },
 
+      resetProductChange(iProductIndex, oInitialProductClone) {
+        this.oModel.setProperty(`/products/${iProductIndex}`, oInitialProductClone);
+      },
+
       removeProductCategory(iProductId, aProductsCategoryId) {
         const aProductCategories = this.oModel.getProperty(`/products/${iProductId}/categories`);
 
