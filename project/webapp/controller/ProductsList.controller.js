@@ -16,7 +16,6 @@ sap.ui.define(
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
-      APP_MODEL_NAME: "appModel",
       TABLE_MODEL_NAME: "tableModel",
       FILTER_BAR_MODEL_NAME: "filterBarModel",
       TOKEN_REMOVED_TYPE: "removed",
@@ -142,10 +141,10 @@ sap.ui.define(
 
       onOpenProductPage(oEvent) {
         const oListItem = oEvent.getParameter("listItem");
-        const oContext = oListItem ? oListItem.getBindingContext(this.APP_MODEL_NAME) : null;
+        const oContext = oListItem ? oListItem.getBindingContext(Constants.APP_MODEL_NAME) : null;
         const sProductId = oContext && oContext.getObject("id");
 
-        this.oComponent.getRouter().navTo("ProductPage", {
+        this.oComponent.getRouter().navTo(Constants.ROUTES.PRODUCTS_PAGE, {
           productId: sProductId
         });
       },

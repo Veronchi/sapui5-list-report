@@ -25,7 +25,7 @@
         <actions>
           <m:Button text="Edit" type="Emphasized" press="onProductEdit"
             enabled="{= !${editModel>/isEditMode}}" />
-          <m:Button type="Transparent" text="Delete" />
+          <m:Button type="Transparent" text="Delete" press="onProductDelete" />
         </actions>
       </ObjectPageDynamicHeaderTitle>
     </headerTitle>

@@ -53,14 +53,14 @@ sap.ui.define(
       },
 
       onProductEdit() {
-        const oCurrentProduct = this.getView().getModel("appModel").getProperty(`/products/${this.iCurrentProductIndex}`);
+        const oCurrentProduct = this.getView().getModel(Constants.APP_MODEL_NAME).getProperty(`/products/${this.iCurrentProductIndex}`);
 
         this.oCurrentProductDuplicate = structuredClone(oCurrentProduct);
         this.oEditModel.setProperty("/isEditMode", true);
       },
 
       onProductEditCancel() {
-        this.getView().getModel("appModel").setProperty(`/products/${this.iCurrentProductIndex}`, this.oCurrentProductDuplicate);
+        this.getView().getModel(Constants.APP_MODEL_NAME).setProperty(`/products/${this.iCurrentProductIndex}`, this.oCurrentProductDuplicate);
 
         this.oCurrentProductDuplicate = null;
         this.oEditModel.setProperty("/isEditMode", false);
@@ -83,6 +83,13 @@ sap.ui.define(
 
           productModel.removeProductCategory(this.iCurrentProductIndex, sProductCategoryKey);
         }
+      },
+      
+      onProductDelete(oEvent) {
+        const oCurrentProductId = oEvent.getSource().getBindingContext(Constants.APP_MODEL_NAME).getObject('id');
+        
+        this.oComponent.getRouter().navTo(Constants.ROUTES.PRODUCTS_LIST);
+        productModel.removeProducts([oCurrentProductId]);
       }
     });
   }

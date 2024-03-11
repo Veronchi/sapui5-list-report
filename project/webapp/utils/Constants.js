@@ -3,7 +3,7 @@ sap.ui.define([], function () {
 
   return {
     ROUTES: {
-      PRODUCTS_LIST: "",
+      PRODUCTS_LIST: "ProductsList",
       PRODUCTS_PAGE: "ProductPage"
     },
     APP_MODEL_NAME: "appModel"
