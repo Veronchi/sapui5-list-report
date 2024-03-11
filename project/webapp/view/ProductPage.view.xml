@@ -17,7 +17,6 @@
         <heading>
           <m:HBox>
             <m:Title text="{appModel>name}" wrapping="true" class="sapUiTinyMarginEnd" />
-
           </m:HBox>
         </heading>
         <expandedContent>
