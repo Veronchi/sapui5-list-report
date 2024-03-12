@@ -7,7 +7,7 @@
     <f:SimpleForm id="productDetails"
       editable="false"
       layout="ResponsiveGridLayout"
-      labelSpanXL="4"
+      labelSpanXL="2"
       labelSpanL="2"
       labelSpanM="2"
       labelSpanS="12"
