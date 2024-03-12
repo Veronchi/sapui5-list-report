@@ -16,7 +16,7 @@ sap.ui.define(
         return this.oModel;
       },
 
-      getCategory(sCategoryId) {
+      getCategoryById(sCategoryId) {
         return this.oModel.getProperty(`/categories`).find((category) => category.id === sCategoryId);
       }
     };

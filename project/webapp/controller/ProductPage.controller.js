@@ -12,8 +12,8 @@ sap.ui.define(
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductPage", {
-      EDIT_MODEL_NAME: "editModel",
-      FILTER_BAR_MODEL_NAME: "filterBarModel",
+      
+      
 
       formatter: formatter,
 
@@ -23,7 +23,6 @@ sap.ui.define(
         const oRouter = this.oComponent.getRouter();
 
         filterBarModel.initFilterBarModel();
-        formatter.initResourceBundle(this.oResourceBundle);
         oRouter.getRoute(Constants.ROUTES.PRODUCTS_PAGE).attachPatternMatched(this.onPatternMatched, this);
 
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
@@ -31,8 +30,8 @@ sap.ui.define(
           isEditMode: false
         });
 
-        this.getView().setModel(this.oEditModel, this.EDIT_MODEL_NAME);
-        this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
+        this.getView().setModel(this.oEditModel, Constants.EDIT_MODEL_NAME);
+        this.getView().setModel(this.oFilterBarModel, Constants.FILTER_BAR_MODEL_NAME);
       },
 
       onPatternMatched(oEvent) {
@@ -59,7 +58,7 @@ sap.ui.define(
         this.oEditModel.setProperty("/isEditMode", true);
       },
 
-      onProductEditCancel() {
+      onProductCancel() {
         productModel.resetProductChange(this.iCurrentProductIndex, this.oCurrentProductDuplicate);
 
         this.oCurrentProductDuplicate = null;
@@ -72,15 +71,13 @@ sap.ui.define(
 
       onProductCategoriesEdit(oEvent) {
         const bSelectedCategory = oEvent.getParameter("selected");
+        const sProductCategoryKey = oEvent.getParameter("changedItem").getProperty("key");
 
         if (bSelectedCategory) {
-          const aChangedItems = oEvent.getParameter("changedItems");
-          const oCategory = filterBarModel.getCategory(aChangedItems[0].getKey());
+          const oCategory = filterBarModel.getCategoryById(sProductCategoryKey);
 
           productModel.addProductCategory(this.iCurrentProductIndex, oCategory);
         } else {
-          const sProductCategoryKey = oEvent.getParameter("changedItem").getProperty("key");
-
           productModel.removeProductCategory(this.iCurrentProductIndex, sProductCategoryKey);
         }
       },

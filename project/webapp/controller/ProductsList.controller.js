@@ -17,7 +17,6 @@ sap.ui.define(
 
     return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
       TABLE_MODEL_NAME: "tableModel",
-      FILTER_BAR_MODEL_NAME: "filterBarModel",
       TOKEN_REMOVED_TYPE: "removed",
 
       onInit() {
@@ -36,7 +35,7 @@ sap.ui.define(
         });
 
         this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
-        this.getView().setModel(this.oFilterBarModel, this.FILTER_BAR_MODEL_NAME);
+        this.getView().setModel(this.oFilterBarModel, Constants.FILTER_BAR_MODEL_NAME);
       },
 
       onSelectProduct(bProductSelected) {

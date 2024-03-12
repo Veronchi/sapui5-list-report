@@ -48,7 +48,7 @@
               class="sapUiSmallMarginEnd"
               visible="{
                 path: 'appModel>releaseDate',
-                formatter: '.formatter.checkIfItsNewProduct'
+                formatter: '.formatter.checkIfNewProduct'
               }"
             />
           </m:HBox>
@@ -132,7 +132,7 @@
       <m:OverflowToolbar>
         <m:ToolbarSpacer />
         <m:Button text="Save" type="Emphasized" press="onProductSave" />
-        <m:Button text="Cancel" press="onProductEditCancel" />
+        <m:Button text="Cancel" press="onProductCancel" />
       </m:OverflowToolbar>
     </footer>
   </ObjectPageLayout>
