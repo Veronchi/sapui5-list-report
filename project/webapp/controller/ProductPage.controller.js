@@ -47,8 +47,7 @@ sap.ui.define(
 
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
         this.oEditModel = new JSONModel({
-          isEditMode: false,
-          isShowMessage: false
+          isEditMode: false
         });
 
         this.getView().setModel(this.oEditModel, Constants.EDIT_MODEL_NAME);
@@ -85,6 +84,7 @@ sap.ui.define(
         this.oCurrentProductDuplicate = null;
         this._MessageManager.removeAllMessages();
         this.oEditModel.setProperty("/isEditMode", false);
+        productModel.getModel().refresh(true);
       },
 
       onProductSave() {
@@ -104,7 +104,7 @@ sap.ui.define(
       },
 
       onProductCategoriesEdit(oEvent) {
-        this.validateMandatoryField(oEvent)
+        this.validateMandatoryField(oEvent);
         const bSelectedCategory = oEvent.getParameter("selected");
         const sProductCategoryKey = oEvent.getParameter("changedItem").getProperty("key");
 
@@ -164,14 +164,18 @@ sap.ui.define(
           return oInput.getMetadata().getName().includes("sap.m.MultiComboBox")
             ? `${sPath}/${oInput.getBindingPath("selectedKeys")}`
             : `${sPath}/${oInput.getBindingPath("value")}`; 
-        })
+        });
 
-        Messaging.addMessages(new Message({
-          message: this.oResourceBundle.getText("EmptyInputErrorText"),
-          type: library.ValueState.Error,
-          target: aTargets,
-          processor: this.getView().getModel(Constants.APP_MODEL_NAME)
-        }))
+        aTargets.forEach((target) => {
+          Messaging.addMessages(
+            new Message({
+              message: this.oResourceBundle.getText("EmptyInputErrorText"),
+              type: library.ValueState.Error,
+              target: target,
+              processor: this.getView().getModel(Constants.APP_MODEL_NAME)
+            })
+          );
+        });
       },
 
       _getValidationTarget(oInput) {
