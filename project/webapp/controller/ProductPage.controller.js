@@ -5,10 +5,29 @@ sap.ui.define(
     "veronchi/leverx/project/model/productModel",
     "veronchi/leverx/project/model/formatter",
     "sap/ui/model/json/JSONModel",
-    "veronchi/leverx/project/model/filterBarModel"
+    "veronchi/leverx/project/model/filterBarModel",
+    "sap/ui/core/Messaging",
+    'sap/m/MessagePopover',
+    'sap/m/MessageItem',
+    "veronchi/leverx/project/utils/Validator",
+    "sap/ui/core/message/Message",
+    "sap/ui/core/library"
   ],
 
-  function (Controller, Constants, productModel, formatter, JSONModel, filterBarModel) {
+  function (
+    Controller,
+    Constants,
+    productModel,
+    formatter,
+    JSONModel,
+    filterBarModel,
+    Messaging,
+    MessagePopover,
+    MessageItem,
+    Validator,
+    Message,
+    library
+  ) {
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductPage", {
@@ -21,14 +40,16 @@ sap.ui.define(
         this.oComponent = this.getOwnerComponent();
         this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
         const oRouter = this.oComponent.getRouter();
-
+        
+        this._initMessageManager();
         filterBarModel.initFilterBarModel();
         formatter.initResourceBundle(this.oResourceBundle);
         oRouter.getRoute(Constants.ROUTES.PRODUCTS_PAGE).attachPatternMatched(this.onPatternMatched, this);
 
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
         this.oEditModel = new JSONModel({
-          isEditMode: false
+          isEditMode: false,
+          isShowMessage: false
         });
 
         this.getView().setModel(this.oEditModel, this.EDIT_MODEL_NAME);
@@ -63,14 +84,28 @@ sap.ui.define(
         productModel.resetProductChange(this.iCurrentProductIndex, this.oCurrentProductDuplicate);
 
         this.oCurrentProductDuplicate = null;
+        this._MessageManager.removeAllMessages();
         this.oEditModel.setProperty("/isEditMode", false);
       },
 
       onProductSave() {
         this.oEditModel.setProperty("/isEditMode", false);
+        this._MessageManager.removeAllMessages();
+      },
+
+      validateMandatoryField(oEvent) {
+        const oProductDetailsForm = this.byId("productDetailsEdit");
+        const aInvalidControls = Validator.validateForm(oProductDetailsForm);
+
+        this._removeMessageFromTarget(this._getValidationTarget(oEvent.getSource()));
+
+        if(aInvalidControls.length) {
+          this._addRequiredMessage(aInvalidControls);
+        }
       },
 
       onProductCategoriesEdit(oEvent) {
+        this.validateMandatoryField(oEvent)
         const bSelectedCategory = oEvent.getParameter("selected");
 
         if (bSelectedCategory) {
@@ -87,10 +122,76 @@ sap.ui.define(
       
       onProductDelete(oEvent) {
         const oCurrentProductId = oEvent.getSource().getBindingContext(Constants.APP_MODEL_NAME).getObject('id');
-        
+
         this.oComponent.getRouter().navTo(Constants.ROUTES.PRODUCTS_LIST);
         productModel.removeProducts([oCurrentProductId]);
-      }
+      },
+
+      onMessagePopoverPress(oEvent) {
+        if (!this.oMessagePopover) {
+          this._createMessagePopover();
+        }
+
+        this.oMessagePopover.toggle(oEvent.getSource());
+      },
+
+      _initMessageManager() {
+        this._MessageManager = Messaging;
+
+        this._MessageManager.removeAllMessages();
+        this._MessageManager.registerObject(this.byId("ProductPage"), true);
+        this.getView().setModel(this._MessageManager.getMessageModel(),"message");
+      },
+
+      _createMessagePopover() {
+        this.oMessagePopover = new MessagePopover({
+          items: {
+            path:"message>/",
+            template: new MessageItem(
+              {
+                title: "{message>message}",
+                subtitle: "{message>additionalText}",
+                type: "{message>type}",
+                description: "{message>message}"
+              })
+          },
+        });
+  
+        this.byId("messagePopoverBtn").addDependent(this.oMessagePopover);
+      },
+
+      _addRequiredMessage(aInvalidControls) {
+        const aTargets = aInvalidControls.map((oInput) => {
+          const sPath = oInput.getBindingContext(Constants.APP_MODEL_NAME).getPath();
+
+          return oInput.getMetadata().getName().includes("sap.m.MultiComboBox")
+            ? `${sPath}/${oInput.getBindingPath("selectedKeys")}`
+            : `${sPath}/${oInput.getBindingPath("value")}`; 
+        })
+
+        Messaging.addMessages(new Message({
+          message: this.oResourceBundle.getText("EmptyInputErrorText"),
+          type: library.ValueState.Error,
+          target: aTargets,
+          processor: this.getView().getModel(Constants.APP_MODEL_NAME)
+        }))
+      },
+
+      _getValidationTarget(oInput) {
+        const sPath = oInput.getBindingContext(Constants.APP_MODEL_NAME).getPath();
+
+        return oInput.getMetadata().getName().includes("sap.m.MultiComboBox")
+          ? `${sPath}/${oInput.getBindingPath("selectedKeys")}`
+          : `${sPath}/${oInput.getBindingPath("value")}`; 
+      },
+
+      _removeMessageFromTarget (sTarget) {
+        this._MessageManager.getMessageModel().getData().forEach((oMessage) => {
+          if (oMessage.target === sTarget) {
+            this._MessageManager.removeMessages(oMessage);
+          }
+        });
+      },
     });
   }
 );

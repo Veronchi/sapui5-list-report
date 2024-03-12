@@ -38,7 +38,7 @@ sap.ui.define([], () => {
       ]);
     },
 
-    formatProdiuctCategories(aCategories) {
+    formatProductCategories(aCategories) {
       if (aCategories) {
         const aCategoriesNames = aCategories.map((item) => item.name);
 
