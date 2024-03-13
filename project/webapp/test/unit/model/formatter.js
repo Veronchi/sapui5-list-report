@@ -9,8 +9,8 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
 
   QUnit.module("Formatting functions", {
     before() {
-      this.oRresourceBundle = getResourceBundle();
-      formatter.initResourceBundle(this.oRresourceBundle);
+      this.oResourceBundle = getResourceBundle();
+      formatter.initResourceBundle(this.oResourceBundle);
     }
   });
 
@@ -20,13 +20,13 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
     
     assert.strictEqual(
       formatter.formatConfirmMessageText(aOneProduct),
-      this.oRresourceBundle.getText("ConfirmDeleteProductText", [aOneProduct[0]]),
+      this.oResourceBundle.getText("ConfirmDeleteProductText", [aOneProduct[0]]),
       "Formatter works correct"
     );
 
     assert.strictEqual(
       formatter.formatConfirmMessageText(aMultipleProducts),
-      this.oRresourceBundle.getText("ConfirmDeleteProductsText", [aMultipleProducts.length]),
+      this.oResourceBundle.getText("ConfirmDeleteProductsText", [aMultipleProducts.length]),
       "Formatter works correct"
     );
 
