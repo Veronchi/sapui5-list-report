@@ -1,7 +1,7 @@
 sap.ui.define(
   [
     "sap/ui/core/mvc/Controller",
-    "veronchi/leverx/project/utils/Constants",
+    "veronchi/leverx/project/utils/constants",
     "veronchi/leverx/project/model/productModel",
     "veronchi/leverx/project/model/formatter",
     "sap/ui/model/json/JSONModel",
@@ -9,14 +9,14 @@ sap.ui.define(
     "sap/ui/core/Messaging",
     'sap/m/MessagePopover',
     'sap/m/MessageItem',
-    "veronchi/leverx/project/utils/Validator",
+    "veronchi/leverx/project/utils/validator",
     "sap/ui/core/message/Message",
     "sap/ui/core/library"
   ],
 
   function (
     Controller,
-    Constants,
+    constants,
     productModel,
     formatter,
     JSONModel,
@@ -24,7 +24,7 @@ sap.ui.define(
     Messaging,
     MessagePopover,
     MessageItem,
-    Validator,
+    validator,
     Message,
     library
   ) {
@@ -40,15 +40,15 @@ sap.ui.define(
         
         this._initMessageManager();
         filterBarModel.initFilterBarModel();
-        oRouter.getRoute(Constants.ROUTES.PRODUCTS_PAGE).attachPatternMatched(this.onPatternMatched, this);
+        oRouter.getRoute(constants.ROUTES.PRODUCTS_PAGE).attachPatternMatched(this.onPatternMatched, this);
 
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
         this.oEditModel = new JSONModel({
           isEditMode: false
         });
 
-        this.getView().setModel(this.oEditModel, Constants.EDIT_MODEL_NAME);
-        this.getView().setModel(this.oFilterBarModel, Constants.FILTER_BAR_MODEL_NAME);
+        this.getView().setModel(this.oEditModel, constants.EDIT_MODEL_NAME);
+        this.getView().setModel(this.oFilterBarModel, constants.FILTER_BAR_MODEL_NAME);
       },
 
       onPatternMatched(oEvent) {
@@ -62,14 +62,14 @@ sap.ui.define(
             this.iCurrentProductIndex = idx;
             this.getView().bindObject({
               path: `/products/${idx}`,
-              model: Constants.APP_MODEL_NAME
+              model: constants.APP_MODEL_NAME
             });
           }
         });
       },
 
       onProductEdit() {
-        const oCurrentProduct = this.getView().getModel(Constants.APP_MODEL_NAME).getProperty(`/products/${this.iCurrentProductIndex}`);
+        const oCurrentProduct = this.getView().getModel(constants.APP_MODEL_NAME).getProperty(`/products/${this.iCurrentProductIndex}`);
 
         this.oCurrentProductDuplicate = structuredClone(oCurrentProduct);
         this.oEditModel.setProperty("/isEditMode", true);
@@ -91,7 +91,7 @@ sap.ui.define(
 
       validateMandatoryField(oEvent) {
         const oProductDetailsForm = this.byId("productDetailsEdit");
-        const aInvalidControls = Validator.validateForm(oProductDetailsForm);
+        const aInvalidControls = validator.validateForm(oProductDetailsForm);
 
         this._removeMessageFromTarget(this._getValidationTarget(oEvent.getSource()));
 
@@ -115,9 +115,9 @@ sap.ui.define(
       },
       
       onProductDelete(oEvent) {
-        const oCurrentProductId = oEvent.getSource().getBindingContext(Constants.APP_MODEL_NAME).getObject('id');
+        const oCurrentProductId = oEvent.getSource().getBindingContext(constants.APP_MODEL_NAME).getObject('id');
 
-        this.oComponent.getRouter().navTo(Constants.ROUTES.PRODUCTS_LIST);
+        this.oComponent.getRouter().navTo(constants.ROUTES.PRODUCTS_LIST);
         productModel.removeProducts([oCurrentProductId]);
       },
 
@@ -156,7 +156,7 @@ sap.ui.define(
 
       _addRequiredMessage(aInvalidControls) {
         const aTargets = aInvalidControls.map((oInput) => {
-          const sPath = oInput.getBindingContext(Constants.APP_MODEL_NAME).getPath();
+          const sPath = oInput.getBindingContext(constants.APP_MODEL_NAME).getPath();
 
           return oInput.getMetadata().getName().includes("sap.m.MultiComboBox")
             ? `${sPath}/${oInput.getBindingPath("selectedKeys")}`
@@ -169,14 +169,14 @@ sap.ui.define(
               message: this.oResourceBundle.getText("EmptyInputErrorText"),
               type: library.ValueState.Error,
               target: target,
-              processor: this.getView().getModel(Constants.APP_MODEL_NAME)
+              processor: this.getView().getModel(constants.APP_MODEL_NAME)
             })
           );
         });
       },
 
       _getValidationTarget(oInput) {
-        const sPath = oInput.getBindingContext(Constants.APP_MODEL_NAME).getPath();
+        const sPath = oInput.getBindingContext(constants.APP_MODEL_NAME).getPath();
 
         return oInput.getMetadata().getName().includes("sap.m.MultiComboBox")
           ? `${sPath}/${oInput.getBindingPath("selectedKeys")}`
