@@ -31,9 +31,6 @@ sap.ui.define(
     "use strict";
 
     return Controller.extend("veronchi.leverx.project.controller.ProductPage", {
-      
-      
-
       formatter: formatter,
 
       onInit() {

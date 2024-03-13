@@ -24,7 +24,6 @@ sap.ui.define(
         this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
 
         filterBarModel.initFilterBarModel();
-        formatter.initResourceBundle(this.oResourceBundle);
 
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
 

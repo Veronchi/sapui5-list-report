@@ -2,10 +2,6 @@ sap.ui.define([], () => {
   "use strict";
 
   return {
-    initResourceBundle(oResourceBundle) {
-      this.oResourceBundle = oResourceBundle;
-    },
-
     checkIfNewProduct(releaseDate) {
       if (!releaseDate) {
         return false;

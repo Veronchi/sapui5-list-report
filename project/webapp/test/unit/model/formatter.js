@@ -10,7 +10,7 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
   QUnit.module("Formatting functions", {
     before() {
       this.oResourceBundle = getResourceBundle();
-      formatter.initResourceBundle(this.oResourceBundle);
+      formatter.oResourceBundle = this.oResourceBundle;
     }
   });
 
