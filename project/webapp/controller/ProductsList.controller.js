@@ -1,6 +1,6 @@
 sap.ui.define(
   [
-    "sap/ui/core/mvc/Controller",
+    "veronchi/leverx/project/controller/BaseController",
     "sap/ui/model/json/JSONModel",
     "veronchi/leverx/project/model/productModel",
     "veronchi/leverx/project/model/filterBarModel",
@@ -12,16 +12,15 @@ sap.ui.define(
     "veronchi/leverx/project/utils/constants"
   ],
 
-  function (Controller, JSONModel, productModel, filterBarModel, Filter, FilterOperator, MessageBox, Sorter, formatter, constants) {
+  function (BaseController, JSONModel, productModel, filterBarModel, Filter, FilterOperator, MessageBox, Sorter, formatter, constants) {
     "use strict";
 
-    return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
+    return BaseController.extend("veronchi.leverx.project.controller.ProductsList", {
       TABLE_MODEL_NAME: "tableModel",
       TOKEN_REMOVED_TYPE: "removed",
 
       onInit() {
-        this.oComponent = this.getOwnerComponent();
-        this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
+        this.oResourceBundle = this.getResourceBundle();
 
         filterBarModel.initFilterBarModel();
 
@@ -142,7 +141,7 @@ sap.ui.define(
         const oContext = oListItem ? oListItem.getBindingContext(constants.APP_MODEL_NAME) : null;
         const sProductId = oContext && oContext.getObject("id");
 
-        this.oComponent.getRouter().navTo(constants.ROUTES.PRODUCTS_PAGE, {
+        this.getRouter().navTo(constants.ROUTES.PRODUCTS_PAGE, {
           productId: sProductId
         });
       },
@@ -285,7 +284,7 @@ sap.ui.define(
           return item.getBindingContext(constants.APP_MODEL_NAME).getProperty("name");
         });
 
-        return formatter.formatConfirmMessageText(aSelectedProductsNames);
+        return formatter.formatConfirmMessageText.call(this, aSelectedProductsNames);
       },
 
       _getGroups(oContext) {

@@ -1,6 +1,6 @@
 sap.ui.define(
   [
-    "sap/ui/core/mvc/Controller",
+    "veronchi/leverx/project/controller/BaseController",
     "veronchi/leverx/project/utils/constants",
     "veronchi/leverx/project/model/productModel",
     "veronchi/leverx/project/model/formatter",
@@ -15,7 +15,7 @@ sap.ui.define(
   ],
 
   function (
-    Controller,
+    BaseController,
     constants,
     productModel,
     formatter,
@@ -30,13 +30,12 @@ sap.ui.define(
   ) {
     "use strict";
 
-    return Controller.extend("veronchi.leverx.project.controller.ProductPage", {
+    return BaseController.extend("veronchi.leverx.project.controller.ProductPage", {
       formatter: formatter,
 
       onInit() {
-        this.oComponent = this.getOwnerComponent();
-        this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
-        const oRouter = this.oComponent.getRouter();
+        this.oResourceBundle = this.getResourceBundle();
+        const oRouter = this.getRouter();
         
         this._initMessageManager();
         filterBarModel.initFilterBarModel();
