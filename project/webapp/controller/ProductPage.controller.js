@@ -98,7 +98,7 @@ sap.ui.define(
 
         if (bSelectedCategory) {
           const oCategory = filterBarModel.getCategoryById(sProductCategoryKey);
-
+          
           productModel.addProductCategory(sContextPath, oCategory);
           this._removeMessageFromInput(this._getValidationFieldPath(oCategoryField));
         } else {

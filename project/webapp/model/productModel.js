@@ -42,6 +42,7 @@ sap.ui.define(
         aProductCategories.push(category);
 
         this.oModel.setProperty(`${sContextPath}/categories`, aProductCategories);
+
       }
     };
   }
