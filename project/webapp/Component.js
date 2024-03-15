@@ -1,6 +1,6 @@
 sap.ui.define(
-  ["sap/ui/core/UIComponent", "veronchi/leverx/project/model/productModel", "veronchi/leverx/project/utils/Constants"],
-  function (UIComponent, productModel, Constants) {
+  ["sap/ui/core/UIComponent", "veronchi/leverx/project/model/productModel", "veronchi/leverx/project/utils/constants"],
+  function (UIComponent, productModel, constants) {
     "use strict";
 
     return UIComponent.extend("veronchi.leverx.project.Component", {
@@ -12,7 +12,7 @@ sap.ui.define(
         UIComponent.prototype.init.apply(this, arguments);
 
         productModel.initModel();
-        this.setModel(productModel.getModel(), Constants.APP_MODEL_NAME);
+        this.setModel(productModel.getModel(), constants.APP_MODEL_NAME);
 
         this.getRouter().initialize();
       }

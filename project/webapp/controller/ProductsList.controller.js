@@ -1,6 +1,6 @@
 sap.ui.define(
   [
-    "sap/ui/core/mvc/Controller",
+    "veronchi/leverx/project/controller/BaseController",
     "sap/ui/model/json/JSONModel",
     "veronchi/leverx/project/model/productModel",
     "veronchi/leverx/project/model/filterBarModel",
@@ -9,23 +9,20 @@ sap.ui.define(
     "sap/m/MessageBox",
     "sap/ui/model/Sorter",
     "veronchi/leverx/project/model/formatter",
-    "veronchi/leverx/project/utils/Constants"
+    "veronchi/leverx/project/utils/constants"
   ],
 
-  function (Controller, JSONModel, productModel, filterBarModel, Filter, FilterOperator, MessageBox, Sorter, formatter, Constants) {
+  function (BaseController, JSONModel, productModel, filterBarModel, Filter, FilterOperator, MessageBox, Sorter, formatter, constants) {
     "use strict";
 
-    return Controller.extend("veronchi.leverx.project.controller.ProductsList", {
+    return BaseController.extend("veronchi.leverx.project.controller.ProductsList", {
       TABLE_MODEL_NAME: "tableModel",
       TOKEN_REMOVED_TYPE: "removed",
 
       onInit() {
-        this.oComponent = this.getOwnerComponent();
-        this.oResourceBundle = this.oComponent.getModel("i18n").getResourceBundle();
+        this.oResourceBundle = this.getResourceBundle();
 
         filterBarModel.initFilterBarModel();
-        formatter.initResourceBundle(this.oResourceBundle);
-
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
 
         this.oTableModel = new JSONModel({
@@ -35,7 +32,7 @@ sap.ui.define(
         });
 
         this.getView().setModel(this.oTableModel, this.TABLE_MODEL_NAME);
-        this.getView().setModel(this.oFilterBarModel, Constants.FILTER_BAR_MODEL_NAME);
+        this.getView().setModel(this.oFilterBarModel, constants.FILTER_BAR_MODEL_NAME);
       },
 
       onSelectProduct(bProductSelected) {
@@ -140,10 +137,10 @@ sap.ui.define(
 
       onOpenProductPage(oEvent) {
         const oListItem = oEvent.getParameter("listItem");
-        const oContext = oListItem ? oListItem.getBindingContext(Constants.APP_MODEL_NAME) : null;
+        const oContext = oListItem ? oListItem.getBindingContext(constants.APP_MODEL_NAME) : null;
         const sProductId = oContext && oContext.getObject("id");
 
-        this.oComponent.getRouter().navTo(Constants.ROUTES.PRODUCTS_PAGE, {
+        this.getRouter().navTo(constants.ROUTES.PRODUCTS_PAGE, {
           productId: sProductId
         });
       },
@@ -270,7 +267,7 @@ sap.ui.define(
         const aSelectedProducts = this.byId("productList").getSelectedItems();
 
         const aSelectedProductsIds = aSelectedProducts.map((item) => {
-          return item.getBindingContext(Constants.APP_MODEL_NAME).getProperty("id");
+          return item.getBindingContext(constants.APP_MODEL_NAME).getProperty("id");
         });
 
         productModel.removeProducts(aSelectedProductsIds);
@@ -283,10 +280,10 @@ sap.ui.define(
         const aSelectedItems = this.byId("productList").getSelectedItems();
 
         const aSelectedProductsNames = aSelectedItems.map((item) => {
-          return item.getBindingContext(Constants.APP_MODEL_NAME).getProperty("name");
+          return item.getBindingContext(constants.APP_MODEL_NAME).getProperty("name");
         });
 
-        return formatter.formatConfirmMessageText(aSelectedProductsNames);
+        return formatter.formatConfirmMessageText.call(this, aSelectedProductsNames);
       },
 
       _getGroups(oContext) {

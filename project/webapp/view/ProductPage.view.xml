@@ -7,7 +7,7 @@
   xmlns:f="sap.ui.layout.form"
   xmlns:core="sap.ui.core"
 >
-  <ObjectPageLayout id="ObjectPageLayout"
+  <ObjectPageLayout id="ProductPage"
     showTitleInHeaderContent="true"
     showEditHeaderButton="false"
     upperCaseAnchorBar="false"
@@ -130,8 +130,16 @@
     </sections>
     <footer>
       <m:OverflowToolbar>
+        <m:Button id="messagePopoverBtn"
+					visible="{= !!${message>/}.length}"
+          text="{= ${message>/}.length}"
+					icon="sap-icon://error"
+					type="Negative"
+					press="onMessagePopoverPress"
+					ariaHasPopup="Dialog"
+        />
         <m:ToolbarSpacer />
-        <m:Button text="Save" type="Emphasized" press="onProductSave" />
+        <m:Button text="Save" type="Emphasized" enabled="{= !${message>/}.length}" press="onProductSave" />
         <m:Button text="Cancel" press="onProductCancel" />
       </m:OverflowToolbar>
     </footer>
