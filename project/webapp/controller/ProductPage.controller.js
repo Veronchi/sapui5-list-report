@@ -9,7 +9,6 @@ sap.ui.define(
     "sap/ui/core/Messaging",
     'sap/m/MessagePopover',
     'sap/m/MessageItem',
-    "veronchi/leverx/project/utils/validator",
     "sap/ui/core/message/Message",
     "sap/ui/core/library"
   ],
@@ -24,7 +23,6 @@ sap.ui.define(
     Messaging,
     MessagePopover,
     MessageItem,
-    validator,
     Message,
     library
   ) {
@@ -68,48 +66,43 @@ sap.ui.define(
       },
 
       onProductEdit() {
-        const oCurrentProduct = this.getView().getModel(constants.APP_MODEL_NAME).getProperty(`/products/${this.iCurrentProductIndex}`);
-
+        const oCurrentProduct = this.getView().getBindingContext(constants.APP_MODEL_NAME).getObject();
         this.oCurrentProductDuplicate = structuredClone(oCurrentProduct);
+
         this.oEditModel.setProperty("/isEditMode", true);
+        this.oAppModel.refresh(true);
       },
 
       onProductCancel() {
-        productModel.resetProductChange(this.iCurrentProductIndex, this.oCurrentProductDuplicate);
+        const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
+        productModel.resetProductChange(sContextPath, this.oCurrentProductDuplicate);
 
         this.oCurrentProductDuplicate = null;
         this._MessageManager.removeAllMessages();
         this.oEditModel.setProperty("/isEditMode", false);
-        productModel.getModel().refresh(true);
       },
 
       onProductSave() {
         this.oEditModel.setProperty("/isEditMode", false);
         this._MessageManager.removeAllMessages();
-      },
-
-      validateMandatoryField(oEvent) {
-        const oProductDetailsForm = this.byId("productDetailsEdit");
-        const aInvalidControls = validator.validateForm(oProductDetailsForm);
-
-        this._removeMessageFromTarget(this._getValidationTarget(oEvent.getSource()));
-
-        if(aInvalidControls.length) {
-          this._addRequiredMessage(aInvalidControls);
-        }
+        this.oAppModel.refresh(true);
       },
 
       onProductCategoriesEdit(oEvent) {
-        this.validateMandatoryField(oEvent);
+        this._validateCategoriesField(oEvent);
+        
+        const oCategoryField = oEvent.getSource();
         const bSelectedCategory = oEvent.getParameter("selected");
         const sProductCategoryKey = oEvent.getParameter("changedItem").getProperty("key");
+        const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
 
         if (bSelectedCategory) {
           const oCategory = filterBarModel.getCategoryById(sProductCategoryKey);
 
-          productModel.addProductCategory(this.iCurrentProductIndex, oCategory);
+          productModel.addProductCategory(sContextPath, oCategory);
+          this._removeMessageFromInput(this._getValidationFieldPath(oCategoryField));
         } else {
-          productModel.removeProductCategory(this.iCurrentProductIndex, sProductCategoryKey);
+          productModel.removeProductCategory(sContextPath, sProductCategoryKey);
         }
       },
       
@@ -153,36 +146,35 @@ sap.ui.define(
         this.byId("messagePopoverBtn").addDependent(this.oMessagePopover);
       },
 
-      _addRequiredMessage(aInvalidControls) {
-        const aTargets = aInvalidControls.map((oInput) => {
-          const sPath = oInput.getBindingContext(constants.APP_MODEL_NAME).getPath();
+      _validateCategoriesField(oEvent) {
+        const oCategoriesField = oEvent.getSource();
 
-          return oInput.getMetadata().getName().includes("sap.m.MultiComboBox")
-            ? `${sPath}/${oInput.getBindingPath("selectedKeys")}`
-            : `${sPath}/${oInput.getBindingPath("value")}`; 
-        });
-
-        aTargets.forEach((target) => {
-          Messaging.addMessages(
-            new Message({
-              message: this.oResourceBundle.getText("EmptyInputErrorText"),
-              type: library.ValueState.Error,
-              target: target,
-              processor: this.getView().getModel(constants.APP_MODEL_NAME)
-            })
-          );
-        });
+        if(!oCategoriesField.getSelectedItems().length) {
+          oCategoriesField.setValueState("Error");
+          this._addRequiredMessage(oCategoriesField);
+        }
       },
 
-      _getValidationTarget(oInput) {
+      _addRequiredMessage(oInvalidControl) {
+        const sTarget = this._getValidationFieldPath(oInvalidControl); 
+
+        Messaging.addMessages(
+          new Message({
+            message: this.oResourceBundle.getText("EmptyInputErrorText"),
+            type: library.ValueState.Error,
+            target: sTarget,
+            processor: this.getView().getModel(constants.APP_MODEL_NAME)
+          })
+        );
+      },
+
+      _getValidationFieldPath(oInput) {
         const sPath = oInput.getBindingContext(constants.APP_MODEL_NAME).getPath();
 
-        return oInput.getMetadata().getName().includes("sap.m.MultiComboBox")
-          ? `${sPath}/${oInput.getBindingPath("selectedKeys")}`
-          : `${sPath}/${oInput.getBindingPath("value")}`; 
+        return `${sPath}/${oInput.getBindingPath("selectedKeys")}`;
       },
 
-      _removeMessageFromTarget (sTarget) {
+      _removeMessageFromInput (sTarget) {
         this._MessageManager.getMessageModel().getData().forEach((oMessage) => {
           if (oMessage.target === sTarget) {
             this._MessageManager.removeMessages(oMessage);

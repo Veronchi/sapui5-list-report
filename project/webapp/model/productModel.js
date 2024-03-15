@@ -24,25 +24,24 @@ sap.ui.define(
         this.oModel.setProperty("/products", aUpdatedProducts);
       },
 
-      resetProductChange(iProductIndex, oInitialProductClone) {
-        this.oModel.setProperty(`/products/${iProductIndex}`, oInitialProductClone);
+      resetProductChange(sContextPath, oInitialProductClone) {
+        this.oModel.setProperty(sContextPath, oInitialProductClone);
       },
 
-      removeProductCategory(iProductId, aProductsCategoryId) {
-        const aProductCategories = this.oModel.getProperty(`/products/${iProductId}/categories`);
+      removeProductCategory(sContextPath, aProductsCategoryId) {
+        const aProductCategories = this.oModel.getProperty(`${sContextPath}/categories`);
 
         const aUpdatedCategories = aProductCategories.filter((category) => category.id !== aProductsCategoryId);
 
-        this.oModel.setProperty(`/products/${iProductId}/categories`, aUpdatedCategories);
+        this.oModel.setProperty(`${sContextPath}/categories`, aUpdatedCategories);
       },
 
-      addProductCategory(iProductId, category) {
-        const aProductCategories = this.oModel.getProperty(`/products/${iProductId}/categories`);
+      addProductCategory(sContextPath, category) {
+        const aProductCategories = this.oModel.getProperty(`${sContextPath}/categories`);
 
         aProductCategories.push(category);
 
-        this.oModel.setProperty(`/products/${iProductId}/categories`, aProductCategories);
-        this.oModel.refresh(true);
+        this.oModel.setProperty(`${sContextPath}/categories`, aProductCategories);
       }
     };
   }

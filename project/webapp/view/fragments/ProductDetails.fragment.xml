@@ -101,9 +101,11 @@
           id="productNameEdit"
           value="{
             path: 'appModel>name',
-            type: 'sap.ui.model.type.String'
+            type: 'veronchi.leverx.project.utils.RequiredInputType',
+            constraints: {
+              minLength: 1
+            }
           }"
-          change="validateMandatoryField"
         />
         <Label text="{i18n>ProductColumnDescription}" labelFor="productDescEdit" />
         <TextArea
@@ -163,19 +165,22 @@
           required="true"
           value="{
             path: 'appModel>price',
-            type: 'sap.ui.model.type.Integer'
+            type: 'veronchi.leverx.project.utils.RequiredInputType',
+            constraints: {
+              minimum: 1,
+              minLength: 1
+            }
           }"
           description="USD"
           fieldWidth="90%" 
           type="Number"
-          change="validateMandatoryField"
         />
         <Label text="{i18n>Categories}" labelFor="productCategoriesEdit" />
         <MultiComboBox
           id="productCategoriesEdit"
           required="true"
           name="Category"
-          selectedKeys="{path: 'appModel>categories', formatter: '.formatter.getCategoriesId'}"
+          selectedKeys="{path: 'appModel>categories', formatter: '.formatter.getCategoriesId', mode: 'sap.ui.model.BindingMode.TwoWay'}"
           selectionChange="onProductCategoriesEdit"
           items="{
             path: 'filterBarModel>/categories'
