@@ -23,9 +23,13 @@
           <m:Text text="{appModel>description}" />
         </expandedContent>
         <actions>
-          <m:Button text="Edit" type="Emphasized" press="onProductEdit"
-            enabled="{= !${editModel>/isEditMode}}" />
-          <m:Button type="Transparent" text="Delete" press="onProductDelete" />
+          <m:Button
+            text="Edit"
+            type="Emphasized"
+            press="onProductEdit"
+            enabled="{= !${editModel>/isEditMode}}"
+          />
+          <m:Button type="Transparent" text="Delete" press="onProductDelete(${$source>/})" enabled="{= !${editModel>/isEditMode}}" />
         </actions>
       </ObjectPageDynamicHeaderTitle>
     </headerTitle>
@@ -108,12 +112,14 @@
           </ObjectPageSubSection>
         </subSections>
       </ObjectPageSection>
-
-      <ObjectPageSection titleUppercase="false" title="{i18n>Suppliers}">
+      <ObjectPageSection titleUppercase="false" title="{i18n>SuppliersInfo}">
         <subSections>
           <ObjectPageSubSection>
             <blocks>
-              <m:Text text="" />
+              <core:Fragment
+                fragmentName="veronchi.leverx.project.view.fragments.Suppliers"
+                type="XML"
+              />
             </blocks>
           </ObjectPageSubSection>
         </subSections>
@@ -135,12 +141,12 @@
           text="{= ${message>/}.length}"
 					icon="sap-icon://error"
 					type="Negative"
-					press="onMessagePopoverPress"
+					press="onMessagePopoverPress(${$source>/})"
 					ariaHasPopup="Dialog"
         />
         <m:ToolbarSpacer />
-        <m:Button text="Save" type="Emphasized" enabled="{= !${message>/}.length}" press="onProductSave" />
-        <m:Button text="Cancel" press="onProductCancel" />
+        <m:Button text="{i18n>SaveText}" type="Emphasized" enabled="{= !${message>/}.length}" press="onProductSave" />
+        <m:Button text="{i18n>CancelText}" press="onProductCancel" />
       </m:OverflowToolbar>
     </footer>
   </ObjectPageLayout>

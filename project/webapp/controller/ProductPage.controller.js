@@ -10,7 +10,10 @@ sap.ui.define(
     'sap/m/MessagePopover',
     'sap/m/MessageItem',
     "sap/ui/core/message/Message",
-    "sap/ui/core/library"
+    "sap/ui/core/library",
+    "veronchi/leverx/project/model/suppliersModel",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator"
   ],
 
   function (
@@ -24,7 +27,10 @@ sap.ui.define(
     MessagePopover,
     MessageItem,
     Message,
-    library
+    library,
+    suppliersModel,
+    Filter,
+    FilterOperator
   ) {
     "use strict";
 
@@ -37,23 +43,27 @@ sap.ui.define(
         
         this._initMessageManager();
         filterBarModel.initFilterBarModel();
+        suppliersModel.initSuppliersModel();
         oRouter.getRoute(constants.ROUTES.PRODUCTS_PAGE).attachPatternMatched(this.onPatternMatched, this);
 
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
+        this.oSuppliersModel = suppliersModel.getSuppliersModel();
         this.oEditModel = new JSONModel({
-          isEditMode: false
+          isEditMode: false,
+          isSuppliersChange: false
         });
 
         this.getView().setModel(this.oEditModel, constants.EDIT_MODEL_NAME);
         this.getView().setModel(this.oFilterBarModel, constants.FILTER_BAR_MODEL_NAME);
+        this.getView().setModel(this.oSuppliersModel, constants.SUPPLIERS_MODEL_NAME);
       },
 
       onPatternMatched(oEvent) {
         this.oAppModel = productModel.getModel();
         const oRouteArguments = oEvent.getParameter("arguments");
         const sProductId = oRouteArguments.productId;
-
         const aProducts = this.oAppModel.getProperty(`/products`);
+        
         aProducts.find((item, idx) => {
           if (item.id === sProductId) {
             this.iCurrentProductIndex = idx;
@@ -63,6 +73,29 @@ sap.ui.define(
             });
           }
         });
+      },
+
+      filterSuppliers(oEvent) {
+        const oSuppliersTable = oEvent.getSource().getBinding("items")
+        const aSuppliers = this.getView().getBindingContext(constants.APP_MODEL_NAME).getObject("suppliers");
+        const aFilters = aSuppliers.map((supplier) => {
+          return new Filter("id", FilterOperator.EQ, supplier.id)
+        });
+
+        const oFilter = new Filter({
+          aFilters,
+          and: false
+        });
+
+        oSuppliersTable.filter(oFilter);
+      },
+
+      onAddSupplier() {
+        suppliersModel.addCleanSupplier();
+        this.oEditModel.setProperty("/isSuppliersChange", true);
+
+        const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
+        productModel.addCleanSupplier(sContextPath);
       },
 
       onProductEdit() {
@@ -76,16 +109,33 @@ sap.ui.define(
       onProductCancel() {
         const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
         productModel.resetProductChange(sContextPath, this.oCurrentProductDuplicate);
+        suppliersModel.resetSuppliers();
 
         this.oCurrentProductDuplicate = null;
         this._MessageManager.removeAllMessages();
         this.oEditModel.setProperty("/isEditMode", false);
+        this.oEditModel.setProperty("/isSuppliersChange", false);
       },
 
       onProductSave() {
-        this.oEditModel.setProperty("/isEditMode", false);
-        this._MessageManager.removeAllMessages();
-        this.oAppModel.refresh(true);
+        const aInvalidControls = this._validateSuppliers();
+
+        if(!aInvalidControls.length) {
+          this.handleNewSupplier();
+          this.oEditModel.setProperty("/isEditMode", false);
+          this.oEditModel.setProperty("/isSuppliersChange", false);
+          this._MessageManager.removeAllMessages();
+          this.oAppModel.refresh(true);
+        }
+      },
+
+      handleNewSupplier() {
+        const oNewSupplier = suppliersModel.getNewSupplierId();
+
+        if(oNewSupplier) {
+          const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
+          productModel.addNewSupplier(sContextPath, oNewSupplier);
+        }
       },
 
       onProductCategoriesEdit(oEvent) {
@@ -106,19 +156,52 @@ sap.ui.define(
         }
       },
       
-      onProductDelete(oEvent) {
-        const oCurrentProductId = oEvent.getSource().getBindingContext(constants.APP_MODEL_NAME).getObject('id');
+      onProductDelete(oDeleteBtn) {
+        const oCurrentProductId = oDeleteBtn.getBindingContext(constants.APP_MODEL_NAME).getObject('id');
 
-        this.oComponent.getRouter().navTo(constants.ROUTES.PRODUCTS_LIST);
+        this.getRouter().navTo(constants.ROUTES.PRODUCTS_LIST);
         productModel.removeProducts([oCurrentProductId]);
       },
 
-      onMessagePopoverPress(oEvent) {
+      onMessagePopoverPress(oPopoverBtn) {
         if (!this.oMessagePopover) {
           this._createMessagePopover();
         }
 
-        this.oMessagePopover.toggle(oEvent.getSource());
+        this.oMessagePopover.toggle(oPopoverBtn);
+      },
+
+      _validateSuppliers() {
+        const aSuppliersFields = this.getView().getControlsByFieldGroupId("validateInput").filter((oControl) => {
+          if(oControl.isA("sap.m.Input") && oControl.getRequired() && oControl.getVisible()) {
+            return oControl;
+          }
+        });
+
+        const aInvalidControls = aSuppliersFields.map((item) => this._validateInputControl(item)).filter((oControl) => oControl);
+        aInvalidControls.forEach((item) => this._addRequiredMessage(item));
+
+        return aInvalidControls;
+      },
+
+      _validateInputControl(control) {
+        try {
+          const oControlBinding = control.getBinding("value");
+          const oExternalValue = control.getProperty("value");
+          const oInternalValue = oControlBinding.getType().parseValue(oExternalValue, oControlBinding.sInternalType);
+
+          oControlBinding.getType().validateValue(oInternalValue);
+          control.setValueState("None");
+          const sTarget = this._getValidationFieldPath(control);
+          this._removeMessageFromInput(sTarget);
+
+          return null;
+        } catch (error) {
+          control.setValueState("Error");
+          control.setValueStateText(error.message);
+
+          return control;
+        }
       },
 
       _initMessageManager() {
@@ -170,8 +253,9 @@ sap.ui.define(
 
       _getValidationFieldPath(oInput) {
         const sPath = oInput.getBindingContext(constants.APP_MODEL_NAME).getPath();
+        const sBindingPath = (oInput.isA("sap.m.Input")) ? "value" : "selectedKeys";
 
-        return `${sPath}/${oInput.getBindingPath("selectedKeys")}`;
+        return `${sPath}/${oInput.getBindingPath(sBindingPath)}`;
       },
 
       _removeMessageFromInput (sTarget) {

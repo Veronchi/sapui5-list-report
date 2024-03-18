@@ -1,0 +1,146 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core">
+  <Table
+    id="suppliersTable"
+    items="{suppliersModel>/suppliers}"
+    updateFinished="filterSuppliers"
+  >
+    <headerToolbar>
+      <OverflowToolbar>
+        <Title text="{i18n>Suppliers}" level="H2" />
+        <ToolbarSpacer />
+        <Button
+          visible="{= ${editModel>/isEditMode}}"
+          type="Transparent"
+          icon="sap-icon://add"
+          press="onAddSupplier"
+          enabled="{= !${editModel>/isSuppliersChange}}"
+        />
+      </OverflowToolbar>
+    </headerToolbar>
+    <columns>
+      <Column >
+        <Text text="{i18n>SupplierNameText}" />
+      </Column>
+      <Column>
+        <Text text="{i18n>SupplierCountryText}" />
+      </Column>
+      <Column >
+        <Text text="{i18n>SupplierCityText}" />
+      </Column>
+      <Column >
+        <Text text="{i18n>SupplierStreetText}" />
+      </Column>
+      <Column >
+        <Text text="{i18n>SupplierStateText}" />
+      </Column>
+      <Column hAlign="Center">
+        <Text text="{i18n>SupplierZipCodeText}" />
+      </Column>
+    </columns>
+    <items>
+      <ColumnListItem vAlign="Middle">
+        <cells>
+          <VBox>
+            <Text text="{suppliersModel>name}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Input
+              fieldGroupIds="validateInput"
+              change="_validateInputControl(${$source>/})"
+              required="true"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              value="{
+                path: 'suppliersModel>name',
+                type: 'veronchi.leverx.project.utils.RequiredInputType',
+                constraints: {
+                  minLength: 1
+                }
+              }"
+            />
+          </VBox>
+          <VBox>
+            <Text text="{suppliersModel>country}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Input
+              fieldGroupIds="validateInput"
+              required="true"
+              change="_validateInputControl(${$source>/})"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              value="{
+                path: 'suppliersModel>country',
+                type: 'veronchi.leverx.project.utils.RequiredInputType',
+                constraints: {
+                  minLength: 1
+                }
+              }"
+            />
+          </VBox>
+          <VBox>
+            <Text text="{suppliersModel>city}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Input
+              fieldGroupIds="validateInput"
+              required="true"
+              change="_validateInputControl(${$source>/})"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              value="{
+                path: 'suppliersModel>city',
+                type: 'veronchi.leverx.project.utils.RequiredInputType',
+                constraints: {
+                  minLength: 1
+                }
+              }"
+            />
+          </VBox>
+          <VBox>
+            <Text text="{suppliersModel>street}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Input
+              fieldGroupIds="validateInput"
+              required="true"
+              change="_validateInputControl(${$source>/})"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              value="{
+                path: 'suppliersModel>street',
+                type: 'veronchi.leverx.project.utils.RequiredInputType',
+                constraints: {
+                  minLength: 1
+                }
+              }"
+            />
+          </VBox>
+          <VBox>
+            <Text text="{suppliersModel>state}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Input
+              fieldGroupIds="validateInput"
+              required="true"
+              change="_validateInputControl(${$source>/})"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              value="{
+                path: 'suppliersModel>state',
+                type: 'veronchi.leverx.project.utils.RequiredInputType',
+                constraints: {
+                  minLength: 1
+                }
+              }"
+            />
+          </VBox>
+          <VBox>
+            <Text text="{suppliersModel>zipCode}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Input
+              fieldGroupIds="validateInput"
+              required="true"
+              change="_validateInputControl(${$source>/})"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              value="{
+                path: 'suppliersModel>zipCode',
+                type: 'veronchi.leverx.project.utils.RequiredInputType',
+                constraints: {
+                  minLength: 1,
+                  minimum: 1
+                }
+              }"
+            />
+          </VBox>
+        </cells>
+      </ColumnListItem>
+    </items>
+  </Table>
+</core:FragmentDefinition>

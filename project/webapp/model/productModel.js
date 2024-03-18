@@ -42,6 +42,28 @@ sap.ui.define(
         aProductCategories.push(category);
 
         this.oModel.setProperty(`${sContextPath}/categories`, aProductCategories);
+      },
+
+      addCleanSupplier(sContextPath) {
+        const aProductSuppliers = this.oModel.getProperty(`${sContextPath}/suppliers`);
+
+        if(!aProductSuppliers.find((item) => item.id === "0")) {
+          aProductSuppliers.push({id: "0", name: ""});
+
+          this.oModel.setProperty(`${sContextPath}/suppliers`, aProductSuppliers);
+        }
+      },
+
+      addNewSupplier(sContextPath, oNewSupplier) {
+        const aProductSuppliers = this.oModel.getProperty(`${sContextPath}/suppliers`);
+        const aNewProductSuppliers = aProductSuppliers.map((supplier) => {
+          if(supplier.id === "0") {
+            return {id: oNewSupplier.id, name: oNewSupplier.name};
+          }
+          return supplier;
+        })
+
+        this.oModel.setProperty(`${sContextPath}/suppliers`, aNewProductSuppliers);
       }
     };
   }

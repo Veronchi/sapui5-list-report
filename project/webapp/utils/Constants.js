@@ -9,5 +9,6 @@ sap.ui.define([], function () {
     APP_MODEL_NAME: "appModel",
     EDIT_MODEL_NAME: "editModel",
     FILTER_BAR_MODEL_NAME: "filterBarModel",
+    SUPPLIERS_MODEL_NAME: "suppliersModel",
   };
 });
