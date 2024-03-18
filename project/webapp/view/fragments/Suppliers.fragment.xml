@@ -5,7 +5,7 @@
     id="suppliersTable"
     items="{suppliersModel>/suppliers}"
     updateFinished="filterSuppliers"
-    mode="Delete"
+    mode="{= ${editModel>/isEditMode} ? 'Delete' : 'None'}"
     delete="onDeleteSupplierPress"
   >
     <headerToolbar>
