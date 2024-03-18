@@ -5,6 +5,8 @@
     id="suppliersTable"
     items="{suppliersModel>/suppliers}"
     updateFinished="filterSuppliers"
+    mode="Delete"
+    delete="onDeleteSupplierPress"
   >
     <headerToolbar>
       <OverflowToolbar>

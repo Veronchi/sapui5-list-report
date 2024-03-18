@@ -64,6 +64,13 @@ sap.ui.define(
         })
 
         this.oModel.setProperty(`${sContextPath}/suppliers`, aNewProductSuppliers);
+      },
+
+      removeSupplierById(sContextPath, sSupplierId) {
+        const aProductSuppliers = this.oModel.getProperty(`${sContextPath}/suppliers`);
+
+        const aNewProductSuppliers = aProductSuppliers.filter((item) => item.id !== sSupplierId);
+        this.oModel.setProperty(`${sContextPath}/suppliers`, aNewProductSuppliers);
       }
     };
   }

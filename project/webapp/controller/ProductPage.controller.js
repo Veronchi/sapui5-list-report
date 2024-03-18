@@ -157,10 +157,19 @@ sap.ui.define(
       },
       
       onProductDelete(oDeleteBtn) {
-        const oCurrentProductId = oDeleteBtn.getBindingContext(constants.APP_MODEL_NAME).getObject('id');
+        const sCurrentProductId = oDeleteBtn.getBindingContext(constants.APP_MODEL_NAME).getObject('id');
 
         this.getRouter().navTo(constants.ROUTES.PRODUCTS_LIST);
-        productModel.removeProducts([oCurrentProductId]);
+        productModel.removeProducts([sCurrentProductId]);
+      },
+
+      onDeleteSupplierPress(oEvent) {
+        const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
+        const supplierItem = oEvent.getParameter("listItem");
+        const sSupplierId = supplierItem.getBindingContext(constants.SUPPLIERS_MODEL_NAME).getObject('id');
+
+        suppliersModel.removeSupplierById(sSupplierId);
+        productModel.removeSupplierById(sContextPath, sSupplierId);
       },
 
       onMessagePopoverPress(oPopoverBtn) {
