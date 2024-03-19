@@ -132,6 +132,7 @@ sap.ui.define(
         const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
         productModel.resetProductChange(sContextPath, this.oCurrentProductDuplicate);
         suppliersModel.resetSuppliers();
+        this.byId("commentsField").setValue("");
 
         this.oCurrentProductDuplicate = null;
         this._MessageManager.removeAllMessages();
