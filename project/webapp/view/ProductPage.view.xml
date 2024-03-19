@@ -11,12 +11,18 @@
     showTitleInHeaderContent="true"
     showEditHeaderButton="false"
     upperCaseAnchorBar="false"
-    showFooter="{editModel>/isEditMode}">
+    showFooter="{editModel>/isEditMode}"
+    showHeaderContent="{= !${editModel>/isProductCreate}}"
+    >
     <headerTitle>
       <ObjectPageDynamicHeaderTitle>
         <heading>
           <m:HBox>
-            <m:Title text="{appModel>name}" wrapping="true" class="sapUiTinyMarginEnd" visible="{= !${editModel>/isProductCreate}}"/>
+            <m:Title
+              text="{= !${editModel>/isProductCreate} ? ${appModel>name} : ${i18n>CreateProductTitle}}"
+              wrapping="true"
+              class="sapUiTinyMarginEnd"
+            />
           </m:HBox>
         </heading>
         <expandedContent>
@@ -24,12 +30,19 @@
         </expandedContent>
         <actions>
           <m:Button
-            text="Edit"
+            text="{i18n>EditButtonText}"
             type="Emphasized"
             press="onProductEdit"
             enabled="{= !${editModel>/isEditMode}}"
+            visible="{= !${editModel>/isProductCreate}}"
           />
-          <m:Button type="Transparent" text="Delete" press="onProductDelete(${$source>/})" enabled="{= !${editModel>/isEditMode}}" />
+          <m:Button
+            type="Transparent"
+            text="{i18n>DeleteButtonText}"
+            press="onProductDelete(${$source>/})" 
+            enabled="{= !${editModel>/isEditMode}}"
+            visible="{= !${editModel>/isProductCreate}}"
+          />
         </actions>
       </ObjectPageDynamicHeaderTitle>
     </headerTitle>
