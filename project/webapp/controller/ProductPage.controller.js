@@ -52,10 +52,16 @@ sap.ui.define(
           isEditMode: false,
           isSuppliersChange: false
         });
+        this.oCountriesModel = new JSONModel({});
 
         this.getView().setModel(this.oEditModel, constants.EDIT_MODEL_NAME);
         this.getView().setModel(this.oFilterBarModel, constants.FILTER_BAR_MODEL_NAME);
         this.getView().setModel(this.oSuppliersModel, constants.SUPPLIERS_MODEL_NAME);
+        this.getView().setModel(this.oCountriesModel, constants.COUNTRIES_MODEL_NAME)
+
+        this.fetchCountries("", result => {
+          this.oCountriesModel.setProperty("/Countries", JSON.parse(result));
+        });
       },
 
       onPatternMatched(oEvent) {
@@ -73,6 +79,22 @@ sap.ui.define(
             });
           }
         });
+      },
+
+      fetchCountries(endpoint, callback) {
+        const headers = new Headers();
+        headers.append("X-CSCAPI-KEY", constants.API_KEY);
+
+        const requestOptions = {
+          method: 'GET',
+          headers: headers,
+          redirect: 'follow'
+        };
+
+        fetch(`https://api.countrystatecity.in/v1/countries${endpoint}`, requestOptions)
+        .then(response => response.text())
+        .then(callback)
+        .catch(error => console.log('error', error));
       },
 
       filterSuppliers(oEvent) {
@@ -119,7 +141,7 @@ sap.ui.define(
 
       onProductSave() {
         const aInvalidControls = this._validateSuppliers();
-
+        
         if(!aInvalidControls.length) {
           this.handleNewSupplier();
           this.oEditModel.setProperty("/isEditMode", false);
@@ -148,9 +170,11 @@ sap.ui.define(
 
         if (bSelectedCategory) {
           const oCategory = filterBarModel.getCategoryById(sProductCategoryKey);
+          const sPath = oCategoryField.getBinding("selectedKeys").getContext().getPath();
+          const sTarget = `${sPath}/${oCategoryField.getBindingPath("selectedKeys")}`;
 
           productModel.addProductCategory(sContextPath, oCategory);
-          this._removeMessageFromInput(this._getValidationFieldPath(oCategoryField));
+          this._removeMessageFromInput(sTarget);
         } else {
           productModel.removeProductCategory(sContextPath, sProductCategoryKey);
         }
@@ -172,12 +196,87 @@ sap.ui.define(
         productModel.removeSupplierById(sContextPath, sSupplierId);
       },
 
+      handleCountrySelection(oEvent) {
+        const oCountriesField = oEvent.getSource();
+
+        if(oCountriesField.getSelectedItemId()) {
+          const oSelectedItem = oEvent.getParameter("selectedItem");
+          const sCountryName = oSelectedItem.getBindingContext("countriesModel").getObject("name");
+          const sCountryISO = oSelectedItem.getBindingContext("countriesModel").getObject("iso2");
+          
+          suppliersModel.setSupplierCountry(sCountryName);
+          this._handleFetchSupplierLocation(sCountryISO);
+        } else {
+          this.oCountriesModel.setProperty("/States", []);
+          this._getSupplierSuggestionControl("statesSuggestion").clearSelection();
+          this._getSupplierSuggestionControl("citiesSuggestion").clearSelection();
+          suppliersModel.resetSupplierCountry();
+          suppliersModel.resetSupplierState();
+          suppliersModel.resetSupplierCity();
+        }
+      },
+
+      handleStateSelection(oEvent) {
+        const sItemId = oEvent.getSource().getSelectedItemId();
+        if(sItemId) {
+          const oSelectedItem = this._getSupplierSuggestionControl("countriesSuggestion").getSelectedItem();
+          const sCountryISO = oSelectedItem.getBindingContext("countriesModel").getObject("iso2");
+          const sStateName = oEvent.getParameter("selectedItem").getBindingContext("countriesModel").getObject("name");
+          const sStateISO = oEvent.getParameter("selectedItem").getBindingContext("countriesModel").getObject("iso2");
+          
+          suppliersModel.setSupplierState(sStateName);
+          this.fetchCountries(`/${sCountryISO}/states/${sStateISO}/cities`, result => {
+            this.oCountriesModel.setProperty("/Cities", JSON.parse(result));
+          })
+        } else {
+          this.oCountriesModel.setProperty("/Cities", []);
+          this._getSupplierSuggestionControl("citiesSuggestion").clearSelection();
+          suppliersModel.resetSupplierState();
+          suppliersModel.resetSupplierCity();
+        }
+      },
+
+      handleCitySelection(oEvent) {
+        const sItemId = oEvent.getSource().getSelectedItemId();
+
+        if(sItemId) {
+          const sCityName = oEvent.getParameter("selectedItem").getBindingContext("countriesModel").getObject("name");
+          suppliersModel.setSupplierCity(sCityName);
+        } else {
+          suppliersModel.resetSupplierCity();
+        }
+      },
+
       onMessagePopoverPress(oPopoverBtn) {
         if (!this.oMessagePopover) {
           this._createMessagePopover();
         }
 
         this.oMessagePopover.toggle(oPopoverBtn);
+      },
+
+      _handleFetchSupplierLocation(sCountryISO) {
+        let aFetchedStates;
+
+        this.fetchCountries(`/${sCountryISO}/states`, result => {
+          aFetchedStates = result;
+        })
+
+        if(aFetchedStates) {
+          this.oCountriesModel.setProperty("/States", JSON.parse(result));
+        } else {
+          this.fetchCountries(`/${sCountryISO}/cities`, result => {
+            this.oCountriesModel.setProperty("/Cities", JSON.parse(result));
+          })
+        }
+      },
+
+      _getSupplierSuggestionControl(groupId) {
+        return this.getView().getControlsByFieldGroupId(groupId).filter((oControl) => {
+          if(oControl.getMetadata().getName().includes('sap.m.ComboBox') && oControl.getRequired() && oControl.getVisible()) {
+            return oControl;
+          }
+        })[0];
       },
 
       _validateSuppliers() {
@@ -188,7 +287,13 @@ sap.ui.define(
         });
 
         const aInvalidControls = aSuppliersFields.map((item) => this._validateInputControl(item)).filter((oControl) => oControl);
-        aInvalidControls.forEach((item) => this._addRequiredMessage(item));
+
+        aInvalidControls.forEach((item) => {
+          const sPath = item.getBinding("value").getContext().getPath();
+          const sTarget = `${sPath}/${item.getBindingPath("value")}`;
+
+          this._addRequiredMessage(sTarget)
+        });
 
         return aInvalidControls;
       },
@@ -198,10 +303,11 @@ sap.ui.define(
           const oControlBinding = control.getBinding("value");
           const oExternalValue = control.getProperty("value");
           const oInternalValue = oControlBinding.getType().parseValue(oExternalValue, oControlBinding.sInternalType);
+          const sPath = control.getBinding("value").getContext().getPath();
+          const sTarget = `${sPath}/${control.getBindingPath("value")}`;
 
           oControlBinding.getType().validateValue(oInternalValue);
           control.setValueState("None");
-          const sTarget = this._getValidationFieldPath(control);
           this._removeMessageFromInput(sTarget);
 
           return null;
@@ -243,13 +349,13 @@ sap.ui.define(
 
         if(!oCategoriesField.getSelectedItems().length) {
           oCategoriesField.setValueState("Error");
-          this._addRequiredMessage(oCategoriesField);
+          const sPath = oCategoriesField.getBinding("selectedKeys").getContext().getPath();
+          const sTarget = `${sPath}/${oCategoriesField.getBindingPath("selectedKeys")}`;
+          this._addRequiredMessage(sTarget);
         }
       },
 
-      _addRequiredMessage(oInvalidControl) {
-        const sTarget = this._getValidationFieldPath(oInvalidControl); 
-
+      _addRequiredMessage(sTarget) {
         Messaging.addMessages(
           new Message({
             message: this.oResourceBundle.getText("EmptyInputErrorText"),
@@ -261,8 +367,8 @@ sap.ui.define(
       },
 
       _getValidationFieldPath(oInput) {
-        const sPath = oInput.getBindingContext(constants.APP_MODEL_NAME).getPath();
         const sBindingPath = (oInput.isA("sap.m.Input")) ? "value" : "selectedKeys";
+        const sPath = oInput.getBinding(sBindingPath).getContext().getPath();
 
         return `${sPath}/${oInput.getBindingPath(sBindingPath)}`;
       },

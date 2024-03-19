@@ -29,13 +29,13 @@
         <Text text="{i18n>SupplierCountryText}" />
       </Column>
       <Column >
+        <Text text="{i18n>SupplierStateText}" />
+      </Column>
+      <Column >
         <Text text="{i18n>SupplierCityText}" />
       </Column>
       <Column >
         <Text text="{i18n>SupplierStreetText}" />
-      </Column>
-      <Column >
-        <Text text="{i18n>SupplierStateText}" />
       </Column>
       <Column hAlign="Center">
         <Text text="{i18n>SupplierZipCodeText}" />
@@ -62,35 +62,51 @@
           </VBox>
           <VBox>
             <Text text="{suppliersModel>country}" visible="{= ${suppliersModel>id} !== '0'}" />
-            <Input
-              fieldGroupIds="validateInput"
-              required="true"
-              change="_validateInputControl(${$source>/})"
+            <ComboBox
+              fieldGroupIds="countriesSuggestion"
               visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
-              value="{
-                path: 'suppliersModel>country',
-                type: 'veronchi.leverx.project.utils.RequiredInputType',
-                constraints: {
-                  minLength: 1
-                }
+              items="{
+                path: 'countriesModel>/Countries',
+                templateShareable:false
               }"
-            />
+              selectionChange="handleCountrySelection"
+            >
+            <items>
+              <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
+            </items>
+            </ComboBox>
+          </VBox>
+          <VBox>
+            <Text text="{suppliersModel>state}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <ComboBox
+              fieldGroupIds="statesSuggestion"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              items="{
+                path: 'countriesModel>/States',
+                templateShareable:false
+              }"
+              selectionChange="handleStateSelection"
+            >
+            <items>
+              <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
+            </items>
+            </ComboBox>
           </VBox>
           <VBox>
             <Text text="{suppliersModel>city}" visible="{= ${suppliersModel>id} !== '0'}" />
-            <Input
-              fieldGroupIds="validateInput"
-              required="true"
-              change="_validateInputControl(${$source>/})"
+            <ComboBox
+              fieldGroupIds="citiesSuggestion"
               visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
-              value="{
-                path: 'suppliersModel>city',
-                type: 'veronchi.leverx.project.utils.RequiredInputType',
-                constraints: {
-                  minLength: 1
-                }
+              selectionChange="handleCitySelection"
+              items="{
+                path: 'countriesModel>/Cities',
+                templateShareable:false
               }"
-            />
+            >
+            <items>
+              <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
+            </items>
+            </ComboBox>
           </VBox>
           <VBox>
             <Text text="{suppliersModel>street}" visible="{= ${suppliersModel>id} !== '0'}" />
@@ -109,27 +125,12 @@
             />
           </VBox>
           <VBox>
-            <Text text="{suppliersModel>state}" visible="{= ${suppliersModel>id} !== '0'}" />
-            <Input
-              fieldGroupIds="validateInput"
-              required="true"
-              change="_validateInputControl(${$source>/})"
-              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
-              value="{
-                path: 'suppliersModel>state',
-                type: 'veronchi.leverx.project.utils.RequiredInputType',
-                constraints: {
-                  minLength: 1
-                }
-              }"
-            />
-          </VBox>
-          <VBox>
             <Text text="{suppliersModel>zipCode}" visible="{= ${suppliersModel>id} !== '0'}" />
             <Input
               fieldGroupIds="validateInput"
               required="true"
               change="_validateInputControl(${$source>/})"
+              type="Number"
               visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
               value="{
                 path: 'suppliersModel>zipCode',

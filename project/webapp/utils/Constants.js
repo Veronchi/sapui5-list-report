@@ -10,5 +10,7 @@ sap.ui.define([], function () {
     EDIT_MODEL_NAME: "editModel",
     FILTER_BAR_MODEL_NAME: "filterBarModel",
     SUPPLIERS_MODEL_NAME: "suppliersModel",
+    COUNTRIES_MODEL_NAME: "countriesModel",
+    API_KEY: "WlFWdU45MlpsQXR6endFWGhjMmR1cHg0TGlLaTA5QzJZVXBRd0MyTQ=="
   };
 });
