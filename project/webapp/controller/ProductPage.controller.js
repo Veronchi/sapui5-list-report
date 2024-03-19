@@ -255,6 +255,11 @@ sap.ui.define(
         this.oMessagePopover.toggle(oPopoverBtn);
       },
 
+      onCommentPost(sFeedValue) {
+        const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
+        productModel.addProductComment(sContextPath, sFeedValue);
+      },
+
       _handleFetchSupplierLocation(sCountryISO) {
         let aFetchedStates;
 

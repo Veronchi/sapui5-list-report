@@ -1,0 +1,18 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core">
+  <VBox>
+    <FeedInput
+      post="onCommentPost(${$parameters>/value})"
+      class="sapUiSmallMarginTopBottom" 
+      visible="{= ${editModel>/isEditMode}}"
+    />
+    <List
+      showSeparators="Inner"
+      items="{appModel>comments}" >
+      <FeedListItem
+        text="{appModel>comment}"
+        convertLinksToAnchorTags="All"/>
+    </List>
+  </VBox>
+</core:FragmentDefinition>

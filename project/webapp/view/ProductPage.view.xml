@@ -128,7 +128,10 @@
         <subSections>
           <ObjectPageSubSection>
             <blocks>
-
+              <core:Fragment
+                fragmentName="veronchi.leverx.project.view.fragments.Comments"
+                type="XML"
+              />
             </blocks>
           </ObjectPageSubSection>
         </subSections>
