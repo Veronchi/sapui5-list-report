@@ -16,11 +16,11 @@
       <ObjectPageDynamicHeaderTitle>
         <heading>
           <m:HBox>
-            <m:Title text="{appModel>name}" wrapping="true" class="sapUiTinyMarginEnd" />
+            <m:Title text="{appModel>name}" wrapping="true" class="sapUiTinyMarginEnd" visible="{= !${editModel>/isProductCreate}}"/>
           </m:HBox>
         </heading>
         <expandedContent>
-          <m:Text text="{appModel>description}" />
+          <m:Text text="{appModel>description}" visible="{= !${editModel>/isProductCreate}}" />
         </expandedContent>
         <actions>
           <m:Button
@@ -37,7 +37,7 @@
     <headerContent>
       <m:FlexBox wrap="Wrap">
         <layout:VerticalLayout>
-          <m:HBox>
+          <m:HBox visible="{= !${editModel>/isProductCreate}}">
             <m:ObjectStatus
               text="{i18n>SaleText}"
               inverted="true"
@@ -58,7 +58,7 @@
           </m:HBox>
         </layout:VerticalLayout>
         <layout:VerticalLayout class="sapUiSmallMarginEnd">
-          <m:HBox>
+          <m:HBox visible="{= !${editModel>/isProductCreate}}">
             <m:Label
               text="{i18n>TotalTimeText}"
               showColon="true"
@@ -77,7 +77,7 @@
           </m:HBox>
         </layout:VerticalLayout>
         <layout:VerticalLayout>
-          <m:HBox>
+          <m:HBox visible="{= !${editModel>/isProductCreate}}">
             <m:Label
               text="{i18n>ProductColumnPrice}"
               showColon="true"

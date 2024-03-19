@@ -18,7 +18,6 @@ sap.ui.define(
 
       removeProducts(aProductsId) {
         const aProductsList = this.oModel.getProperty("/products");
-
         const aUpdatedProducts = aProductsList.filter(({ id }) => !aProductsId.includes(id));
 
         this.oModel.setProperty("/products", aUpdatedProducts);
@@ -30,15 +29,48 @@ sap.ui.define(
 
       removeProductCategory(sContextPath, aProductsCategoryId) {
         const aProductCategories = this.oModel.getProperty(`${sContextPath}/categories`);
-
         const aUpdatedCategories = aProductCategories.filter((category) => category.id !== aProductsCategoryId);
 
         this.oModel.setProperty(`${sContextPath}/categories`, aUpdatedCategories);
       },
 
+      addClearProduct() {
+        const aNewProductsList = this.oModel.getProperty("/products");
+        aNewProductsList.push({
+            "id": "0",
+            "name": "",
+            "description": "",
+            "rating": 0,
+            "releaseDate": "",
+            "discountDate": "",
+            "price": 0,
+            "currencyCode": "USD",
+            "categories": [],
+            "suppliers": [],
+            "comments": []
+          }
+        );
+        
+        this.oModel.setProperty("/products", aNewProductsList);
+      },
+
+      addNewProduct() {
+        const aNewProductsList = this.oModel.getProperty("/products");
+        const oNewProduct = aNewProductsList.find((item) => item.id === "0");
+
+        oNewProduct.id = parseInt(Math.random() * 10000, 0).toString();
+        this.oModel.setProperty("/products", aNewProductsList);
+      },
+
+      resetProductCreate() {
+        const aProductsList = this.oModel.getProperty("/products");
+        const aNewProductsList = aProductsList.filter((item) => item.id !== "0");
+
+        this.oModel.setProperty("/products", aNewProductsList);
+      },
+
       addProductCategory(sContextPath, category) {
         const aProductCategories = this.oModel.getProperty(`${sContextPath}/categories`);
-
         aProductCategories.push(category);
 
         this.oModel.setProperty(`${sContextPath}/categories`, aProductCategories);
@@ -60,8 +92,9 @@ sap.ui.define(
           if(supplier.id === "0") {
             return {id: oNewSupplier.id, name: oNewSupplier.name};
           }
+
           return supplier;
-        })
+        });
 
         this.oModel.setProperty(`${sContextPath}/suppliers`, aNewProductSuppliers);
       },
