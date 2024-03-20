@@ -60,57 +60,21 @@ sap.ui.define(
         this.oModel.setProperty("/suppliers", aNewSuppliers);
       },
 
-      setSupplierCountry(sSelectedCountry) {
+      setSupplierProperty(sPropertyName, sValue) {
         const aSuppliers = this.oModel.getProperty("/suppliers");
        
         const oCurrentSupplier = aSuppliers.find((item) => item.id === "0");
-        oCurrentSupplier.country = sSelectedCountry;
+        oCurrentSupplier[sPropertyName] = sValue;
 
         this.oModel.setProperty("/suppliers", aSuppliers);
       },
-
-      resetSupplierCountry() {
+      
+      resetSupplierProperty(sPropertyName) {
         const aSuppliers = this.oModel.getProperty("/suppliers");
        
         const oCurrentSupplier = aSuppliers.find((item) => item.id === "0");
-        oCurrentSupplier.country = "";
- 
-        this.oModel.setProperty("/suppliers", aSuppliers);
-      },
+        oCurrentSupplier[sPropertyName] = "";
 
-      setSupplierState(sSelectedState) {
-        const aSuppliers = this.oModel.getProperty("/suppliers");
-       
-        const oCurrentSupplier = aSuppliers.find((item) => item.id === "0");
-        oCurrentSupplier.state = sSelectedState;
-
-        this.oModel.setProperty("/suppliers", aSuppliers);
-      },
-
-      resetSupplierState() {
-        const aSuppliers = this.oModel.getProperty("/suppliers");
-       
-        const oCurrentSupplier = aSuppliers.find((item) => item.id === "0");
-        oCurrentSupplier.state = "";
- 
-        this.oModel.setProperty("/suppliers", aSuppliers);
-      },
-
-      setSupplierCity(sSelectedCity) {
-        const aSuppliers = this.oModel.getProperty("/suppliers");
-       
-        const oCurrentSupplier = aSuppliers.find((item) => item.id === "0");
-        oCurrentSupplier.city = sSelectedCity;
-
-        this.oModel.setProperty("/suppliers", aSuppliers);
-      },
-
-      resetSupplierCity() {
-        const aSuppliers = this.oModel.getProperty("/suppliers");
-       
-        const oCurrentSupplier = aSuppliers.find((item) => item.id === "0");
-        oCurrentSupplier.city = "";
- 
         this.oModel.setProperty("/suppliers", aSuppliers);
       },
     };

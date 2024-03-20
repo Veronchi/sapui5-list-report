@@ -63,6 +63,7 @@
           <VBox>
             <Text text="{suppliersModel>country}" visible="{= ${suppliersModel>id} !== '0'}" />
             <ComboBox
+              enabled="{= !${editModel>/isCountryBlocked}}"
               fieldGroupIds="countriesSuggestion"
               visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
               items="{
@@ -71,14 +72,15 @@
               }"
               selectionChange="handleCountrySelection"
             >
-            <items>
-              <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
-            </items>
+              <items>
+                <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
+              </items>
             </ComboBox>
           </VBox>
           <VBox>
-            <Text text="{suppliersModel>state}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Text text="{= ${suppliersModel>state} ? ${suppliersModel>state} : '-'}" visible="{= ${suppliersModel>id} !== '0'}" />
             <ComboBox
+              enabled="{= !${editModel>/isStateBlocked}}"
               fieldGroupIds="statesSuggestion"
               visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
               items="{
@@ -87,14 +89,15 @@
               }"
               selectionChange="handleStateSelection"
             >
-            <items>
-              <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
-            </items>
+              <items>
+                <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
+              </items>
             </ComboBox>
           </VBox>
           <VBox>
-            <Text text="{suppliersModel>city}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Text text="{= ${suppliersModel>city} ? ${suppliersModel>city} : '-'}" visible="{= ${suppliersModel>id} !== '0'}" />
             <ComboBox
+              enabled="{= !${editModel>/isCityBlocked}}"
               fieldGroupIds="citiesSuggestion"
               visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
               selectionChange="handleCitySelection"
@@ -103,9 +106,9 @@
                 templateShareable:false
               }"
             >
-            <items>
-              <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
-            </items>
+              <items>
+                <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
+              </items>
             </ComboBox>
           </VBox>
           <VBox>

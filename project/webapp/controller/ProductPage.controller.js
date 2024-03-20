@@ -13,7 +13,8 @@ sap.ui.define(
     "sap/ui/core/library",
     "veronchi/leverx/project/model/suppliersModel",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
+    "sap/ui/model/FilterOperator",
+    "veronchi/leverx/project/utils/locationAPI",
   ],
 
   function (
@@ -30,7 +31,8 @@ sap.ui.define(
     library,
     suppliersModel,
     Filter,
-    FilterOperator
+    FilterOperator,
+    locationAPI
   ) {
     "use strict";
 
@@ -50,7 +52,9 @@ sap.ui.define(
         this.oSuppliersModel = suppliersModel.getSuppliersModel();
         this.oEditModel = new JSONModel({
           isEditMode: false,
-          isSuppliersChange: false
+          isSuppliersChange: false,
+          isStateBlocked: true,
+          isCityBlocked: true
         });
         this.oCountriesModel = new JSONModel({});
 
@@ -58,10 +62,6 @@ sap.ui.define(
         this.getView().setModel(this.oFilterBarModel, constants.FILTER_BAR_MODEL_NAME);
         this.getView().setModel(this.oSuppliersModel, constants.SUPPLIERS_MODEL_NAME);
         this.getView().setModel(this.oCountriesModel, constants.COUNTRIES_MODEL_NAME)
-
-        this.fetchCountries("", result => {
-          this.oCountriesModel.setProperty("/Countries", JSON.parse(result));
-        });
       },
 
       onPatternMatched(oEvent) {
@@ -79,22 +79,6 @@ sap.ui.define(
             });
           }
         });
-      },
-
-      fetchCountries(endpoint, callback) {
-        const headers = new Headers();
-        headers.append("X-CSCAPI-KEY", constants.API_KEY);
-
-        const requestOptions = {
-          method: 'GET',
-          headers: headers,
-          redirect: 'follow'
-        };
-
-        fetch(`https://api.countrystatecity.in/v1/countries${endpoint}`, requestOptions)
-        .then(response => response.text())
-        .then(callback)
-        .catch(error => console.log('error', error));
       },
 
       filterSuppliers(oEvent) {
@@ -116,6 +100,10 @@ sap.ui.define(
         suppliersModel.addCleanSupplier();
         this.oEditModel.setProperty("/isSuppliersChange", true);
 
+        locationAPI.fetchCountries(result => {
+          this.oCountriesModel.setProperty("/Countries", JSON.parse(result));
+        })
+
         const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
         productModel.addCleanSupplier(sContextPath);
       },
@@ -131,22 +119,16 @@ sap.ui.define(
       onProductCancel() {
         const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
         productModel.resetProductChange(sContextPath, this.oCurrentProductDuplicate);
-        suppliersModel.resetSuppliers();
-
-        this.oCurrentProductDuplicate = null;
-        this._MessageManager.removeAllMessages();
-        this.oEditModel.setProperty("/isEditMode", false);
-        this.oEditModel.setProperty("/isSuppliersChange", false);
+        this._resetDataFromEditMode();
       },
+
 
       onProductSave() {
         const aInvalidControls = this._validateSuppliers();
         
         if(!aInvalidControls.length) {
           this.handleNewSupplier();
-          this.oEditModel.setProperty("/isEditMode", false);
-          this.oEditModel.setProperty("/isSuppliersChange", false);
-          this._MessageManager.removeAllMessages();
+          this._resetDataFromEditMode();
           this.oAppModel.refresh(true);
         }
       },
@@ -183,8 +165,8 @@ sap.ui.define(
       onProductDelete(oDeleteBtn) {
         const sCurrentProductId = oDeleteBtn.getBindingContext(constants.APP_MODEL_NAME).getObject('id');
 
-        this.getRouter().navTo(constants.ROUTES.PRODUCTS_LIST);
         productModel.removeProducts([sCurrentProductId]);
+        this.getRouter().navTo(constants.ROUTES.PRODUCTS_LIST);
       },
 
       onDeleteSupplierPress(oEvent) {
@@ -194,45 +176,54 @@ sap.ui.define(
 
         suppliersModel.removeSupplierById(sSupplierId);
         productModel.removeSupplierById(sContextPath, sSupplierId);
+
+        if(sSupplierId === "0") {
+          this.oEditModel.setProperty("/isSuppliersChange", false);
+        }
       },
 
       handleCountrySelection(oEvent) {
         const oCountriesField = oEvent.getSource();
+        this._getSupplierSuggestionControl("statesSuggestion").clearSelection();
+        this._getSupplierSuggestionControl("citiesSuggestion").clearSelection();
+        this.oEditModel.setProperty("/isStateBlocked", true);
+        this.oEditModel.setProperty("/isCityBlocked", true);
 
         if(oCountriesField.getSelectedItemId()) {
           const oSelectedItem = oEvent.getParameter("selectedItem");
           const sCountryName = oSelectedItem.getBindingContext("countriesModel").getObject("name");
           const sCountryISO = oSelectedItem.getBindingContext("countriesModel").getObject("iso2");
-          
-          suppliersModel.setSupplierCountry(sCountryName);
+
+          suppliersModel.setSupplierProperty('country', sCountryName);
           this._handleFetchSupplierLocation(sCountryISO);
         } else {
           this.oCountriesModel.setProperty("/States", []);
-          this._getSupplierSuggestionControl("statesSuggestion").clearSelection();
-          this._getSupplierSuggestionControl("citiesSuggestion").clearSelection();
-          suppliersModel.resetSupplierCountry();
-          suppliersModel.resetSupplierState();
-          suppliersModel.resetSupplierCity();
+          this.oCountriesModel.setProperty("/Cities", []);
+          suppliersModel.resetSupplierProperty('country');
+          suppliersModel.resetSupplierProperty('state');
+          suppliersModel.resetSupplierProperty('city');
         }
       },
 
       handleStateSelection(oEvent) {
         const sItemId = oEvent.getSource().getSelectedItemId();
+        this._getSupplierSuggestionControl("citiesSuggestion").clearSelection();
+        this.oEditModel.setProperty("/isCityBlocked", true);
+
         if(sItemId) {
           const oSelectedItem = this._getSupplierSuggestionControl("countriesSuggestion").getSelectedItem();
           const sCountryISO = oSelectedItem.getBindingContext("countriesModel").getObject("iso2");
           const sStateName = oEvent.getParameter("selectedItem").getBindingContext("countriesModel").getObject("name");
           const sStateISO = oEvent.getParameter("selectedItem").getBindingContext("countriesModel").getObject("iso2");
           
-          suppliersModel.setSupplierState(sStateName);
-          this.fetchCountries(`/${sCountryISO}/states/${sStateISO}/cities`, result => {
-            this.oCountriesModel.setProperty("/Cities", JSON.parse(result));
-          })
+          suppliersModel.setSupplierProperty('state', sStateName);
+          locationAPI.fetchCities(sCountryISO, sStateISO, result => {
+            this._handleCitiesData(JSON.parse(result));
+          });
         } else {
           this.oCountriesModel.setProperty("/Cities", []);
-          this._getSupplierSuggestionControl("citiesSuggestion").clearSelection();
-          suppliersModel.resetSupplierState();
-          suppliersModel.resetSupplierCity();
+          suppliersModel.resetSupplierProperty('state');
+          suppliersModel.resetSupplierProperty('city');
         }
       },
 
@@ -241,9 +232,9 @@ sap.ui.define(
 
         if(sItemId) {
           const sCityName = oEvent.getParameter("selectedItem").getBindingContext("countriesModel").getObject("name");
-          suppliersModel.setSupplierCity(sCityName);
+          suppliersModel.setSupplierProperty('city', sCityName);
         } else {
-          suppliersModel.resetSupplierCity();
+          suppliersModel.resetSupplierProperty('city');
         }
       },
 
@@ -255,25 +246,41 @@ sap.ui.define(
         this.oMessagePopover.toggle(oPopoverBtn);
       },
 
-      _handleFetchSupplierLocation(sCountryISO) {
-        let aFetchedStates;
-
-        this.fetchCountries(`/${sCountryISO}/states`, result => {
-          aFetchedStates = result;
-        })
-
-        if(aFetchedStates) {
-          this.oCountriesModel.setProperty("/States", JSON.parse(result));
-        } else {
-          this.fetchCountries(`/${sCountryISO}/cities`, result => {
-            this.oCountriesModel.setProperty("/Cities", JSON.parse(result));
-          })
+      _handleCitiesData(aParsedResult) {
+        if(aParsedResult.length) {
+          this.oCountriesModel.setProperty("/Cities", aParsedResult);
+          this.oEditModel.setProperty("/isCityBlocked", false);
         }
+      },
+
+      _resetDataFromEditMode() {
+        suppliersModel.resetSuppliers();
+        this.oCurrentProductDuplicate = null;
+        this._MessageManager.removeAllMessages();
+        this.oEditModel.setProperty("/isEditMode", false);
+        this.oEditModel.setProperty("/isSuppliersChange", false);
+      },
+
+      async _handleFetchSupplierLocation(sCountryISO) {
+        let aParsedResult;
+
+        await locationAPI.fetchStates(sCountryISO, result => {
+          aParsedResult = JSON.parse(result);
+          if(aParsedResult.length) {
+            this.oCountriesModel.setProperty("/States", aParsedResult);
+            this.oEditModel.setProperty("/isStateBlocked", false);
+          } else {
+            locationAPI.fetchCitiesByCountry(sCountryISO, result => {
+
+              this._handleCitiesData(JSON.parse(result));
+            });
+          }
+        });
       },
 
       _getSupplierSuggestionControl(groupId) {
         return this.getView().getControlsByFieldGroupId(groupId).filter((oControl) => {
-          if(oControl.getMetadata().getName().includes('sap.m.ComboBox') && oControl.getRequired() && oControl.getVisible()) {
+          if(oControl.getMetadata().getName().includes('sap.m.ComboBox') && oControl.getVisible()) {
             return oControl;
           }
         })[0];
