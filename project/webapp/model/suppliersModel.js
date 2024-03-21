@@ -55,10 +55,20 @@ sap.ui.define(
           "isDraft": true,
           "Countries": [],
           "States": [],
-          "Cities": []
+          "Cities": [],
+          "isStateLoaded": false,
+          "isCityLoaded": false
         });
 
         this.oModel.setProperty("/suppliers", aSuppliers);
+      },
+
+      handleSupplierLoadProperty(sSupplierPath, sPropertyName, sValue) {
+        const oCurrentSupplier = this.oModel.getProperty(sSupplierPath);
+
+        oCurrentSupplier[sPropertyName] = sValue;
+
+        this.oModel.setProperty(sSupplierPath, oCurrentSupplier);
       },
 
       setSupplierCountries(aCountries) {

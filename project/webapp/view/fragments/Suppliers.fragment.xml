@@ -83,6 +83,7 @@
             <Text text="{= ${suppliersModel>state} ? ${suppliersModel>state} : '-'}" visible="{= !${suppliersModel>isDraft}}" />
             <ComboBox
               enabled="{= !!${suppliersModel>States}.length}"
+              busy="{= ${suppliersModel>isStateLoaded}}"
               fieldGroupIds="statesSuggestion"
               visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
               items="{
@@ -100,6 +101,7 @@
             <Text text="{= ${suppliersModel>city} ? ${suppliersModel>city} : '-'}" visible="{= !${suppliersModel>isDraft}}" />
             <ComboBox
               enabled="{= !!${suppliersModel>Cities}.length}"
+              busy="{= ${suppliersModel>isCityLoaded}}"
               fieldGroupIds="citiesSuggestion"
               visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
               selectionChange="handleCitySelection"

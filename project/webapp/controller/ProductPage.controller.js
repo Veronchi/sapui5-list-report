@@ -98,11 +98,11 @@ sap.ui.define(
         oSuppliersTable.filter(oFilter);
       },
 
-      async onAddSupplier() {
+      onAddSupplier() {
         suppliersModel.addDraftSupplier();
         const oNewSupplier = suppliersModel.getDraftSupplier();
 
-        await locationAPI.fetchCountries(result => {
+        locationAPI.fetchCountries(result => {
           suppliersModel.setSupplierCountries(JSON.parse(result));
         })
 
@@ -201,6 +201,8 @@ sap.ui.define(
 
           suppliersModel.setSupplierProperty(sSupplierPath, "country", sCountryName);
           suppliersModel.setSupplierProperty(sSupplierPath, "countryIso", sCountryISO);
+          suppliersModel.handleSupplierLoadProperty(sSupplierPath, "isStateLoaded", true);
+          suppliersModel.handleSupplierLoadProperty(sSupplierPath, "isCityLoaded", true);
           this._handleFetchSupplierLocation(sCountryISO, oCountriesField);
         }
       },
@@ -221,6 +223,7 @@ sap.ui.define(
           const oCurrSupplier = this.oSuppliersModel.getProperty(sSupplierPath);
 
           suppliersModel.setSupplierProperty(sSupplierPath, "state", sStateName);
+          suppliersModel.handleSupplierLoadProperty(sSupplierPath, "isCityLoaded", true);
           await locationAPI.fetchCities(sCountryISO, sStateISO, result => {
             this._handleCitiesData(JSON.parse(result), oCurrSupplier, sSupplierPath);
           });
@@ -257,6 +260,8 @@ sap.ui.define(
           oCurrSupplier.Cities = aParsedResult;
           this.oSuppliersModel.setProperty(sSupplierPath, oCurrSupplier);
         }
+
+        suppliersModel.handleSupplierLoadProperty(sSupplierPath, "isCityLoaded", false);
       },
 
       _resetDataFromEditMode() {
@@ -286,6 +291,9 @@ sap.ui.define(
               this._handleCitiesData(aParsedResult, oCurrSupplier, sSupplierPath);
             });
           }
+
+          suppliersModel.handleSupplierLoadProperty(sSupplierPath, "isStateLoaded", false);
+          suppliersModel.handleSupplierLoadProperty(sSupplierPath, "isCityLoaded", false);
         });
       },
 
