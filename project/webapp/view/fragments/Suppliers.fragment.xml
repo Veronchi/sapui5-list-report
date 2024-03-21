@@ -62,10 +62,12 @@
           <VBox>
             <Text text="{suppliersModel>country}" visible="{= !${suppliersModel>isDraft}}" />
             <ComboBox
+              required="true"
               enabled="{= !!${suppliersModel>Countries}.length}"
+              busy="{= !${suppliersModel>Countries}.length}"
               fieldGroupIds="countriesSuggestion"
               visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
-              selectedKey="{suppliersModel>selectedCountryId}"
+              selectedKey="{suppliersModel>counrty}"
               items="{
                 path: 'suppliersModel>Countries',
                 templateShareable:false

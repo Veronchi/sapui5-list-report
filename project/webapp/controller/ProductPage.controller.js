@@ -98,11 +98,11 @@ sap.ui.define(
         oSuppliersTable.filter(oFilter);
       },
 
-      onAddSupplier() {
+      async onAddSupplier() {
         suppliersModel.addDraftSupplier();
         const oNewSupplier = suppliersModel.getDraftSupplier();
 
-        locationAPI.fetchCountries(result => {
+        await locationAPI.fetchCountries(result => {
           suppliersModel.setSupplierCountries(JSON.parse(result));
         })
 
@@ -127,8 +127,9 @@ sap.ui.define(
 
       onProductSave() {
         const aInvalidControls = this._validateSuppliers();
+        const aInvalidCountries = this._validateCountriesField("countriesSuggestion");
         
-        if(!aInvalidControls.length) {
+        if(!aInvalidControls.length || !aInvalidCountries.length) {
           this.handleNewSupplier();
           this._resetDataFromEditMode();
           this.filterSuppliers();
@@ -180,6 +181,8 @@ sap.ui.define(
       },
 
       handleCountrySelection(oEvent) {
+        this._validateCountriesField("countriesSuggestion");
+
         const oCountriesField = oEvent.getSource();
         const sSupplierPath = this._getControlParentPath(oCountriesField);
 
@@ -315,6 +318,30 @@ sap.ui.define(
         });
 
         return aInvalidControls;
+      },
+
+      _validateCountriesField(groupId) {
+        const aControls = this.getView().getControlsByFieldGroupId(groupId).filter((oControl) => {
+
+          if(oControl.getMetadata().getName().includes("sap.m.ComboBox") && oControl.getVisible() && oControl.getRequired()) {
+            return oControl;
+          }
+        });
+
+        aControls.map((oControl) => {
+          const sPath = oControl.getBinding("selectedKey").getContext().getPath();
+          const sTarget = `${sPath}/${oControl.getBindingPath("selectedKey")}`;
+
+          if(!oControl.getValue().length) {
+            oControl.setValueState("Error");
+            this._addRequiredMessage(sTarget);
+          } else {
+            oControl.setValueState("None");
+            this._removeMessageFromInput(sTarget);
+          }
+        });
+
+        return aControls.length ? aControls : null;
       },
 
       _validateInputControl(control) {
