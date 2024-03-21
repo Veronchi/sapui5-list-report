@@ -4,7 +4,6 @@
   <Table
     id="suppliersTable"
     items="{suppliersModel>/suppliers}"
-    updateFinished="filterSuppliers"
     mode="{= ${editModel>/isEditMode} ? 'Delete' : 'None'}"
     delete="onDeleteSupplierPress"
   >
@@ -45,12 +44,12 @@
       <ColumnListItem vAlign="Middle">
         <cells>
           <VBox>
-            <Text text="{suppliersModel>name}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Text text="{suppliersModel>name}" visible="{= !${suppliersModel>isDraft}}" />
             <Input
               fieldGroupIds="validateInput"
               change="_validateInputControl(${$source>/})"
               required="true"
-              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
               value="{
                 path: 'suppliersModel>name',
                 type: 'veronchi.leverx.project.utils.RequiredInputType',
@@ -61,63 +60,64 @@
             />
           </VBox>
           <VBox>
-            <Text text="{suppliersModel>country}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Text text="{suppliersModel>country}" visible="{= !${suppliersModel>isDraft}}" />
             <ComboBox
-              enabled="{= !${editModel>/isCountryBlocked}}"
+              enabled="{= !!${suppliersModel>Countries}.length}"
               fieldGroupIds="countriesSuggestion"
-              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
+              selectedKey="{suppliersModel>selectedCountryId}"
               items="{
-                path: 'countriesModel>/Countries',
+                path: 'suppliersModel>Countries',
                 templateShareable:false
               }"
               selectionChange="handleCountrySelection"
             >
               <items>
-                <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
+                <core:Item key="{suppliersModel>id}" text="{suppliersModel>name}" />
               </items>
             </ComboBox>
           </VBox>
           <VBox>
-            <Text text="{= ${suppliersModel>state} ? ${suppliersModel>state} : '-'}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Text text="{= ${suppliersModel>state} ? ${suppliersModel>state} : '-'}" visible="{= !${suppliersModel>isDraft}}" />
             <ComboBox
-              enabled="{= !${editModel>/isStateBlocked}}"
+              enabled="{= !!${suppliersModel>States}.length}"
               fieldGroupIds="statesSuggestion"
-              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
               items="{
-                path: 'countriesModel>/States',
+                path: 'suppliersModel>States',
                 templateShareable:false
               }"
               selectionChange="handleStateSelection"
             >
               <items>
-                <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
+                <core:Item key="{suppliersModel>id}" text="{suppliersModel>name}" />
               </items>
             </ComboBox>
           </VBox>
           <VBox>
-            <Text text="{= ${suppliersModel>city} ? ${suppliersModel>city} : '-'}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Text text="{= ${suppliersModel>city} ? ${suppliersModel>city} : '-'}" visible="{= !${suppliersModel>isDraft}}" />
             <ComboBox
-              enabled="{= !${editModel>/isCityBlocked}}"
+              enabled="{= !!${suppliersModel>Cities}.length}"
               fieldGroupIds="citiesSuggestion"
-              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
               selectionChange="handleCitySelection"
               items="{
-                path: 'countriesModel>/Cities',
+                path: 'suppliersModel>Cities',
                 templateShareable:false
               }"
             >
               <items>
-                <core:Item key="{countriesModel>id}" text="{countriesModel>name}" />
+                <core:Item key="{suppliersModel>id}" text="{suppliersModel>name}" />
               </items>
             </ComboBox>
           </VBox>
           <VBox>
-            <Text text="{suppliersModel>street}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Text text="{suppliersModel>street}" visible="{= !${suppliersModel>isDraft}}" />
             <Input
               fieldGroupIds="validateInput"
               required="true"
               change="_validateInputControl(${$source>/})"
-              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
               value="{
                 path: 'suppliersModel>street',
                 type: 'veronchi.leverx.project.utils.RequiredInputType',
@@ -128,13 +128,13 @@
             />
           </VBox>
           <VBox>
-            <Text text="{suppliersModel>zipCode}" visible="{= ${suppliersModel>id} !== '0'}" />
+            <Text text="{suppliersModel>zipCode}" visible="{= !${suppliersModel>isDraft}}" />
             <Input
               fieldGroupIds="validateInput"
               required="true"
               change="_validateInputControl(${$source>/})"
               type="Number"
-              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>id} === '0'}"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
               value="{
                 path: 'suppliersModel>zipCode',
                 type: 'veronchi.leverx.project.utils.RequiredInputType',

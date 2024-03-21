@@ -16,31 +16,59 @@ sap.ui.define(
         return this.oModel;
       },
 
-      getNewSupplierId() {
+      getDraftSupplier() {
         const aSuppliers = this.oModel.getProperty("/suppliers");
-        const oNewSupplier = aSuppliers.find((item) => item.id === "0");
+        const oNewSupplier = aSuppliers[aSuppliers.length - 1];
 
         if(!oNewSupplier) {
           return
         }
 
-        oNewSupplier.id = parseInt(Math.random() * 10000, 0).toString();
         this.oModel.setProperty("/suppliers", aSuppliers);
 
         return oNewSupplier;
       },
 
-      addCleanSupplier() {
+      getNewSuppliers() {
+        const aSuppliers = this.oModel.getProperty("/suppliers");
+
+        aSuppliers.filter((item) => {
+          item.isDraft ? item.isDraft = false : null;
+        });
+
+        this.oModel.setProperty("/suppliers", aSuppliers);
+
+        return aSuppliers;
+      },
+
+      addDraftSupplier() {
         const aSuppliers = this.oModel.getProperty("/suppliers");
 
         aSuppliers.push({
-          "id": "0",
+          "id": parseInt(Math.random() * 10000, 0).toString(),
           "name": "",
           "country": "",
           "city": "", 
           "street": "",
           "state": "",
-          "zipCode": 0
+          "zipCode": 0,
+          "isDraft": true,
+          "Countries": [],
+          "States": [],
+          "Cities": []
+        });
+
+        this.oModel.setProperty("/suppliers", aSuppliers);
+      },
+
+      setSupplierCountries(aCountries) {
+        const aSuppliers = this.oModel.getProperty("/suppliers");
+        const oCurrentDraftSupplier = this.getDraftSupplier();
+
+        aSuppliers.find((item) => {
+          if(item.id === oCurrentDraftSupplier.id) {
+            item.Countries =  aCountries;
+          }
         });
 
         this.oModel.setProperty("/suppliers", aSuppliers);
@@ -48,7 +76,7 @@ sap.ui.define(
 
       resetSuppliers() {
         const aSuppliers = this.oModel.getProperty("/suppliers");
-        const aNewSuppliers = aSuppliers.filter((item) => item.id !== "0");
+        const aNewSuppliers = aSuppliers.filter((item) => !item.isDraft);
         
         this.oModel.setProperty("/suppliers", aNewSuppliers);
       },
@@ -60,22 +88,19 @@ sap.ui.define(
         this.oModel.setProperty("/suppliers", aNewSuppliers);
       },
 
-      setSupplierProperty(sPropertyName, sValue) {
-        const aSuppliers = this.oModel.getProperty("/suppliers");
-       
-        const oCurrentSupplier = aSuppliers.find((item) => item.id === "0");
+      setSupplierProperty(sSupplierPath, sPropertyName, sValue) {
+        const oCurrentSupplier = this.oModel.getProperty(sSupplierPath);
         oCurrentSupplier[sPropertyName] = sValue;
 
-        this.oModel.setProperty("/suppliers", aSuppliers);
+        this.oModel.setProperty(sSupplierPath, oCurrentSupplier);
       },
       
-      resetSupplierProperty(sPropertyName) {
-        const aSuppliers = this.oModel.getProperty("/suppliers");
+      resetSupplierProperty(sSupplierPath, sPropertyName) {
+        const oCurrentSupplier = this.oModel.getProperty(sSupplierPath);
        
-        const oCurrentSupplier = aSuppliers.find((item) => item.id === "0");
         oCurrentSupplier[sPropertyName] = "";
 
-        this.oModel.setProperty("/suppliers", aSuppliers);
+        this.oModel.setProperty(sSupplierPath, oCurrentSupplier);
       },
     };
   }

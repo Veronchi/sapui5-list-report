@@ -12,7 +12,7 @@ sap.ui.define(["veronchi/leverx/project/utils/constants"], (constants) => {
         redirect: "follow"
       };
 
-      fetch(`https://api.countrystatecity.in/v1/countries`, requestOptions)
+      fetch("https://api.countrystatecity.in/v1/countries", requestOptions)
       .then(response => response.text())
       .then(fnCallback)
       .catch(error => console.log("error", error));

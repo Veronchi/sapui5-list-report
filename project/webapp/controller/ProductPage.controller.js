@@ -7,8 +7,8 @@ sap.ui.define(
     "sap/ui/model/json/JSONModel",
     "veronchi/leverx/project/model/filterBarModel",
     "sap/ui/core/Messaging",
-    'sap/m/MessagePopover',
-    'sap/m/MessageItem',
+    "sap/m/MessagePopover",
+    "sap/m/MessageItem",
     "sap/ui/core/message/Message",
     "sap/ui/core/library",
     "veronchi/leverx/project/model/suppliersModel",
@@ -56,12 +56,10 @@ sap.ui.define(
           isStateBlocked: true,
           isCityBlocked: true
         });
-        this.oCountriesModel = new JSONModel({});
 
         this.getView().setModel(this.oEditModel, constants.EDIT_MODEL_NAME);
         this.getView().setModel(this.oFilterBarModel, constants.FILTER_BAR_MODEL_NAME);
         this.getView().setModel(this.oSuppliersModel, constants.SUPPLIERS_MODEL_NAME);
-        this.getView().setModel(this.oCountriesModel, constants.COUNTRIES_MODEL_NAME)
       },
 
       onPatternMatched(oEvent) {
@@ -77,35 +75,39 @@ sap.ui.define(
               path: `/products/${idx}`,
               model: constants.APP_MODEL_NAME
             });
+            this.filterSuppliers();
           }
         });
       },
 
-      filterSuppliers(oEvent) {
-        const oSuppliersTable = oEvent.getSource().getBinding("items")
+      filterSuppliers() {
+        const oSuppliersTable = this.byId("suppliersTable").getBinding("items");
         const aSuppliers = this.getView().getBindingContext(constants.APP_MODEL_NAME).getObject("suppliers");
+
         const aFilters = aSuppliers.map((supplier) => {
-          return new Filter("id", FilterOperator.EQ, supplier.id)
+          return new Filter("id", FilterOperator.EQ, supplier.id);
         });
+
+        aFilters.push(new Filter("isDraft", FilterOperator.EQ, true));
 
         const oFilter = new Filter({
           aFilters,
           and: false
         });
-
+      
         oSuppliersTable.filter(oFilter);
       },
 
       onAddSupplier() {
-        suppliersModel.addCleanSupplier();
-        this.oEditModel.setProperty("/isSuppliersChange", true);
+        suppliersModel.addDraftSupplier();
+        const oNewSupplier = suppliersModel.getDraftSupplier();
 
         locationAPI.fetchCountries(result => {
-          this.oCountriesModel.setProperty("/Countries", JSON.parse(result));
+          suppliersModel.setSupplierCountries(JSON.parse(result));
         })
 
         const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
-        productModel.addCleanSupplier(sContextPath);
+        productModel.addDraftSupplier(sContextPath, oNewSupplier);
       },
 
       onProductEdit() {
@@ -129,17 +131,16 @@ sap.ui.define(
         if(!aInvalidControls.length) {
           this.handleNewSupplier();
           this._resetDataFromEditMode();
+          this.filterSuppliers();
           this.oAppModel.refresh(true);
         }
       },
 
       handleNewSupplier() {
-        const oNewSupplier = suppliersModel.getNewSupplierId();
+        const aNewSuppliers = suppliersModel.getNewSuppliers();
 
-        if(oNewSupplier) {
-          const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
-          productModel.addNewSupplier(sContextPath, oNewSupplier);
-        }
+        const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
+        productModel.addNewSuppliers(sContextPath, aNewSuppliers);
       },
 
       onProductCategoriesEdit(oEvent) {
@@ -163,7 +164,7 @@ sap.ui.define(
       },
       
       onProductDelete(oDeleteBtn) {
-        const sCurrentProductId = oDeleteBtn.getBindingContext(constants.APP_MODEL_NAME).getObject('id');
+        const sCurrentProductId = oDeleteBtn.getBindingContext(constants.APP_MODEL_NAME).getObject("id");
 
         productModel.removeProducts([sCurrentProductId]);
         this.getRouter().navTo(constants.ROUTES.PRODUCTS_LIST);
@@ -172,69 +173,67 @@ sap.ui.define(
       onDeleteSupplierPress(oEvent) {
         const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
         const supplierItem = oEvent.getParameter("listItem");
-        const sSupplierId = supplierItem.getBindingContext(constants.SUPPLIERS_MODEL_NAME).getObject('id');
+        const sSupplierId = supplierItem.getBindingContext(constants.SUPPLIERS_MODEL_NAME).getObject("id");
 
         suppliersModel.removeSupplierById(sSupplierId);
         productModel.removeSupplierById(sContextPath, sSupplierId);
-
-        if(sSupplierId === "0") {
-          this.oEditModel.setProperty("/isSuppliersChange", false);
-        }
       },
 
       handleCountrySelection(oEvent) {
         const oCountriesField = oEvent.getSource();
-        this._getSupplierSuggestionControl("statesSuggestion").clearSelection();
-        this._getSupplierSuggestionControl("citiesSuggestion").clearSelection();
-        this.oEditModel.setProperty("/isStateBlocked", true);
-        this.oEditModel.setProperty("/isCityBlocked", true);
+        const sSupplierPath = this._getControlParentPath(oCountriesField);
 
+        this._resetSupplierSuggestionValue("statesSuggestion", sSupplierPath);
+        this._resetSupplierSuggestionValue("citiesSuggestion", sSupplierPath);
+        suppliersModel.resetSupplierProperty(sSupplierPath, "country");
+        suppliersModel.resetSupplierProperty(sSupplierPath, "state");
+        suppliersModel.resetSupplierProperty(sSupplierPath, "city");
+        suppliersModel.resetSupplierProperty(sSupplierPath, "States");
+        suppliersModel.resetSupplierProperty(sSupplierPath, "Cities");
+        
         if(oCountriesField.getSelectedItemId()) {
           const oSelectedItem = oEvent.getParameter("selectedItem");
-          const sCountryName = oSelectedItem.getBindingContext("countriesModel").getObject("name");
-          const sCountryISO = oSelectedItem.getBindingContext("countriesModel").getObject("iso2");
+          const sCountryName = oSelectedItem.getBindingContext(constants.SUPPLIERS_MODEL_NAME).getObject("name");
+          const sCountryISO = oSelectedItem.getBindingContext(constants.SUPPLIERS_MODEL_NAME).getObject("iso2");
 
-          suppliersModel.setSupplierProperty('country', sCountryName);
-          this._handleFetchSupplierLocation(sCountryISO);
-        } else {
-          this.oCountriesModel.setProperty("/States", []);
-          this.oCountriesModel.setProperty("/Cities", []);
-          suppliersModel.resetSupplierProperty('country');
-          suppliersModel.resetSupplierProperty('state');
-          suppliersModel.resetSupplierProperty('city');
+          suppliersModel.setSupplierProperty(sSupplierPath, "country", sCountryName);
+          suppliersModel.setSupplierProperty(sSupplierPath, "countryIso", sCountryISO);
+          this._handleFetchSupplierLocation(sCountryISO, oCountriesField);
         }
       },
 
-      handleStateSelection(oEvent) {
-        const sItemId = oEvent.getSource().getSelectedItemId();
-        this._getSupplierSuggestionControl("citiesSuggestion").clearSelection();
-        this.oEditModel.setProperty("/isCityBlocked", true);
+      async handleStateSelection(oEvent) {
+        const oStatesField = oEvent.getSource();
+        const sItemId = oStatesField.getSelectedItemId();
+        const sSupplierPath = this._getControlParentPath(oStatesField);
+        suppliersModel.resetSupplierProperty(sSupplierPath, "state");
+        suppliersModel.resetSupplierProperty(sSupplierPath, "city");
+        suppliersModel.resetSupplierProperty(sSupplierPath, "Cities");
+        this._resetSupplierSuggestionValue("citiesSuggestion", sSupplierPath);
 
         if(sItemId) {
-          const oSelectedItem = this._getSupplierSuggestionControl("countriesSuggestion").getSelectedItem();
-          const sCountryISO = oSelectedItem.getBindingContext("countriesModel").getObject("iso2");
-          const sStateName = oEvent.getParameter("selectedItem").getBindingContext("countriesModel").getObject("name");
-          const sStateISO = oEvent.getParameter("selectedItem").getBindingContext("countriesModel").getObject("iso2");
-          
-          suppliersModel.setSupplierProperty('state', sStateName);
-          locationAPI.fetchCities(sCountryISO, sStateISO, result => {
-            this._handleCitiesData(JSON.parse(result));
+          const sCountryISO = oEvent.getSource().getParent().getBindingContext(constants.SUPPLIERS_MODEL_NAME).getObject("countryIso");
+          const sStateName = oEvent.getParameter("selectedItem").getBindingContext(constants.SUPPLIERS_MODEL_NAME).getObject("name");
+          const sStateISO = oEvent.getParameter("selectedItem").getBindingContext(constants.SUPPLIERS_MODEL_NAME).getObject("iso2");
+          const oCurrSupplier = this.oSuppliersModel.getProperty(sSupplierPath);
+
+          suppliersModel.setSupplierProperty(sSupplierPath, "state", sStateName);
+          await locationAPI.fetchCities(sCountryISO, sStateISO, result => {
+            this._handleCitiesData(JSON.parse(result), oCurrSupplier, sSupplierPath);
           });
-        } else {
-          this.oCountriesModel.setProperty("/Cities", []);
-          suppliersModel.resetSupplierProperty('state');
-          suppliersModel.resetSupplierProperty('city');
         }
       },
 
       handleCitySelection(oEvent) {
-        const sItemId = oEvent.getSource().getSelectedItemId();
+        const oCityField = oEvent.getSource();
+        const sItemId = oCityField.getSelectedItemId();
+        const sSupplierPath = this._getControlParentPath(oCityField);
+
+        suppliersModel.resetSupplierProperty(sSupplierPath, "city");
 
         if(sItemId) {
-          const sCityName = oEvent.getParameter("selectedItem").getBindingContext("countriesModel").getObject("name");
-          suppliersModel.setSupplierProperty('city', sCityName);
-        } else {
-          suppliersModel.resetSupplierProperty('city');
+          const sCityName = oEvent.getParameter("selectedItem").getBindingContext(constants.SUPPLIERS_MODEL_NAME).getObject("name");
+          suppliersModel.setSupplierProperty(sSupplierPath, "city", sCityName);
         }
       },
 
@@ -246,10 +245,14 @@ sap.ui.define(
         this.oMessagePopover.toggle(oPopoverBtn);
       },
 
-      _handleCitiesData(aParsedResult) {
+      _getControlParentPath(oControl) {
+        return oControl.getParent().getBindingContext(constants.SUPPLIERS_MODEL_NAME).getPath();
+      },
+
+      _handleCitiesData(aParsedResult, oCurrSupplier, sSupplierPath) {
         if(aParsedResult.length) {
-          this.oCountriesModel.setProperty("/Cities", aParsedResult);
-          this.oEditModel.setProperty("/isCityBlocked", false);
+          oCurrSupplier.Cities = aParsedResult;
+          this.oSuppliersModel.setProperty(sSupplierPath, oCurrSupplier);
         }
       },
 
@@ -261,29 +264,38 @@ sap.ui.define(
         this.oEditModel.setProperty("/isSuppliersChange", false);
       },
 
-      async _handleFetchSupplierLocation(sCountryISO) {
-        let aParsedResult;
+      async _handleFetchSupplierLocation(sCountryISO, oCountriesField) {
+        const sSupplierPath = this._getControlParentPath(oCountriesField);
+        const oCurrSupplier = this.oSuppliersModel.getProperty(sSupplierPath);
+        suppliersModel.resetSupplierProperty(sSupplierPath, "States");
+        suppliersModel.resetSupplierProperty(sSupplierPath, "Cities");
 
         await locationAPI.fetchStates(sCountryISO, result => {
-          aParsedResult = JSON.parse(result);
+          let aParsedResult = JSON.parse(result);
+
           if(aParsedResult.length) {
-            this.oCountriesModel.setProperty("/States", aParsedResult);
-            this.oEditModel.setProperty("/isStateBlocked", false);
+            suppliersModel.resetSupplierProperty(sSupplierPath, "Cities");
+            suppliersModel.setSupplierProperty(sSupplierPath, "States", aParsedResult);
           } else {
             locationAPI.fetchCitiesByCountry(sCountryISO, result => {
-
-              this._handleCitiesData(JSON.parse(result));
+              aParsedResult = JSON.parse(result);
+              suppliersModel.resetSupplierProperty(sSupplierPath, "States");
+              this._handleCitiesData(aParsedResult, oCurrSupplier, sSupplierPath);
             });
           }
         });
       },
 
-      _getSupplierSuggestionControl(groupId) {
-        return this.getView().getControlsByFieldGroupId(groupId).filter((oControl) => {
-          if(oControl.getMetadata().getName().includes('sap.m.ComboBox') && oControl.getVisible()) {
+      _resetSupplierSuggestionValue(groupId, sSupplierPath) {
+        const oControl = this.getView().getControlsByFieldGroupId(groupId).find((oControl) => {
+          const oControlPath = this._getControlParentPath(oControl);
+
+          if(oControl.getMetadata().getName().includes("sap.m.ComboBox") && oControl.getVisible() && oControlPath.includes(sSupplierPath)) {
             return oControl;
           }
-        })[0];
+        });
+
+        oControl.setValue("");
       },
 
       _validateSuppliers() {
