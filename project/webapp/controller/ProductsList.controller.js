@@ -23,7 +23,6 @@ sap.ui.define(
         this.oResourceBundle = this.getResourceBundle();
 
         filterBarModel.initFilterBarModel();
-
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
 
         this.oTableModel = new JSONModel({

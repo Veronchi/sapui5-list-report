@@ -12,21 +12,21 @@
     showEditHeaderButton="false"
     upperCaseAnchorBar="false"
     showFooter="{editModel>/isEditMode}"
-    showHeaderContent="{= !${editModel>/isProductCreate}}"
+    showHeaderContent="{= !${editModel>/isCreateMode}}"
     >
     <headerTitle>
       <ObjectPageDynamicHeaderTitle>
         <heading>
           <m:HBox>
             <m:Title
-              text="{= !${editModel>/isProductCreate} ? ${appModel>name} : ${i18n>CreateProductTitle}}"
+              text="{= !${editModel>/isCreateMode} ? ${appModel>name} : ${i18n>CreateProductTitle}}"
               wrapping="true"
               class="sapUiTinyMarginEnd"
             />
           </m:HBox>
         </heading>
         <expandedContent>
-          <m:Text text="{appModel>description}" visible="{= !${editModel>/isProductCreate}}" />
+          <m:Text text="{appModel>description}" visible="{= !${editModel>/isCreateMode}}" />
         </expandedContent>
         <actions>
           <m:Button
@@ -34,14 +34,14 @@
             type="Emphasized"
             press="onProductEdit"
             enabled="{= !${editModel>/isEditMode}}"
-            visible="{= !${editModel>/isProductCreate}}"
+            visible="{= !${editModel>/isCreateMode}}"
           />
           <m:Button
             type="Transparent"
             text="{i18n>DeleteButtonText}"
             press="onProductDelete(${$source>/})" 
             enabled="{= !${editModel>/isEditMode}}"
-            visible="{= !${editModel>/isProductCreate}}"
+            visible="{= !${editModel>/isCreateMode}}"
           />
         </actions>
       </ObjectPageDynamicHeaderTitle>
@@ -50,7 +50,7 @@
     <headerContent>
       <m:FlexBox wrap="Wrap">
         <layout:VerticalLayout>
-          <m:HBox visible="{= !${editModel>/isProductCreate}}">
+          <m:HBox visible="{= !${editModel>/isCreateMode}}">
             <m:ObjectStatus
               text="{i18n>SaleText}"
               inverted="true"
@@ -71,7 +71,7 @@
           </m:HBox>
         </layout:VerticalLayout>
         <layout:VerticalLayout class="sapUiSmallMarginEnd">
-          <m:HBox visible="{= !${editModel>/isProductCreate}}">
+          <m:HBox visible="{= !${editModel>/isCreateMode}}">
             <m:Label
               text="{i18n>TotalTimeText}"
               showColon="true"
@@ -90,7 +90,7 @@
           </m:HBox>
         </layout:VerticalLayout>
         <layout:VerticalLayout>
-          <m:HBox visible="{= !${editModel>/isProductCreate}}">
+          <m:HBox visible="{= !${editModel>/isCreateMode}}">
             <m:Label
               text="{i18n>ProductColumnPrice}"
               showColon="true"
