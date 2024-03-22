@@ -15,7 +15,7 @@ sap.ui.define([], () => {
 
     getDaysFromReleaseDate(sReleaseDate) {
       if (!sReleaseDate) {
-        return false;
+        return "";
       }
 
       const iReleaseDate = new Date(sReleaseDate);

@@ -46,28 +46,37 @@ sap.ui.define(
         this._initMessageManager();
         filterBarModel.initFilterBarModel();
         suppliersModel.initSuppliersModel();
-        oRouter.getRoute(constants.ROUTES.PRODUCTS_PAGE).attachPatternMatched(this.onPatternMatched, this);
 
         this.oFilterBarModel = filterBarModel.getFilterBarModel();
         this.oSuppliersModel = suppliersModel.getSuppliersModel();
         this.oEditModel = new JSONModel({
           isEditMode: false,
           isSuppliersChange: false,
-          isStateBlocked: true,
-          isCityBlocked: true
+          isCreateMode: false
         });
 
         this.getView().setModel(this.oEditModel, constants.EDIT_MODEL_NAME);
         this.getView().setModel(this.oFilterBarModel, constants.FILTER_BAR_MODEL_NAME);
         this.getView().setModel(this.oSuppliersModel, constants.SUPPLIERS_MODEL_NAME);
+        this.getView().setModel(this.oCountriesModel, constants.COUNTRIES_MODEL_NAME)
+        
+        oRouter.getRoute(constants.ROUTES.PRODUCTS_PAGE).attachPatternMatched(this.onPatternMatched, this);
       },
 
       onPatternMatched(oEvent) {
         this.oAppModel = productModel.getModel();
         const oRouteArguments = oEvent.getParameter("arguments");
         const sProductId = oRouteArguments.productId;
-        const aProducts = this.oAppModel.getProperty(`/products`);
-        
+        const aProducts = this.oAppModel.getProperty("/products");
+
+        if(sProductId) {
+          this.handleExistProductOpen(aProducts, sProductId);
+        } else {
+          this.handleCreateProduct(aProducts);
+        }
+      },
+
+      handleExistProductOpen(aProducts, sProductId) {
         aProducts.find((item, idx) => {
           if (item.id === sProductId) {
             this.iCurrentProductIndex = idx;
@@ -80,9 +89,30 @@ sap.ui.define(
         });
       },
 
+      handleCreateProduct(aProducts) {
+        productModel.addClearProduct();
+        this.oEditModel.setProperty("/isEditMode", true);
+        this.oEditModel.setProperty("/isCreateMode", true);
+
+        aProducts.find((item, idx) => {
+          if (item.id === "0") {
+            this.getView().bindObject({
+              path: `/products/${idx}`,
+              model: constants.APP_MODEL_NAME
+            });
+
+            this.filterSuppliers();
+          }
+        });
+      },
+
       filterSuppliers() {
         const oSuppliersTable = this.byId("suppliersTable").getBinding("items");
         const aSuppliers = this.getView().getBindingContext(constants.APP_MODEL_NAME).getObject("suppliers");
+
+        if(!aSuppliers) {
+          return
+        }
 
         const aFilters = aSuppliers.map((supplier) => {
           return new Filter("id", FilterOperator.EQ, supplier.id);
@@ -119,21 +149,35 @@ sap.ui.define(
       },
 
       onProductCancel() {
-        const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
-        productModel.resetProductChange(sContextPath, this.oCurrentProductDuplicate);
+        const bCreateMode = this.oEditModel.getProperty("/isCreateMode");
+
+        if(bCreateMode) {
+          productModel.resetProductCreate();
+          this.getRouter().navTo(constants.ROUTES.PRODUCTS_LIST, true);
+        } else {
+          const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
+          productModel.resetProductChange(sContextPath, this.oCurrentProductDuplicate);
+          this.oCurrentProductDuplicate = null;
+        }
+       
+        suppliersModel.resetSuppliers();
         this.byId("commentsField").setValue("");
         this._resetDataFromEditMode();
       },
 
 
       onProductSave() {
+        const bCreateMode = this.oEditModel.getProperty("/isCreateMode");
         const aInvalidControls = this._validateSuppliers();
         const aInvalidCountries = this._validateCountriesField("countriesSuggestion");
+        const bInvalidCategories = this._validateCategoriesField(this.byId("productCategoriesEdit"));
         
-        if(!aInvalidControls.length || !aInvalidCountries.length) {
+        if((!aInvalidControls.length || !aInvalidCountries.length) && !bInvalidCategories) {
+          bCreateMode ? productModel.addNewProduct() : null;
+
           this.handleNewSupplier();
-          this._resetDataFromEditMode();
           this.filterSuppliers();
+          this._resetDataFromEditMode();
           this.oAppModel.refresh(true);
         }
       },
@@ -146,9 +190,9 @@ sap.ui.define(
       },
 
       onProductCategoriesEdit(oEvent) {
-        this._validateCategoriesField(oEvent);
-        
         const oCategoryField = oEvent.getSource();
+        this._validateCategoriesField(oCategoryField);
+
         const bSelectedCategory = oEvent.getParameter("selected");
         const sProductCategoryKey = oEvent.getParameter("changedItem").getProperty("key");
         const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
@@ -277,6 +321,7 @@ sap.ui.define(
         this._MessageManager.removeAllMessages();
         this.oEditModel.setProperty("/isEditMode", false);
         this.oEditModel.setProperty("/isSuppliersChange", false);
+        this.oEditModel.setProperty("/isCreateMode", false);
       },
 
       async _handleFetchSupplierLocation(sCountryISO, oCountriesField) {
@@ -302,6 +347,31 @@ sap.ui.define(
           suppliersModel.handleSupplierLoadProperty(sSupplierPath, "isStateLoaded", false);
           suppliersModel.handleSupplierLoadProperty(sSupplierPath, "isCityLoaded", false);
         });
+      },
+
+      _initMessageManager() {
+        this._MessageManager = Messaging;
+
+        this._MessageManager.removeAllMessages();
+        this._MessageManager.registerObject(this.byId("ProductPage"), true);
+        this.getView().setModel(this._MessageManager.getMessageModel(),"message");
+      },
+
+      _createMessagePopover() {
+        this.oMessagePopover = new MessagePopover({
+          items: {
+            path:"message>/",
+            template: new MessageItem(
+              {
+                title: "{message>message}",
+                subtitle: "{message>additionalText}",
+                type: "{message>type}",
+                description: "{message>message}"
+              })
+          },
+        });
+  
+        this.byId("messagePopoverBtn").addDependent(this.oMessagePopover);
       },
 
       _resetSupplierSuggestionValue(groupId, sSupplierPath) {
@@ -380,40 +450,17 @@ sap.ui.define(
         }
       },
 
-      _initMessageManager() {
-        this._MessageManager = Messaging;
-
-        this._MessageManager.removeAllMessages();
-        this._MessageManager.registerObject(this.byId("ProductPage"), true);
-        this.getView().setModel(this._MessageManager.getMessageModel(),"message");
-      },
-
-      _createMessagePopover() {
-        this.oMessagePopover = new MessagePopover({
-          items: {
-            path:"message>/",
-            template: new MessageItem(
-              {
-                title: "{message>message}",
-                subtitle: "{message>additionalText}",
-                type: "{message>type}",
-                description: "{message>message}"
-              })
-          },
-        });
-  
-        this.byId("messagePopoverBtn").addDependent(this.oMessagePopover);
-      },
-
-      _validateCategoriesField(oEvent) {
-        const oCategoriesField = oEvent.getSource();
-
-        if(!oCategoriesField.getSelectedItems().length) {
-          oCategoriesField.setValueState("Error");
-          const sPath = oCategoriesField.getBinding("selectedKeys").getContext().getPath();
-          const sTarget = `${sPath}/${oCategoriesField.getBindingPath("selectedKeys")}`;
-          this._addRequiredMessage(sTarget);
+      _validateCategoriesField(oCategoriesField) {
+        if(oCategoriesField.getSelectedItems().length) {
+          return false;
         }
+
+        oCategoriesField.setValueState("Error");
+        const sPath = oCategoriesField.getBinding("selectedKeys").getContext().getPath();
+        const sTarget = `${sPath}/${oCategoriesField.getBindingPath("selectedKeys")}`;
+        this._addRequiredMessage(sTarget);
+
+        return true
       },
 
       _addRequiredMessage(sTarget) {

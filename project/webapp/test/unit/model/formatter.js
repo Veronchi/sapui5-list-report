@@ -43,7 +43,7 @@ sap.ui.define(["veronchi/leverx/project/model/formatter", "sap/ui/model/resource
     );
 
     assert.strictEqual(
-      formatter.formatConfirmMessageText(''),
+      formatter.formatConfirmMessageText(""),
       "",
       "Formatter works correct"
     );

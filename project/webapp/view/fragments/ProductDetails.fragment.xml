@@ -99,6 +99,8 @@
         <Input
           required="true"
           id="productNameEdit"
+          fieldGroupIds="validateInput"
+          change="_validateInputControl(${$source>/})"
           value="{
             path: 'appModel>name',
             type: 'veronchi.leverx.project.utils.RequiredInputType',
@@ -163,6 +165,8 @@
         <Input
           id="productPriceEdit"
           required="true"
+          fieldGroupIds="validateInput"
+          change="_validateInputControl(${$source>/})"
           value="{
             path: 'appModel>price',
             type: 'veronchi.leverx.project.utils.RequiredInputType',
