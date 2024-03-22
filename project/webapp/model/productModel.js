@@ -71,6 +71,16 @@ sap.ui.define(
         const aNewProductSuppliers = aProductSuppliers.filter((item) => item.id !== sSupplierId);
         
         this.oModel.setProperty(`${sContextPath}/suppliers`, aNewProductSuppliers);
+      },
+
+      addProductComment(sContextPath, sProductComment) {
+        const aProductComments = this.oModel.getProperty(`${sContextPath}/comments`);
+        aProductComments.push({
+          id: parseInt(Math.random() * 10000, 0).toString(),
+          comment: sProductComment
+        });
+
+        this.oModel.setProperty(`${sContextPath}/comments`, aProductComments);
       }
     };
   }

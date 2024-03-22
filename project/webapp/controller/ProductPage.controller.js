@@ -121,6 +121,7 @@ sap.ui.define(
       onProductCancel() {
         const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
         productModel.resetProductChange(sContextPath, this.oCurrentProductDuplicate);
+        this.byId("commentsField").setValue("");
         this._resetDataFromEditMode();
       },
 
@@ -249,6 +250,12 @@ sap.ui.define(
         }
 
         this.oMessagePopover.toggle(oPopoverBtn);
+      },
+
+      onCommentPost(oEvent) {
+        const sFeedValue = oEvent.getSource().getValue();
+        const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
+        productModel.addProductComment(sContextPath, sFeedValue);
       },
 
       _getControlParentPath(oControl) {
