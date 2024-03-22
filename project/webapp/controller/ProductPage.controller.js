@@ -252,7 +252,8 @@ sap.ui.define(
         this.oMessagePopover.toggle(oPopoverBtn);
       },
 
-      onCommentPost(sFeedValue) {
+      onCommentPost(oEvent) {
+        const sFeedValue = oEvent.getSource().getValue();
         const sContextPath = this.getView().getBindingContext(constants.APP_MODEL_NAME).getPath();
         productModel.addProductComment(sContextPath, sFeedValue);
       },
