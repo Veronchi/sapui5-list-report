@@ -1,0 +1,44 @@
+{
+  "suppliers": [
+    {
+      "id": "1",
+      "name": "AMD",
+      "country": "USA",
+      "city": "Washington, D.C.",
+      "street": "Jordan 34",
+      "state": "Washington",
+      "zipCode": 356,
+      "isDraft": false
+    },
+    {
+      "id": "2",
+      "name": "Onliner",
+      "country": "India",
+      "city": "Bengaluru",
+      "street": "Commercial Street 34",
+      "state": "Karnataka",
+      "zipCode": 211,
+      "isDraft": false
+    },
+    {
+      "id": "3",
+      "name": "Newton",
+      "country": "Colombia",
+      "city": "Bogotá",
+      "street": "Carrera 7",
+      "state": "Center of Colombia",
+      "zipCode": 345,
+      "isDraft": false 
+    },
+    {
+      "id": "4",
+      "name": "XStore",
+      "country": "USA",
+      "city": "Orlando",
+      "street": "A Park Terrace 8",
+      "state": "Florida",
+      "zipCode": 444,
+      "isDraft": false 
+    }
+  ]
+}

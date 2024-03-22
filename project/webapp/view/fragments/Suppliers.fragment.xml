@@ -1,0 +1,156 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core">
+  <Table
+    id="suppliersTable"
+    items="{suppliersModel>/suppliers}"
+    mode="{= ${editModel>/isEditMode} ? 'Delete' : 'None'}"
+    delete="onDeleteSupplierPress"
+  >
+    <headerToolbar>
+      <OverflowToolbar>
+        <Title text="{i18n>Suppliers}" level="H2" />
+        <ToolbarSpacer />
+        <Button
+          visible="{= ${editModel>/isEditMode}}"
+          type="Transparent"
+          icon="sap-icon://add"
+          press="onAddSupplier"
+          enabled="{= !${editModel>/isSuppliersChange}}"
+        />
+      </OverflowToolbar>
+    </headerToolbar>
+    <columns>
+      <Column >
+        <Text text="{i18n>SupplierNameText}" />
+      </Column>
+      <Column>
+        <Text text="{i18n>SupplierCountryText}" />
+      </Column>
+      <Column >
+        <Text text="{i18n>SupplierStateText}" />
+      </Column>
+      <Column >
+        <Text text="{i18n>SupplierCityText}" />
+      </Column>
+      <Column >
+        <Text text="{i18n>SupplierStreetText}" />
+      </Column>
+      <Column hAlign="Center">
+        <Text text="{i18n>SupplierZipCodeText}" />
+      </Column>
+    </columns>
+    <items>
+      <ColumnListItem vAlign="Middle">
+        <cells>
+          <VBox>
+            <Text text="{suppliersModel>name}" visible="{= !${suppliersModel>isDraft}}" />
+            <Input
+              fieldGroupIds="validateInput"
+              change="_validateInputControl(${$source>/})"
+              required="true"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
+              value="{
+                path: 'suppliersModel>name',
+                type: 'veronchi.leverx.project.utils.RequiredInputType',
+                constraints: {
+                  minLength: 1
+                }
+              }"
+            />
+          </VBox>
+          <VBox>
+            <Text text="{suppliersModel>country}" visible="{= !${suppliersModel>isDraft}}" />
+            <ComboBox
+              required="true"
+              enabled="{= !!${suppliersModel>Countries}.length}"
+              busy="{= !${suppliersModel>Countries}.length}"
+              fieldGroupIds="countriesSuggestion"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
+              selectedKey="{suppliersModel>counrty}"
+              items="{
+                path: 'suppliersModel>Countries',
+                templateShareable:false
+              }"
+              selectionChange="handleCountrySelection"
+            >
+              <items>
+                <core:Item key="{suppliersModel>id}" text="{suppliersModel>name}" />
+              </items>
+            </ComboBox>
+          </VBox>
+          <VBox>
+            <Text text="{= ${suppliersModel>state} ? ${suppliersModel>state} : '-'}" visible="{= !${suppliersModel>isDraft}}" />
+            <ComboBox
+              enabled="{= !!${suppliersModel>States}.length}"
+              busy="{= ${suppliersModel>isStateLoaded}}"
+              fieldGroupIds="statesSuggestion"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
+              items="{
+                path: 'suppliersModel>States',
+                templateShareable:false
+              }"
+              selectionChange="handleStateSelection"
+            >
+              <items>
+                <core:Item key="{suppliersModel>id}" text="{suppliersModel>name}" />
+              </items>
+            </ComboBox>
+          </VBox>
+          <VBox>
+            <Text text="{= ${suppliersModel>city} ? ${suppliersModel>city} : '-'}" visible="{= !${suppliersModel>isDraft}}" />
+            <ComboBox
+              enabled="{= !!${suppliersModel>Cities}.length}"
+              busy="{= ${suppliersModel>isCityLoaded}}"
+              fieldGroupIds="citiesSuggestion"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
+              selectionChange="handleCitySelection"
+              items="{
+                path: 'suppliersModel>Cities',
+                templateShareable:false
+              }"
+            >
+              <items>
+                <core:Item key="{suppliersModel>id}" text="{suppliersModel>name}" />
+              </items>
+            </ComboBox>
+          </VBox>
+          <VBox>
+            <Text text="{suppliersModel>street}" visible="{= !${suppliersModel>isDraft}}" />
+            <Input
+              fieldGroupIds="validateInput"
+              required="true"
+              change="_validateInputControl(${$source>/})"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
+              value="{
+                path: 'suppliersModel>street',
+                type: 'veronchi.leverx.project.utils.RequiredInputType',
+                constraints: {
+                  minLength: 1
+                }
+              }"
+            />
+          </VBox>
+          <VBox>
+            <Text text="{suppliersModel>zipCode}" visible="{= !${suppliersModel>isDraft}}" />
+            <Input
+              fieldGroupIds="validateInput"
+              required="true"
+              change="_validateInputControl(${$source>/})"
+              type="Number"
+              visible="{= ${editModel>/isEditMode} &amp;&amp; ${suppliersModel>isDraft}}"
+              value="{
+                path: 'suppliersModel>zipCode',
+                type: 'veronchi.leverx.project.utils.RequiredInputType',
+                constraints: {
+                  minLength: 1,
+                  minimum: 1
+                }
+              }"
+            />
+          </VBox>
+        </cells>
+      </ColumnListItem>
+    </items>
+  </Table>
+</core:FragmentDefinition>

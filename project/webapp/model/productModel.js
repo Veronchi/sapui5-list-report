@@ -42,7 +42,35 @@ sap.ui.define(
         aProductCategories.push(category);
 
         this.oModel.setProperty(`${sContextPath}/categories`, aProductCategories);
+      },
 
+      addDraftSupplier(sContextPath, oNewSupplier) {
+        const aProductSuppliers = this.oModel.getProperty(`${sContextPath}/suppliers`);
+
+        aProductSuppliers.push({id: oNewSupplier.id, name: oNewSupplier.name});
+
+        this.oModel.setProperty(`${sContextPath}/suppliers`, aProductSuppliers);
+      },
+
+      addNewSuppliers(sContextPath, aNewSuppliers) {
+        const aProductSuppliers = this.oModel.getProperty(`${sContextPath}/suppliers`);
+        const aNewProductSuppliers = aProductSuppliers.map((supplier) => {
+
+          if(!supplier.name) {
+            const oCurrNewSupplier = aNewSuppliers.find(item => item.id === supplier.id);
+            return {id: oCurrNewSupplier.id, name: oCurrNewSupplier.name};
+          }
+          return supplier;
+        })
+
+        this.oModel.setProperty(`${sContextPath}/suppliers`, aNewProductSuppliers);
+      },
+
+      removeSupplierById(sContextPath, sSupplierId) {
+        const aProductSuppliers = this.oModel.getProperty(`${sContextPath}/suppliers`);
+        const aNewProductSuppliers = aProductSuppliers.filter((item) => item.id !== sSupplierId);
+        
+        this.oModel.setProperty(`${sContextPath}/suppliers`, aNewProductSuppliers);
       }
     };
   }
