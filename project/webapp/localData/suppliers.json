@@ -7,7 +7,8 @@
       "city": "Washington, D.C.",
       "street": "Jordan 34",
       "state": "Washington",
-      "zipCode": 356
+      "zipCode": 356,
+      "isDraft": false
     },
     {
       "id": "2",
@@ -16,7 +17,8 @@
       "city": "Bengaluru",
       "street": "Commercial Street 34",
       "state": "Karnataka",
-      "zipCode": 211
+      "zipCode": 211,
+      "isDraft": false
     },
     {
       "id": "3",
@@ -25,7 +27,8 @@
       "city": "Bogotá",
       "street": "Carrera 7",
       "state": "Center of Colombia",
-      "zipCode": 345
+      "zipCode": 345,
+      "isDraft": false 
     },
     {
       "id": "4",
@@ -34,7 +37,8 @@
       "city": "Orlando",
       "street": "A Park Terrace 8",
       "state": "Florida",
-      "zipCode": 444
+      "zipCode": 444,
+      "isDraft": false 
     }
   ]
 }

@@ -44,21 +44,21 @@ sap.ui.define(
         this.oModel.setProperty(`${sContextPath}/categories`, aProductCategories);
       },
 
-      addCleanSupplier(sContextPath) {
+      addDraftSupplier(sContextPath, oNewSupplier) {
         const aProductSuppliers = this.oModel.getProperty(`${sContextPath}/suppliers`);
 
-        if(!aProductSuppliers.find((item) => item.id === "0")) {
-          aProductSuppliers.push({id: "0", name: ""});
+        aProductSuppliers.push({id: oNewSupplier.id, name: oNewSupplier.name});
 
-          this.oModel.setProperty(`${sContextPath}/suppliers`, aProductSuppliers);
-        }
+        this.oModel.setProperty(`${sContextPath}/suppliers`, aProductSuppliers);
       },
 
-      addNewSupplier(sContextPath, oNewSupplier) {
+      addNewSuppliers(sContextPath, aNewSuppliers) {
         const aProductSuppliers = this.oModel.getProperty(`${sContextPath}/suppliers`);
         const aNewProductSuppliers = aProductSuppliers.map((supplier) => {
-          if(supplier.id === "0") {
-            return {id: oNewSupplier.id, name: oNewSupplier.name};
+
+          if(!supplier.name) {
+            const oCurrNewSupplier = aNewSuppliers.find(item => item.id === supplier.id);
+            return {id: oCurrNewSupplier.id, name: oCurrNewSupplier.name};
           }
           return supplier;
         })
@@ -68,8 +68,8 @@ sap.ui.define(
 
       removeSupplierById(sContextPath, sSupplierId) {
         const aProductSuppliers = this.oModel.getProperty(`${sContextPath}/suppliers`);
-
         const aNewProductSuppliers = aProductSuppliers.filter((item) => item.id !== sSupplierId);
+        
         this.oModel.setProperty(`${sContextPath}/suppliers`, aNewProductSuppliers);
       },
 
