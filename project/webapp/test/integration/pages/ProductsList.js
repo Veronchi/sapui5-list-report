@@ -54,6 +54,18 @@ sap.ui.define(
               },
               errorMessage: "Can't press delete confirm button"
             });
+          },
+          iPressOTheProductOnTheProductsTable(sProductIdx) {
+            return this.waitFor({
+							controlType: "sap.m.ColumnListItem",
+							viewName: sViewName,
+							matchers:  new BindingPath({
+								path: `/products/${sProductIdx}`,
+                modelName: "appModel"
+							}),
+							actions: new Press(),
+							errorMessage: "No list item with the id " + sProductIdx + " was found."
+						});
           }
         },
 

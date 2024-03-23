@@ -1,4 +1,4 @@
-sap.ui.define(["sap/ui/test/opaQunit", "./pages/ProductsList"], function (opaTest) {
+sap.ui.define(["sap/ui/test/opaQunit", "./pages/ProductsList", "./pages/ProductPage"], function (opaTest) {
   "use strict";
 
   QUnit.module("ProductList Journey");
@@ -23,7 +23,10 @@ sap.ui.define(["sap/ui/test/opaQunit", "./pages/ProductsList"], function (opaTes
   opaTest("Should confirm product deletion and see table with 9 products", function (Given, When, Then) {
     When.onTheProductsList.iClickOnConfirmDeleteButton();
     Then.onTheProductsList.theTableShouldHaveProducts(9);
+  });
 
-    Then.iTeardownMyApp();
+  opaTest("Should see the Product Page", function (Given, When, Then) {
+    When.onTheProductsList.iPressOTheProductOnTheProductsTable("2");
+    Then.onTheProductPage.iShouldSeeTheProductPageView();
   });
 });

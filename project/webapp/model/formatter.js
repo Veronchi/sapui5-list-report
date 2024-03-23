@@ -3,7 +3,7 @@ sap.ui.define([], () => {
 
   return {
     checkIfNewProduct(releaseDate) {
-      if (!releaseDate) {
+      if (!releaseDate || !releaseDate.length) {
         return false;
       }
 
@@ -14,31 +14,7 @@ sap.ui.define([], () => {
     },
 
     getDaysFromReleaseDate(sReleaseDate) {
-      if (!sReleaseDate) {
-        return "";
-      }
-
-      const iReleaseDate = new Date(sReleaseDate);
-      const oDateNow = new Date();
-      const iDiffInTime = oDateNow.getTime() - iReleaseDate.getTime();
-      const iDiffInDays = Math.round(iDiffInTime / (1000 * 3600 * 24));
-
-      return this.oResourceBundle.getText("DaysText", [iDiffInDays]);
-    },
-
-    checkIfNewProduct(releaseDate) {
-      if (!releaseDate) {
-        return false;
-      }
-
-      const iReleaseDate = new Date(releaseDate).getTime();
-      const iSevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime();
-
-      return iSevenDaysAgo < iReleaseDate;
-    },
-
-    getDaysFromReleaseDate(sReleaseDate) {
-      if (!sReleaseDate) {
+      if (!sReleaseDate || !sReleaseDate.length) {
         return false;
       }
 

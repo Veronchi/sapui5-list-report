@@ -19,6 +19,7 @@
         <heading>
           <m:HBox>
             <m:Title
+              id="productNameTitle"
               text="{= !${editModel>/isCreateMode} ? ${appModel>name} : ${i18n>CreateProductTitle}}"
               wrapping="true"
               class="sapUiTinyMarginEnd"
@@ -30,6 +31,7 @@
         </expandedContent>
         <actions>
           <m:Button
+            id="productEditBtn"
             text="{i18n>EditButtonText}"
             type="Emphasized"
             press="onProductEdit"
@@ -161,7 +163,7 @@
 					ariaHasPopup="Dialog"
         />
         <m:ToolbarSpacer />
-        <m:Button text="{i18n>SaveText}" type="Emphasized" enabled="{= !${message>/}.length}" press="onProductSave" />
+        <m:Button id="productSaveBtn" text="{i18n>SaveText}" type="Emphasized" enabled="{= !${message>/}.length}" press="onProductSave" />
         <m:Button text="{i18n>CancelText}" press="onProductCancel" />
       </m:OverflowToolbar>
     </footer>

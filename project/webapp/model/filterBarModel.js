@@ -7,7 +7,7 @@ sap.ui.define(
     return {
       initFilterBarModel() {
         const oModel = new JSONModel();
-        oModel.loadData("../localData/filterBarData.json");
+        oModel.loadData(sap.ui.require.toUrl("veronchi/leverx/project/localData/filterBarData.json"));
 
         this.oModel = oModel;
       },
