@@ -7,7 +7,7 @@ sap.ui.define(
     return {
       initSuppliersModel() {
         const oModel = new JSONModel();
-        oModel.loadData("../localData/suppliers.json");
+        oModel.loadData(sap.ui.require.toUrl("veronchi/leverx/project/localData/suppliers.json"));
 
         this.oModel = oModel;
       },
