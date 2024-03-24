@@ -1,0 +1,17 @@
+{
+  "source": {
+    "include": ["webapp"],
+    "includePattern": ".js$",
+    "excludePattern": "(node_modules/|docs|test|localService)"
+  },
+  "plugins": ["plugins/markdown"],
+  "opts": {
+    "encoding": "utf8",
+    "destination": "./dist/docs/",
+    "recurse": true
+  },
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true
+  }
+}
